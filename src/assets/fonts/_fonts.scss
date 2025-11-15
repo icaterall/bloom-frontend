@@ -1,0 +1,101 @@
+//
+// HKGrotesk - Primary Arabic Font
+//
+
+@font-face {
+    font-family: "HKGrotesk";
+    src: url("/assets/fonts/hkgrotesk-light.eot");
+    src: url("/assets/fonts/hkgrotesk-light.eot?#iefix") format("embedded-opentype"),
+         url("/assets/fonts/hkgrotesk-light.woff2") format("woff2"),
+         url("/assets/fonts/hkgrotesk-light.woff") format("woff");
+    font-weight: 300;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "HKGrotesk";
+    src: url("/assets/fonts/hkgrotesk-regular.eot");
+    src: url("/assets/fonts/hkgrotesk-regular.eot?#iefix") format("embedded-opentype"),
+         url("/assets/fonts/hkgrotesk-regular.woff2") format("woff2"),
+         url("/assets/fonts/hkgrotesk-regular.woff") format("woff");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "HKGrotesk";
+    src: url("/assets/fonts/hkgrotesk-medium.eot");
+    src: url("/assets/fonts/hkgrotesk-medium.eot?#iefix") format("embedded-opentype"),
+         url("/assets/fonts/hkgrotesk-medium.woff2") format("woff2"),
+         url("/assets/fonts/hkgrotesk-medium.woff") format("woff");
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "HKGrotesk";
+    src: url("/assets/fonts/hkgrotesk-semibold.eot");
+    src: url("/assets/fonts/hkgrotesk-semibold.eot?#iefix") format("embedded-opentype"),
+         url("/assets/fonts/hkgrotesk-semibold.woff2") format("woff2"),
+         url("/assets/fonts/hkgrotesk-semibold.woff") format("woff");
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "HKGrotesk";
+    src: url("/assets/fonts/hkgrotesk-bold.woff2") format("woff2"),
+         url("/assets/fonts/hkgrotesk-bold.woff") format("woff");
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "NeoSansArabic";
+    src: url("/assets/fonts/neosans-roman.ttf") format("truetype");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+    unicode-range: U+0600-06FF, U+0750-077F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF;
+}
+
+@font-face {
+    font-family: "NeoSansArabic";
+    src: url("/assets/fonts/neosans-medium.ttf") format("truetype");
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+    unicode-range: U+0600-06FF, U+0750-077F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF;
+}
+
+@font-face {
+    font-family: "NeoSansArabic";
+    src: url("/assets/fonts/neosans-bold.ttf") format("truetype");
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+    unicode-range: U+0600-06FF, U+0750-077F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF;
+}
+
+@font-face {
+    font-family: "NeoSansArabic";
+    src: url("/assets/fonts/neosans-bold.ttf") format("truetype");
+    font-weight: 800;
+    font-style: normal;
+    font-display: swap;
+    unicode-range: U+0600-06FF, U+0750-077F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF;
+}
+
+@font-face {
+    font-family: "NeoSansArabic";
+    src: url("/assets/fonts/neosans-bold.ttf") format("truetype");
+    font-weight: 900;
+    font-style: normal;
+    font-display: swap;
+    unicode-range: U+0600-06FF, U+0750-077F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF;
+}
