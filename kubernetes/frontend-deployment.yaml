@@ -15,17 +15,17 @@ spec:
         app: bloom-frontend-app
     spec:
       containers:
-      - name: bloom-frontend-container
-        image: 705532379788.dkr.ecr.ap-southeast-1.amazonaws.com/bloom-frontend:latest
-        resources:
-          requests: 
-            cpu: 50m
-            memory: 128Mi
-          limits:
-            cpu: 60m
-            memory: 256Mi
-        ports:
-        - containerPort: 80
+        - name: bloom-frontend-container
+          image: 705532379788.dkr.ecr.ap-southeast-1.amazonaws.com/bloom-frontend:latest
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              cpu: 60m
+              memory: 256Mi
 ---
 apiVersion: v1
 kind: Service
@@ -34,9 +34,45 @@ metadata:
   labels:
     app: bloom-frontend-app
 spec:
-  type: NodePort
+  type: ClusterIP
   selector:
     app: bloom-frontend-app
   ports:
-    - port: 80
+    - name: http
+      port: 80
       targetPort: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: bloom-frontend-ingress
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/group.name: sharedalbgroup
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:ap-southeast-1:705532379788:certificate/b31947e9-19d2-4950-8d28-8a4067182296
+spec:
+  ingressClassName: alb
+  rules:
+    - host: bloomspectrum.my
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: bloom-frontend-service
+                port:
+                  number: 80
+    - host: www.bloomspectrum.my
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: bloom-frontend-service
+                port:
+                  number: 80
