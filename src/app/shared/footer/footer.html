@@ -1,0 +1,121 @@
+<footer class="bg-gray-900 text-white mt-auto">
+  <div class="container mx-auto px-4 py-12">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+      <!-- About Section -->
+      <div>
+        <h3 class="text-xl font-bold mb-4 text-secondary">Bloom Spectrum Centre</h3>
+        <p class="text-gray-300 mb-4 text-sm">
+          Every child can grow
+        </p>
+        <p class="text-gray-300 text-sm">
+          Evidence-based autism early intervention and family support in Putrajaya
+        </p>
+      </div>
+
+      <!-- Quick Links -->
+      <div>
+        <h4 class="text-lg font-semibold mb-4">Quick Links</h4>
+        <ul class="space-y-2">
+          <li>
+            <a routerLink="/programmes" class="text-gray-300 hover:text-secondary transition-colors duration-200 text-sm">
+              Our Programmes
+            </a>
+          </li>
+          <li>
+            <a routerLink="/fees" class="text-gray-300 hover:text-secondary transition-colors duration-200 text-sm">
+              Fees & Pricing
+            </a>
+          </li>
+          <li>
+            <a routerLink="/faqs" class="text-gray-300 hover:text-secondary transition-colors duration-200 text-sm">
+              FAQs
+            </a>
+          </li>
+          <li>
+            <a routerLink="/book-tour" class="text-gray-300 hover:text-secondary transition-colors duration-200 text-sm">
+              Book a Tour
+            </a>
+          </li>
+          <li>
+            <a href="/assets/prospectus.pdf" download class="text-gray-300 hover:text-secondary transition-colors duration-200 text-sm inline-flex items-center space-x-1">
+              <lucide-angular [img]="FileTextIcon" size="14"></lucide-angular>
+              <span>Download Prospectus</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Contact Info -->
+      <div>
+        <h4 class="text-lg font-semibold mb-4">Contact Us</h4>
+        <div class="space-y-3">
+          <div class="flex items-start space-x-3">
+            <lucide-angular [img]="MapPinIcon" size="18" class="text-secondary mt-1"></lucide-angular>
+            <p class="text-gray-300 text-sm">
+              No. A-1-08, Block A, Conezion Commercial,<br>
+              Persiaran IRC 3, IOI Resort City,<br>
+              62502 Putrajaya
+            </p>
+          </div>
+          <div class="flex items-center space-x-3">
+            <lucide-angular [img]="PhoneIcon" size="18" class="text-secondary"></lucide-angular>
+            <a href="tel:+60123456789" class="text-gray-300 hover:text-secondary transition-colors duration-200 text-sm">
+              +60 12-345 6789
+            </a>
+          </div>
+          <div class="flex items-center space-x-3">
+            <lucide-angular [img]="MailIcon" size="18" class="text-secondary"></lucide-angular>
+            <a href="mailto:info@bloomspectrum.my" class="text-gray-300 hover:text-secondary transition-colors duration-200 text-sm">
+              info@bloomspectrum.my
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Legal & Resources -->
+      <div>
+        <h4 class="text-lg font-semibold mb-4">Resources</h4>
+        <ul class="space-y-2">
+          <li>
+            <a routerLink="/parent-portal-demo" class="text-gray-300 hover:text-secondary transition-colors duration-200 text-sm">
+              Parent Portal Demo
+            </a>
+          </li>
+          <li>
+            <a routerLink="/resources" class="text-gray-300 hover:text-secondary transition-colors duration-200 text-sm">
+              Parent Resources
+            </a>
+          </li>
+          <li>
+            <a routerLink="/privacy" class="text-gray-300 hover:text-secondary transition-colors duration-200 text-sm inline-flex items-center space-x-1">
+              <lucide-angular [img]="ShieldIcon" size="14"></lucide-angular>
+              <span>Privacy & PDPA</span>
+            </a>
+          </li>
+          <li>
+            <a routerLink="/terms" class="text-gray-300 hover:text-secondary transition-colors duration-200 text-sm">
+              Terms of Service
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Bottom Bar -->
+    <div class="border-t border-gray-800 mt-8 pt-8">
+      <div class="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+        <p class="text-gray-400 text-sm text-center md:text-left">
+          © {{ currentYear }} Bloom Spectrum Centre. Operated by MMA Consultant Sdn. Bhd. (Company No. 123456-A)
+        </p>
+        <div class="flex space-x-6">
+          <a routerLink="/accessibility" class="text-gray-400 hover:text-secondary transition-colors duration-200 text-sm">
+            Accessibility
+          </a>
+          <a routerLink="/sitemap" class="text-gray-400 hover:text-secondary transition-colors duration-200 text-sm">
+            Sitemap
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>

@@ -1,19 +1,86 @@
-/* You can add global styles to this file, and also import other style files */
-/* load the font-face rules */
-@use 'assets/fonts/fonts' as *;
+/* Tailwind CSS directives */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-/* Arabic font using HKGrotesk */
-:root{
-  --font-ar: 'NeoSansArabic', 'HKGrotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+/* Brand colors for Bloom Spectrum Centre */
+:root {
+  --color-primary: #2563EB;
+  --color-secondary: #F59E0B;
+  --color-accent: #10B981;
+  --color-text: #111827;
+  --color-background: #F9FAFB;
+  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
+/* Global styles */
 * {
-  font-family: var(--font-ar);
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-body { 
-  font-family: var(--font-ar); 
+html {
+  scroll-behavior: smooth;
 }
 
-h1{ font-weight:900; }
-h2,h3,h4,h5,h6{ font-weight:700; }
+body {
+  font-family: var(--font-sans);
+  color: var(--color-text);
+  background-color: var(--color-background);
+  line-height: 1.6;
+}
+
+h1 {
+  @apply text-4xl md:text-5xl font-bold;
+}
+
+h2 {
+  @apply text-3xl md:text-4xl font-bold;
+}
+
+h3 {
+  @apply text-2xl md:text-3xl font-semibold;
+}
+
+h4 {
+  @apply text-xl md:text-2xl font-semibold;
+}
+
+h5 {
+  @apply text-lg md:text-xl font-medium;
+}
+
+h6 {
+  @apply text-base md:text-lg font-medium;
+}
+
+/* Custom component styles */
+.btn-primary {
+  @apply bg-primary text-white px-6 py-3 rounded-lg font-medium hover:bg-primary-700 transition-colors duration-200 shadow-md hover:shadow-lg;
+}
+
+.btn-secondary {
+  @apply bg-secondary text-white px-6 py-3 rounded-lg font-medium hover:bg-secondary-600 transition-colors duration-200 shadow-md hover:shadow-lg;
+}
+
+.btn-outline {
+  @apply border-2 border-primary text-primary px-6 py-3 rounded-lg font-medium hover:bg-primary hover:text-white transition-colors duration-200;
+}
+
+.card {
+  @apply bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition-shadow duration-200;
+}
+
+/* Accessibility */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}

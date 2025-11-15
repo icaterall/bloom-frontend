@@ -1,0 +1,17 @@
+Bloom Spectrum Centre Digital Prospectus
+
+This is a placeholder file for the prospectus PDF.
+In production, this would be replaced with the actual PDF document containing:
+
+- Detailed programme information
+- Fee structures
+- Enrollment procedures
+- Centre policies
+- Parent testimonials
+- Team credentials
+- Assessment processes
+- Success stories
+
+For more information:
+Email: info@bloomspectrum.my
+Phone: +60 12-345 6789

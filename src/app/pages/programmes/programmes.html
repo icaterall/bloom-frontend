@@ -1,0 +1,129 @@
+<div class="flex flex-col min-h-screen">
+  <app-header></app-header>
+
+  <!-- Hero Section -->
+  <section class="bg-gradient-to-br from-primary/10 to-secondary/10 py-12 md:py-16">
+    <div class="container mx-auto px-4">
+      <h1 class="text-4xl md:text-5xl font-bold text-text mb-4">Our Programmes</h1>
+      <p class="text-lg text-gray-600 max-w-3xl">
+        Comprehensive autism intervention programmes designed to support your child's unique developmental journey
+      </p>
+    </div>
+  </section>
+
+  <!-- Programmes Detail Section -->
+  <section class="py-16">
+    <div class="container mx-auto px-4">
+      <div class="space-y-16">
+        <div *ngFor="let programme of programmes" [id]="programme.id" class="scroll-mt-20">
+          <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+            <!-- Programme Header -->
+            <div class="bg-gradient-to-r from-primary to-primary-600 p-8 text-white">
+              <h2 class="text-3xl font-bold mb-4">{{ programme.title }}</h2>
+              <div class="grid md:grid-cols-4 gap-4 text-sm">
+                <div class="flex items-center space-x-2">
+                  <lucide-angular [img]="UsersIcon" size="20"></lucide-angular>
+                  <div>
+                    <p class="opacity-80">Age Range</p>
+                    <p class="font-semibold">{{ programme.ageRange }}</p>
+                  </div>
+                </div>
+                <div class="flex items-center space-x-2">
+                  <lucide-angular [img]="ClockIcon" size="20"></lucide-angular>
+                  <div>
+                    <p class="opacity-80">Duration</p>
+                    <p class="font-semibold">{{ programme.duration }}</p>
+                  </div>
+                </div>
+                <div class="flex items-center space-x-2">
+                  <lucide-angular [img]="TargetIcon" size="20"></lucide-angular>
+                  <div>
+                    <p class="opacity-80">Ratio</p>
+                    <p class="font-semibold">{{ programme.ratio }}</p>
+                  </div>
+                </div>
+                <div class="flex items-center space-x-2">
+                  <lucide-angular [img]="StarIcon" size="20"></lucide-angular>
+                  <div>
+                    <p class="opacity-80">Fee Range</p>
+                    <p class="font-semibold">{{ programme.fee }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Programme Content -->
+            <div class="p-8">
+              <p class="text-gray-600 text-lg mb-8">{{ programme.description }}</p>
+
+              <div class="grid lg:grid-cols-3 gap-8 mb-8">
+                <!-- Methodologies -->
+                <div>
+                  <h3 class="text-xl font-semibold mb-4 text-primary">Teaching Methods</h3>
+                  <div class="space-y-3">
+                    <div *ngFor="let method of programme.methodologies" class="border-l-4 border-secondary pl-4">
+                      <p class="font-medium text-text">{{ method.name }}</p>
+                      <p class="text-sm text-gray-600">{{ method.desc }}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Curriculum -->
+                <div>
+                  <h3 class="text-xl font-semibold mb-4 text-primary">What We Teach</h3>
+                  <ul class="space-y-2">
+                    <li *ngFor="let item of programme.curriculum" class="flex items-start space-x-2">
+                      <lucide-angular [img]="CheckCircleIcon" size="16" class="text-accent mt-0.5"></lucide-angular>
+                      <span class="text-gray-700">{{ item }}</span>
+                    </li>
+                  </ul>
+                </div>
+
+                <!-- Daily Flow -->
+                <div>
+                  <h3 class="text-xl font-semibold mb-4 text-primary">Daily Schedule</h3>
+                  <div class="space-y-2">
+                    <div *ngFor="let flow of programme.dailyFlow" class="flex space-x-3 text-sm">
+                      <span class="font-medium text-secondary min-w-[80px]">{{ flow.time }}</span>
+                      <span class="text-gray-700">{{ flow.activity }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- CTA -->
+              <div class="flex flex-wrap gap-4 pt-6 border-t">
+                <a routerLink="/book-tour" class="btn-primary inline-flex items-center space-x-2">
+                  <lucide-angular [img]="CalendarIcon" size="20"></lucide-angular>
+                  <span>Schedule a Tour</span>
+                </a>
+                <a href="/assets/prospectus.pdf" download class="btn-outline inline-flex items-center space-x-2">
+                  <lucide-angular [img]="BookOpenIcon" size="20"></lucide-angular>
+                  <span>Download Prospectus</span>
+                </a>
+                <a routerLink="/contact" class="text-primary font-medium inline-flex items-center space-x-1 hover:underline">
+                  <span>Have questions?</span>
+                  <lucide-angular [img]="ArrowRightIcon" size="16"></lucide-angular>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Bottom CTA -->
+  <section class="py-12 bg-gray-50">
+    <div class="container mx-auto px-4 text-center">
+      <h2 class="text-2xl font-bold mb-4">Ready to Start?</h2>
+      <p class="text-gray-600 mb-6">Book a tour to see our facilities and meet our team</p>
+      <a routerLink="/book-tour" class="btn-primary inline-flex items-center space-x-2">
+        <lucide-angular [img]="CalendarIcon" size="20"></lucide-angular>
+        <span>Book Your Tour Today</span>
+      </a>
+    </div>
+  </section>
+
+  <app-footer></app-footer>
+</div>
