@@ -6,7 +6,7 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./landing-page/landing-page.component')
         .then(m => m.LandingPageComponent),
-    title: 'منصة كادي'
+    title: 'Bloom Spectrum'
   },
   { path: '**', redirectTo: '' }
 ];
