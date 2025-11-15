@@ -12,7 +12,7 @@ jobs:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_REGION: ${{ secrets.AWS_REGION }}          # e.g. ap-southeast-1
-      EKS_CLUSTER_NAME: pickpickgo-eks
+      EKS_CLUSTER_NAME: ${{ secrets.EKS_CLUSTER_NAME }}  # Update this in GitHub secrets
       ECR_REPOSITORY: bloom-frontend
       IMAGE_TAG: ${{ github.sha }}
 
