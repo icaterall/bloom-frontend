@@ -1,4 +1,4 @@
-<header class="sticky top-0 z-50 transition-all duration-300"
+<header class="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
         [ngClass]="{'bg-white/95 backdrop-blur-md shadow-lg': isScrolled, 'bg-white': !isScrolled}">
   <div class="container mx-auto px-4">
     <nav class="flex items-center justify-between h-16 md:h-20">
@@ -15,37 +15,37 @@
       <div class="hidden lg:flex items-center space-x-8">
         <a routerLink="/programmes" routerLinkActive="text-primary" 
            class="text-text hover:text-primary transition-colors duration-200 font-medium">
-          Programmes
+          {{ 'header.nav.programmes' | translate }}
         </a>
         <a routerLink="/fees" routerLinkActive="text-primary"
            class="text-text hover:text-primary transition-colors duration-200 font-medium">
-          Fees
+          {{ 'header.nav.fees' | translate }}
         </a>
         <a routerLink="/faqs" routerLinkActive="text-primary"
            class="text-text hover:text-primary transition-colors duration-200 font-medium">
-          FAQs
+          {{ 'header.nav.faqs' | translate }}
         </a>
         <a routerLink="/contact" routerLinkActive="text-primary"
            class="text-text hover:text-primary transition-colors duration-200 font-medium">
-          Contact
+          {{ 'header.nav.contact' | translate }}
         </a>
         
         <!-- Language Toggle -->
         <button (click)="toggleLanguage()" 
                 class="flex items-center space-x-1 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors duration-200">
           <lucide-angular [img]="GlobeIcon" size="20" class="text-primary"></lucide-angular>
-          <span class="text-sm font-medium">{{ currentLanguage === 'en' ? 'BM' : 'EN' }}</span>
+          <span class="text-sm font-medium">{{ currentLanguage === 'my' ? 'EN' : 'BM' }}</span>
         </button>
 
         <!-- CTA Buttons -->
         <a routerLink="/book-tour" 
            class="bg-primary text-white px-5 py-2.5 rounded-lg font-medium hover:bg-primary-700 transition-colors duration-200 shadow-md hover:shadow-lg">
-          Book a Tour
+          {{ 'header.nav.bookTour' | translate }}
         </a>
         <a routerLink="/login"
            class="flex items-center space-x-2 px-4 py-2.5 rounded-lg border-2 border-primary text-primary hover:bg-primary hover:text-white transition-colors duration-200">
           <lucide-angular [img]="UserIcon" size="18"></lucide-angular>
-          <span>Portal</span>
+          <span>{{ 'header.nav.portal' | translate }}</span>
         </a>
       </div>
 
@@ -64,38 +64,38 @@
       <div class="flex flex-col space-y-4">
         <a routerLink="/programmes" (click)="toggleMenu()"
            class="text-text hover:text-primary transition-colors duration-200 font-medium py-2">
-          Programmes
+          {{ 'header.nav.programmes' | translate }}
         </a>
         <a routerLink="/fees" (click)="toggleMenu()"
            class="text-text hover:text-primary transition-colors duration-200 font-medium py-2">
-          Fees
+          {{ 'header.nav.fees' | translate }}
         </a>
         <a routerLink="/faqs" (click)="toggleMenu()"
            class="text-text hover:text-primary transition-colors duration-200 font-medium py-2">
-          FAQs
+          {{ 'header.nav.faqs' | translate }}
         </a>
         <a routerLink="/contact" (click)="toggleMenu()"
            class="text-text hover:text-primary transition-colors duration-200 font-medium py-2">
-          Contact
+          {{ 'header.nav.contact' | translate }}
         </a>
         
         <div class="border-t pt-4">
           <button (click)="toggleLanguage()" 
                   class="flex items-center space-x-2 w-full px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors duration-200">
             <lucide-angular [img]="GlobeIcon" size="20" class="text-primary"></lucide-angular>
-            <span class="font-medium">{{ currentLanguage === 'en' ? 'Bahasa Melayu' : 'English' }}</span>
+            <span class="font-medium">{{ currentLanguage === 'my' ? 'English' : 'Bahasa Melayu' }}</span>
           </button>
         </div>
 
         <div class="flex flex-col space-y-3 pt-4 border-t">
           <a routerLink="/book-tour" (click)="toggleMenu()"
              class="bg-primary text-white px-5 py-3 rounded-lg font-medium hover:bg-primary-700 transition-colors duration-200 shadow-md hover:shadow-lg text-center">
-            Book a Tour
+            {{ 'header.nav.bookTour' | translate }}
           </a>
           <a routerLink="/login" (click)="toggleMenu()"
              class="flex items-center justify-center space-x-2 px-4 py-3 rounded-lg border-2 border-primary text-primary hover:bg-primary hover:text-white transition-colors duration-200">
             <lucide-angular [img]="UserIcon" size="18"></lucide-angular>
-            <span>Parent Portal</span>
+            <span>{{ 'header.nav.parentPortal' | translate }}</span>
           </a>
         </div>
       </div>

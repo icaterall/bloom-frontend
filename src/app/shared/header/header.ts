@@ -2,10 +2,13 @@ import { Component, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { LucideAngularModule, Menu, X, ChevronDown, Globe, User, Phone, Mail } from 'lucide-angular';
+import { TranslationService } from '../services/translation.service';
+import { TranslatePipe } from '../pipes/translate.pipe';
+import { HttpClientModule } from '@angular/common/http';
 
 @Component({
   selector: 'app-header',
-  imports: [CommonModule, RouterModule, LucideAngularModule],
+  imports: [CommonModule, RouterModule, LucideAngularModule, TranslatePipe, HttpClientModule],
   templateUrl: './header.html',
   styleUrls: ['./header.scss'],
   standalone: true
@@ -21,7 +24,14 @@ export class HeaderComponent {
 
   isMenuOpen = false;
   isScrolled = false;
-  currentLanguage = 'en';
+  currentLanguage = 'my'; // Default to Malay
+
+  constructor(public translationService: TranslationService) {
+    // Subscribe to language changes
+    this.translationService.currentLang$.subscribe(lang => {
+      this.currentLanguage = lang;
+    });
+  }
 
   @HostListener('window:scroll', [])
   onWindowScroll() {
@@ -33,6 +43,6 @@ export class HeaderComponent {
   }
 
   toggleLanguage() {
-    this.currentLanguage = this.currentLanguage === 'en' ? 'ms' : 'en';
+    this.translationService.toggleLanguage();
   }
 }

@@ -1,0 +1,209 @@
+{
+  "header": {
+    "logo": "Bloom Spectrum Centre",
+    "nav": {
+      "programmes": "Programmes",
+      "fees": "Fees",
+      "faqs": "FAQs",
+      "contact": "Contact",
+      "bookTour": "Book a Tour",
+      "portal": "Portal",
+      "parentPortal": "Parent Portal"
+    }
+  },
+  "landing": {
+    "hero": {
+      "title": "Autism early intervention & family support",
+      "subtitle": "Evidence-based, child-led programmes (PRT/EMT/JASPER) with individual plans, parent coaching, and small ratios (1:1–1:3).",
+      "cta": {
+        "bookTour": "Book a Tour",
+        "learnMore": "Learn More"
+      }
+    },
+    "slogan": "Every child can grow",
+    "features": {
+      "title": "Why Choose Bloom Spectrum?",
+      "evidence": {
+        "title": "Evidence-Based",
+        "description": "Proven PRT, EMT & JASPER methodologies for autism development"
+      },
+      "individual": {
+        "title": "Individual Plans",
+        "description": "Customized programs tailored to each child's unique needs, strengths, and interests"
+      },
+      "ratio": {
+        "title": "Small Ratios",
+        "description": "1:1 to 1:3 ratios ensure the attention and support your child needs"
+      },
+      "parent": {
+        "title": "Parent Coaching",
+        "description": "Empowering families with strategies and support for continued learning at home"
+      }
+    },
+    "programmes": {
+      "title": "Our Programmes",
+      "subtitle": "Comprehensive programmes tailored to your child's unique needs",
+      "earlyIntervention": {
+        "title": "Early Intervention",
+        "ageRange": "3-8 years",
+        "description": "Intensive early intervention programme using PRT, EMT, and JASPER methodologies",
+        "features": {
+          "feature1": "Individual assessment & goal setting",
+          "feature2": "Child-led activities",
+          "feature3": "1:1 to 1:3 ratios",
+          "feature4": "Parent coaching & training"
+        }
+      },
+      "schoolReadiness": {
+        "title": "School Readiness",
+        "ageRange": "5-7 years",
+        "description": "Preparing children for mainstream school environments",
+        "features": {
+          "feature1": "Pre-academic skills",
+          "feature2": "Social & communication skills",
+          "feature3": "Self-help skills",
+          "feature4": "School transition support"
+        }
+      },
+      "parentCoaching": {
+        "title": "Parent Coaching",
+        "ageRange": "All ages",
+        "description": "Empowering parents with strategies and support",
+        "features": {
+          "feature1": "1:1 coaching sessions",
+          "feature2": "Home strategies",
+          "feature3": "Behavior management",
+          "feature4": "Communication support"
+        }
+      },
+      "learnMore": "Learn More"
+    },
+    "location": {
+      "title": "Visit Us",
+      "subtitle": "Conveniently located in Putrajaya",
+      "address": "No. A-1-08, Block A, Conezion Commercial, Persiaran IRC 3, IOI Resort City, 62502 Putrajaya",
+      "hours": {
+        "title": "Operating Hours",
+        "weekdays": "Monday - Friday: 8:30 AM - 5:30 PM",
+        "saturday": "Saturday: 9:00 AM - 1:00 PM",
+        "sunday": "Sunday: Closed"
+      },
+      "cta": {
+        "getDirections": "Get Directions",
+        "bookTour": "Book a Tour"
+      }
+    },
+    "cta": {
+      "title": "Ready to Start Your Child's Journey?",
+      "subtitle": "Book a tour today and see how we can support your child's development",
+      "bookTour": "Book a Tour",
+      "contact": "Contact Us"
+    }
+  },
+  "footer": {
+    "about": {
+      "title": "About Bloom Spectrum",
+      "description": "Providing quality autism early intervention and family support in Putrajaya using evidence-based methodologies."
+    },
+    "quickLinks": {
+      "title": "Quick Links"
+    },
+    "contact": {
+      "title": "Contact",
+      "phone": "Phone",
+      "email": "Email",
+      "location": "Location"
+    },
+    "followUs": "Follow Us",
+    "rights": "All Rights Reserved",
+    "company": "MMA Consultant Sdn. Bhd."
+  },
+  "programmes": {
+    "hero": {
+      "title": "Our Programmes",
+      "subtitle": "Comprehensive autism intervention programmes designed to support your child's unique developmental journey"
+    },
+    "details": {
+      "methodology": "Methodology",
+      "curriculum": "Curriculum",
+      "dailySchedule": "Daily Schedule",
+      "outcomes": "Outcomes",
+      "enrollNow": "Enroll Now"
+    }
+  },
+  "bookTour": {
+    "hero": {
+      "title": "Book a Tour",
+      "subtitle": "Visit our centre and see how we can support your child's development journey"
+    },
+    "form": {
+      "title": "Schedule Your Visit",
+      "parentName": "Parent Name",
+      "email": "Email",
+      "phone": "Phone Number",
+      "childName": "Child's Name",
+      "childAge": "Child's Age",
+      "preferredDate": "Preferred Date",
+      "preferredTime": "Preferred Time",
+      "message": "Message (Optional)",
+      "messagePlaceholder": "Share any additional information or questions...",
+      "submit": "Submit Booking",
+      "submitting": "Submitting..."
+    },
+    "success": {
+      "title": "Thank You!",
+      "message": "Your tour booking has been received. We'll contact you within 24 hours to confirm the details.",
+      "backHome": "Back to Home"
+    },
+    "visitInfo": {
+      "title": "Visit Information",
+      "duration": {
+        "label": "Duration",
+        "value": "45-60 minutes"
+      },
+      "includes": {
+        "label": "Tour Includes",
+        "tour": "Facility tour",
+        "consultation": "Consultation with our specialists",
+        "assessment": "Initial assessment of your child's needs",
+        "qa": "Q&A session"
+      },
+      "location": {
+        "label": "Location"
+      },
+      "whatToBring": {
+        "label": "What to Bring",
+        "reports": "Any existing assessment reports",
+        "questions": "List of your questions",
+        "child": "Your child (if appropriate)"
+      }
+    },
+    "validation": {
+      "nameRequired": "Name is required",
+      "emailRequired": "Email is required",
+      "emailInvalid": "Please enter a valid email",
+      "phoneRequired": "Phone number is required",
+      "phoneInvalid": "Please enter a valid phone number",
+      "childNameRequired": "Child's name is required",
+      "childAgeRequired": "Child's age is required",
+      "childAgeInvalid": "Please enter a valid age",
+      "dateRequired": "Date is required",
+      "timeRequired": "Time is required"
+    }
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "view": "View",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "yes": "Yes",
+    "no": "No"
+  }
+}

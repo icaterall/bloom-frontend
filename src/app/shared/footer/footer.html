@@ -5,35 +5,35 @@
       <div>
         <h3 class="text-xl font-bold mb-4 text-secondary">Bloom Spectrum Centre</h3>
         <p class="text-gray-300 mb-4 text-sm">
-          Every child can grow
+          {{ 'landing.slogan' | translate }}
         </p>
         <p class="text-gray-300 text-sm">
-          Evidence-based autism early intervention and family support in Putrajaya
+          {{ 'footer.about.description' | translate }}
         </p>
       </div>
 
       <!-- Quick Links -->
       <div>
-        <h4 class="text-lg font-semibold mb-4">Quick Links</h4>
+        <h4 class="text-lg font-semibold mb-4">{{ 'footer.quickLinks.title' | translate }}</h4>
         <ul class="space-y-2">
           <li>
             <a routerLink="/programmes" class="text-gray-300 hover:text-secondary transition-colors duration-200 text-sm">
-              Our Programmes
+              {{ 'header.nav.programmes' | translate }}
             </a>
           </li>
           <li>
             <a routerLink="/fees" class="text-gray-300 hover:text-secondary transition-colors duration-200 text-sm">
-              Fees & Pricing
+              {{ 'header.nav.fees' | translate }}
             </a>
           </li>
           <li>
             <a routerLink="/faqs" class="text-gray-300 hover:text-secondary transition-colors duration-200 text-sm">
-              FAQs
+              {{ 'header.nav.faqs' | translate }}
             </a>
           </li>
           <li>
             <a routerLink="/book-tour" class="text-gray-300 hover:text-secondary transition-colors duration-200 text-sm">
-              Book a Tour
+              {{ 'header.nav.bookTour' | translate }}
             </a>
           </li>
           <li>
@@ -47,7 +47,7 @@
 
       <!-- Contact Info -->
       <div>
-        <h4 class="text-lg font-semibold mb-4">Contact Us</h4>
+        <h4 class="text-lg font-semibold mb-4">{{ 'footer.contact.title' | translate }}</h4>
         <div class="space-y-3">
           <div class="flex items-start space-x-3">
             <lucide-angular [img]="MapPinIcon" size="18" class="text-secondary mt-1"></lucide-angular>
@@ -105,7 +105,7 @@
     <div class="border-t border-gray-800 mt-8 pt-8">
       <div class="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
         <p class="text-gray-400 text-sm text-center md:text-left">
-          © {{ currentYear }} Bloom Spectrum Centre. Operated by MMA Consultant Sdn. Bhd. (Company No. 123456-A)
+          © {{ currentYear }} Bloom Spectrum Centre. {{ 'footer.rights' | translate }}. {{ 'footer.company' | translate }}
         </p>
         <div class="flex space-x-6">
           <a routerLink="/accessibility" class="text-gray-400 hover:text-secondary transition-colors duration-200 text-sm">

@@ -4,15 +4,19 @@ import { RouterModule } from '@angular/router';
 import { LucideAngularModule, CheckCircle, Users, BookOpen, Heart, Calendar, Download, ArrowRight, Play, Star, Clock, Target } from 'lucide-angular';
 import { HeaderComponent } from '../shared/header/header';
 import { FooterComponent } from '../shared/footer/footer';
+import { TranslatePipe } from '../shared/pipes/translate.pipe';
+import { TranslationService } from '../shared/services/translation.service';
+import { HttpClientModule } from '@angular/common/http';
 
 @Component({
   selector: 'app-landing-page',
   standalone: true,
-  imports: [CommonModule, RouterModule, LucideAngularModule, HeaderComponent, FooterComponent],
+  imports: [CommonModule, RouterModule, LucideAngularModule, HeaderComponent, FooterComponent, TranslatePipe, HttpClientModule],
   templateUrl: './landing-page.component.html',
   styleUrls: ['./landing-page.component.scss']
 })
 export class LandingPageComponent {
+  constructor(public translationService: TranslationService) {}
   readonly CheckCircleIcon = CheckCircle;
   readonly UsersIcon = Users;
   readonly BookOpenIcon = BookOpen;

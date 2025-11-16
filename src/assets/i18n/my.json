@@ -1,0 +1,209 @@
+{
+  "header": {
+    "logo": "Bloom Spectrum Centre",
+    "nav": {
+      "programmes": "Program",
+      "fees": "Yuran",
+      "faqs": "Soalan Lazim",
+      "contact": "Hubungi",
+      "bookTour": "Tempah Lawatan",
+      "portal": "Portal",
+      "parentPortal": "Portal Ibu Bapa"
+    }
+  },
+  "landing": {
+    "hero": {
+      "title": "Intervensi awal autisme & sokongan keluarga",
+      "subtitle": "Program berasaskan bukti, dipimpin kanak-kanak (PRT/EMT/JASPER) dengan pelan individu, bimbingan ibu bapa, dan nisbah kecil (1:1–1:3).",
+      "cta": {
+        "bookTour": "Tempah Lawatan",
+        "learnMore": "Ketahui Lebih Lanjut"
+      }
+    },
+    "slogan": "Setiap kanak-kanak boleh berkembang",
+    "features": {
+      "title": "Kenapa Pilih Bloom Spectrum?",
+      "evidence": {
+        "title": "Berasaskan Bukti",
+        "description": "Metodologi PRT, EMT & JASPER yang terbukti berkesan untuk perkembangan kanak-kanak autisme"
+      },
+      "individual": {
+        "title": "Pelan Individu",
+        "description": "Program disesuaikan dengan keperluan, kekuatan dan minat unik setiap kanak-kanak"
+      },
+      "ratio": {
+        "title": "Nisbah Kecil",
+        "description": "Nisbah 1:1 hingga 1:3 memastikan perhatian dan sokongan yang diperlukan"
+      },
+      "parent": {
+        "title": "Bimbingan Ibu Bapa",
+        "description": "Memperkasakan keluarga dengan strategi dan sokongan untuk pembelajaran berterusan di rumah"
+      }
+    },
+    "programmes": {
+      "title": "Program Kami",
+      "subtitle": "Program komprehensif disesuaikan dengan keperluan unik anak anda",
+      "earlyIntervention": {
+        "title": "Intervensi Awal",
+        "ageRange": "3-8 tahun",
+        "description": "Program intervensi awal intensif menggunakan metodologi PRT, EMT dan JASPER",
+        "features": {
+          "feature1": "Penilaian individu & penetapan matlamat",
+          "feature2": "Aktiviti dipimpin kanak-kanak",
+          "feature3": "Nisbah 1:1 hingga 1:3",
+          "feature4": "Bimbingan & latihan ibu bapa"
+        }
+      },
+      "schoolReadiness": {
+        "title": "Kesediaan Sekolah",
+        "ageRange": "5-7 tahun",
+        "description": "Menyediakan kanak-kanak untuk persekitaran sekolah arus perdana",
+        "features": {
+          "feature1": "Kemahiran akademik pra-sekolah",
+          "feature2": "Kemahiran sosial & komunikasi",
+          "feature3": "Kemahiran bantu diri",
+          "feature4": "Transisi & sokongan sekolah"
+        }
+      },
+      "parentCoaching": {
+        "title": "Bimbingan Ibu Bapa",
+        "ageRange": "Semua umur",
+        "description": "Memperkasakan ibu bapa dengan strategi dan sokongan",
+        "features": {
+          "feature1": "Sesi bimbingan 1:1",
+          "feature2": "Strategi praktikal untuk rumah",
+          "feature3": "Pengurusan tingkah laku",
+          "feature4": "Sokongan komunikasi"
+        }
+      },
+      "learnMore": "Ketahui Lebih Lanjut"
+    },
+    "location": {
+      "title": "Lawat Kami",
+      "subtitle": "Terletak dengan mudah di Putrajaya",
+      "address": "No. A-1-08, Block A, Conezion Commercial, Persiaran IRC 3, IOI Resort City, 62502 Putrajaya",
+      "hours": {
+        "title": "Waktu Operasi",
+        "weekdays": "Isnin - Jumaat: 8:30 AM - 5:30 PM",
+        "saturday": "Sabtu: 9:00 AM - 1:00 PM",
+        "sunday": "Ahad: Tutup"
+      },
+      "cta": {
+        "getDirections": "Dapatkan Arah",
+        "bookTour": "Tempah Lawatan"
+      }
+    },
+    "cta": {
+      "title": "Sedia Memulakan Perjalanan Anak Anda?",
+      "subtitle": "Tempah lawatan hari ini dan lihat bagaimana kami boleh menyokong perkembangan anak anda",
+      "bookTour": "Tempah Lawatan",
+      "contact": "Hubungi Kami"
+    }
+  },
+  "footer": {
+    "about": {
+      "title": "Tentang Bloom Spectrum",
+      "description": "Menyediakan intervensi awal autisme berkualiti dan sokongan keluarga di Putrajaya menggunakan metodologi berasaskan bukti."
+    },
+    "quickLinks": {
+      "title": "Pautan Pantas"
+    },
+    "contact": {
+      "title": "Hubungi",
+      "phone": "Telefon",
+      "email": "E-mel",
+      "location": "Lokasi"
+    },
+    "followUs": "Ikuti Kami",
+    "rights": "Hak Cipta Terpelihara",
+    "company": "MMA Consultant Sdn. Bhd."
+  },
+  "programmes": {
+    "hero": {
+      "title": "Program Kami",
+      "subtitle": "Program intervensi autisme komprehensif direka untuk menyokong perjalanan perkembangan unik anak anda"
+    },
+    "details": {
+      "methodology": "Metodologi",
+      "curriculum": "Kurikulum",
+      "dailySchedule": "Jadual Harian",
+      "outcomes": "Hasil",
+      "enrollNow": "Daftar Sekarang"
+    }
+  },
+  "bookTour": {
+    "hero": {
+      "title": "Tempah Lawatan",
+      "subtitle": "Lawati pusat kami dan lihat bagaimana kami boleh menyokong perjalanan perkembangan anak anda"
+    },
+    "form": {
+      "title": "Jadualkan Lawatan Anda",
+      "parentName": "Nama Ibu/Bapa",
+      "email": "E-mel",
+      "phone": "Nombor Telefon",
+      "childName": "Nama Anak",
+      "childAge": "Umur Anak",
+      "preferredDate": "Tarikh Pilihan",
+      "preferredTime": "Masa Pilihan",
+      "message": "Mesej (Pilihan)",
+      "messagePlaceholder": "Kongsi maklumat tambahan atau soalan...",
+      "submit": "Hantar Tempahan",
+      "submitting": "Menghantar..."
+    },
+    "success": {
+      "title": "Terima Kasih!",
+      "message": "Tempahan lawatan anda telah diterima. Kami akan menghubungi anda dalam masa 24 jam untuk mengesahkan butiran.",
+      "backHome": "Kembali ke Laman Utama"
+    },
+    "visitInfo": {
+      "title": "Maklumat Lawatan",
+      "duration": {
+        "label": "Tempoh",
+        "value": "45-60 minit"
+      },
+      "includes": {
+        "label": "Lawatan Termasuk",
+        "tour": "Lawatan kemudahan",
+        "consultation": "Rundingan dengan pakar kami",
+        "assessment": "Penilaian awal keperluan anak",
+        "qa": "Sesi soal jawab"
+      },
+      "location": {
+        "label": "Lokasi"
+      },
+      "whatToBring": {
+        "label": "Apa yang Perlu Dibawa",
+        "reports": "Sebarang laporan penilaian sedia ada",
+        "questions": "Senarai soalan anda",
+        "child": "Anak anda (jika sesuai)"
+      }
+    },
+    "validation": {
+      "nameRequired": "Nama diperlukan",
+      "emailRequired": "E-mel diperlukan",
+      "emailInvalid": "Sila masukkan e-mel yang sah",
+      "phoneRequired": "Nombor telefon diperlukan",
+      "phoneInvalid": "Sila masukkan nombor telefon yang sah",
+      "childNameRequired": "Nama anak diperlukan",
+      "childAgeRequired": "Umur anak diperlukan",
+      "childAgeInvalid": "Sila masukkan umur yang sah",
+      "dateRequired": "Tarikh diperlukan",
+      "timeRequired": "Masa diperlukan"
+    }
+  },
+  "common": {
+    "loading": "Memuatkan...",
+    "error": "Ralat",
+    "success": "Berjaya",
+    "cancel": "Batal",
+    "save": "Simpan",
+    "delete": "Padam",
+    "edit": "Edit",
+    "view": "Lihat",
+    "back": "Kembali",
+    "next": "Seterusnya",
+    "previous": "Sebelumnya",
+    "yes": "Ya",
+    "no": "Tidak"
+  }
+}

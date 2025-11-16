@@ -6,7 +6,7 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./landing-page/landing-page.component')
         .then(m => m.LandingPageComponent),
-    title: 'Bloom Spectrum Centre - Autism Early Intervention'
+    title: 'Bloom Spectrum Centre - Every child can grow'
   },
   {
     path: 'programmes',
