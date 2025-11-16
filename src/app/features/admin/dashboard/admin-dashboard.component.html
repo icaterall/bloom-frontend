@@ -1,0 +1,182 @@
+<div class="min-h-screen bg-gray-50">
+  <!-- Navigation Header -->
+  <nav class="bg-white shadow-sm border-b">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between h-16">
+        <!-- Left side -->
+        <div class="flex items-center">
+          <h1 class="text-xl font-bold text-blue-600">Bloom Spectrum Centre</h1>
+          <span class="ml-4 text-sm text-gray-500">Admin Dashboard</span>
+        </div>
+
+        <!-- Right side -->
+        <div class="flex items-center space-x-4">
+          <!-- Notifications -->
+          <button class="p-2 rounded hover:bg-gray-100">
+            <lucide-angular [img]="BellIcon" size="20" class="text-gray-600"></lucide-angular>
+          </button>
+          
+          <!-- Settings -->
+          <button class="p-2 rounded hover:bg-gray-100">
+            <lucide-angular [img]="SettingsIcon" size="20" class="text-gray-600"></lucide-angular>
+          </button>
+
+          <!-- User Menu -->
+          <div class="flex items-center space-x-3">
+            <div class="text-right">
+              <p class="text-sm font-medium text-gray-900">{{ currentUser?.name }}</p>
+              <p class="text-xs text-gray-500">{{ currentUser?.email }}</p>
+            </div>
+            <button 
+              (click)="logout()"
+              class="p-2 rounded hover:bg-gray-100"
+              title="Logout"
+            >
+              <lucide-angular [img]="LogOutIcon" size="20" class="text-gray-600"></lucide-angular>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+    <!-- Welcome Section -->
+    <div class="px-4 py-6 sm:px-0">
+      <h2 class="text-2xl font-bold text-gray-900">Welcome back, {{ currentUser?.name }}!</h2>
+      <p class="mt-1 text-gray-600">Here's what's happening at the centre today.</p>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="px-4 sm:px-0">
+      <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <!-- Today's Tours -->
+        <div class="bg-white overflow-hidden shadow rounded">
+          <div class="p-5">
+            <div class="flex items-center">
+              <div class="flex-shrink-0">
+                <div class="p-3 bg-blue-100 rounded">
+                  <lucide-angular [img]="CalendarIcon" size="24" class="text-blue-600"></lucide-angular>
+                </div>
+              </div>
+              <div class="ml-5 w-0 flex-1">
+                <dl>
+                  <dt class="text-sm font-medium text-gray-500 truncate">Today's Tours</dt>
+                  <dd class="text-2xl font-bold text-gray-900">{{ dashboardStats.todayTours }}</dd>
+                </dl>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- New Leads -->
+        <div class="bg-white overflow-hidden shadow rounded">
+          <div class="p-5">
+            <div class="flex items-center">
+              <div class="flex-shrink-0">
+                <div class="p-3 bg-green-100 rounded">
+                  <lucide-angular [img]="UserPlusIcon" size="24" class="text-green-600"></lucide-angular>
+                </div>
+              </div>
+              <div class="ml-5 w-0 flex-1">
+                <dl>
+                  <dt class="text-sm font-medium text-gray-500 truncate">New Leads</dt>
+                  <dd class="text-2xl font-bold text-gray-900">{{ dashboardStats.newLeads }}</dd>
+                </dl>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Active Children -->
+        <div class="bg-white overflow-hidden shadow rounded">
+          <div class="p-5">
+            <div class="flex items-center">
+              <div class="flex-shrink-0">
+                <div class="p-3 bg-purple-100 rounded">
+                  <lucide-angular [img]="BabyIcon" size="24" class="text-purple-600"></lucide-angular>
+                </div>
+              </div>
+              <div class="ml-5 w-0 flex-1">
+                <dl>
+                  <dt class="text-sm font-medium text-gray-500 truncate">Active Children</dt>
+                  <dd class="text-2xl font-bold text-gray-900">{{ dashboardStats.activeChildren }}</dd>
+                </dl>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pending Enrollments -->
+        <div class="bg-white overflow-hidden shadow rounded">
+          <div class="p-5">
+            <div class="flex items-center">
+              <div class="flex-shrink-0">
+                <div class="p-3 bg-orange-100 rounded">
+                  <lucide-angular [img]="TrendingUpIcon" size="24" class="text-orange-600"></lucide-angular>
+                </div>
+              </div>
+              <div class="ml-5 w-0 flex-1">
+                <dl>
+                  <dt class="text-sm font-medium text-gray-500 truncate">Pending Enrollments</dt>
+                  <dd class="text-2xl font-bold text-gray-900">{{ dashboardStats.pendingEnrollments }}</dd>
+                </dl>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Activity and Quick Actions -->
+    <div class="mt-8 px-4 sm:px-0">
+      <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
+        <!-- Recent Activity -->
+        <div class="bg-white shadow rounded">
+          <div class="px-6 py-4 border-b">
+            <h3 class="text-lg font-medium text-gray-900">Recent Activity</h3>
+          </div>
+          <div class="px-6 py-4">
+            <div class="space-y-4">
+              @for (activity of recentActivities; track activity) {
+                <div class="flex items-start space-x-3">
+                  <div class="flex-shrink-0">
+                    <div class="w-2 h-2 bg-blue-600 rounded-full mt-2"></div>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <p class="text-sm text-gray-900">{{ activity.message }}</p>
+                    <p class="text-xs text-gray-500">{{ activity.time }}</p>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="bg-white shadow rounded">
+          <div class="px-6 py-4 border-b">
+            <h3 class="text-lg font-medium text-gray-900">Quick Actions</h3>
+          </div>
+          <div class="px-6 py-4">
+            <div class="grid grid-cols-2 gap-4">
+              <button class="px-4 py-3 bg-blue-50 text-blue-700 rounded hover:bg-blue-100 text-sm font-medium">
+                Manage Tours
+              </button>
+              <button class="px-4 py-3 bg-green-50 text-green-700 rounded hover:bg-green-100 text-sm font-medium">
+                View Leads
+              </button>
+              <button class="px-4 py-3 bg-purple-50 text-purple-700 rounded hover:bg-purple-100 text-sm font-medium">
+                Children List
+              </button>
+              <button class="px-4 py-3 bg-orange-50 text-orange-700 rounded hover:bg-orange-100 text-sm font-medium">
+                Reports
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
