@@ -1,8 +1,9 @@
-import { Component, OnInit, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, OnDestroy, signal, inject, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
+import { GoogleOAuthService } from '../../../core/services/google-oauth.service';
 import { LucideAngularModule, Mail, Lock, Eye, EyeOff, LogIn } from 'lucide-angular';
 import { environment } from '../../../../environments/environment';
 
@@ -13,13 +14,18 @@ import { environment } from '../../../../environments/environment';
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css']
 })
-export class LoginComponent implements OnInit {
+export class LoginComponent implements OnInit, OnDestroy {
   private readonly apiUrl = environment.apiUrl;
+  private readonly platformId = inject(PLATFORM_ID);
+  private readonly googleOAuth = inject(GoogleOAuthService);
+  
   loginForm!: FormGroup;
   loading = signal(false);
+  googleLoading = signal(false);
   error = signal<string | null>(null);
   showPassword = signal(false);
   returnUrl: string = '/';
+  googleOAuthAvailable = false;
 
   // Icons
   MailIcon = Mail;
@@ -52,7 +58,57 @@ export class LoginComponent implements OnInit {
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]]
     });
+
+    // Initialize Google OAuth in browser only
+    if (isPlatformBrowser(this.platformId)) {
+      this.initializeGoogleOAuth();
+      this.setupGoogleEventListeners();
+    }
   }
+
+  ngOnDestroy(): void {
+    if (isPlatformBrowser(this.platformId)) {
+      this.cleanupGoogleEventListeners();
+    }
+  }
+
+  private initializeGoogleOAuth(): void {
+    this.googleOAuth.initializeGoogle()
+      .then(() => {
+        this.googleOAuthAvailable = true;
+        console.log('Google OAuth initialized');
+      })
+      .catch(error => {
+        console.error('Failed to initialize Google OAuth:', error);
+        this.googleOAuthAvailable = false;
+      });
+  }
+
+  private setupGoogleEventListeners(): void {
+    window.addEventListener('google-login-started', this.onGoogleLoginStarted);
+    window.addEventListener('google-login-success', this.onGoogleLoginSuccess);
+    window.addEventListener('google-login-error', this.onGoogleLoginError);
+  }
+
+  private cleanupGoogleEventListeners(): void {
+    window.removeEventListener('google-login-started', this.onGoogleLoginStarted);
+    window.removeEventListener('google-login-success', this.onGoogleLoginSuccess);
+    window.removeEventListener('google-login-error', this.onGoogleLoginError);
+  }
+
+  private onGoogleLoginStarted = (): void => {
+    this.googleLoading.set(true);
+  };
+
+  private onGoogleLoginSuccess = (): void => {
+    // Loading state will clear when we navigate away
+    console.log('Google login successful');
+  };
+
+  private onGoogleLoginError = (): void => {
+    this.googleLoading.set(false);
+    this.error.set('Google login failed. Please try again.');
+  };
 
   togglePasswordVisibility(): void {
     this.showPassword.update(v => !v);
@@ -119,24 +175,18 @@ export class LoginComponent implements OnInit {
     console.log('===== END LOGIN FORM SUBMISSION DEBUG =====');
   }
 
-  onGoogleLogin(): void {
+  async onGoogleLogin(): Promise<void> {
+    if (!this.googleOAuthAvailable || this.googleLoading()) {
+      return;
+    }
+
     try {
-      const clientId = environment.googleClientId;
-      const redirectUri = `${environment.frontendUrl}/auth/google/callback`;
-
-      const params = new URLSearchParams({
-        client_id: clientId,
-        redirect_uri: redirectUri,
-        response_type: 'code',
-        scope: 'openid email profile',
-        access_type: 'offline',
-        prompt: 'select_account'
-      });
-
-      const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
-      window.location.href = authUrl;
-    } catch (e) {
-      console.error('Google login redirect failed', e);
+      await this.googleOAuth.loginWithGoogle();
+      // Success/error handled by event listeners
+    } catch (error) {
+      console.error('Google login failed:', error);
+      this.googleLoading.set(false);
+      this.error.set('Google login failed. Please try again.');
     }
   }
 
