@@ -1,1 +1,50 @@
 /* Admin landing content styles - mostly using Tailwind utility classes in template */
+
+/* Admin landing/* Component specific styles */
+.container {
+  max-width: 1200px;
+}
+
+/* Fixed Add Block Button */
+.btn-add-block {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 50;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.75rem 1.5rem;
+  background-color: #2563EB;
+  color: white;
+  border-radius: 9999px;
+  font-weight: 500;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-add-block:hover {
+  background-color: #1d4ed8;
+  transform: translateY(-2px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+}
+
+.btn-add-block:active {
+  transform: translateY(0);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+}
+
+/* Mobile responsive */
+@media (max-width: 640px) {
+  .btn-add-block {
+    bottom: 1rem;
+    right: 1rem;
+    padding: 0.625rem 1.25rem;
+    font-size: 0.875rem;
+  }
+  
+  .btn-add-block span {
+    display: none;
+  }
+}

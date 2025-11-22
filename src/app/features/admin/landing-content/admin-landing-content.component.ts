@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
-import { LucideAngularModule, Globe2, Save } from 'lucide-angular';
+import { LucideAngularModule, Globe2, Save, Plus, Trash2 } from 'lucide-angular';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
 
@@ -18,9 +18,20 @@ export class AdminLandingContentComponent implements OnInit {
 
   GlobeIcon = Globe2;
   SaveIcon = Save;
+  PlusIcon = Plus;
+  TrashIcon = Trash2;
 
   heroFormEn: FormGroup;
   heroFormMy: FormGroup;
+
+  // Content Blocks
+  contentBlocks: Array<{
+    id: string;
+    titleEn: string;
+    contentEn: string;
+    titleMy: string;
+    contentMy: string;
+  }> = [];
 
   loading = false;
   saving = false;
@@ -265,5 +276,30 @@ export class AdminLandingContentComponent implements OnInit {
           this.imageUploadError = 'Failed to upload hero image.';
         }
       });
+  }
+
+  addBlock(): void {
+    const newBlock = {
+      id: Date.now().toString(),
+      titleEn: '',
+      contentEn: '',
+      titleMy: '',
+      contentMy: ''
+    };
+    this.contentBlocks.push(newBlock);
+    // Scroll to the new block
+    setTimeout(() => {
+      const element = document.querySelector('.space-y-4 > div:last-child');
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }, 100);
+  }
+
+  removeBlock(id: string): void {
+    const index = this.contentBlocks.findIndex(block => block.id === id);
+    if (index > -1) {
+      this.contentBlocks.splice(index, 1);
+    }
   }
 }

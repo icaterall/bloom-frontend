@@ -142,4 +142,62 @@
       <p *ngIf="saveError" class="text-red-600">{{ saveError }}</p>
     </div>
   </div>
+
+  <!-- Content Blocks Section -->
+  <div class="bg-white shadow-sm rounded-lg border border-gray-200 mt-6" *ngIf="contentBlocks.length > 0">
+    <div class="px-4 py-3 border-b border-gray-200">
+      <h2 class="text-sm font-semibold text-gray-800">Content Blocks</h2>
+      <p class="text-xs text-gray-500 mt-0.5">Additional content sections for the landing page</p>
+    </div>
+    <div class="px-4 py-4">
+      <div class="space-y-4">
+        @for (block of contentBlocks; track block.id) {
+          <div class="border border-gray-200 rounded-md p-4 relative">
+            <button 
+              (click)="removeBlock(block.id)"
+              class="absolute top-2 right-2 text-red-500 hover:text-red-700"
+              type="button">
+              <lucide-angular [img]="TrashIcon" size="16"></lucide-angular>
+            </button>
+            <div class="grid md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-medium text-gray-600 mb-1">English Title</label>
+                <input 
+                  type="text" 
+                  [(ngModel)]="block.titleEn"
+                  class="w-full rounded-md border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500" />
+                <label class="block text-xs font-medium text-gray-600 mb-1 mt-2">English Content</label>
+                <textarea 
+                  rows="3"
+                  [(ngModel)]="block.contentEn"
+                  class="w-full rounded-md border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500"></textarea>
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-gray-600 mb-1">Malay Title</label>
+                <input 
+                  type="text"
+                  [(ngModel)]="block.titleMy" 
+                  class="w-full rounded-md border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500" />
+                <label class="block text-xs font-medium text-gray-600 mb-1 mt-2">Malay Content</label>
+                <textarea 
+                  rows="3"
+                  [(ngModel)]="block.contentMy"
+                  class="w-full rounded-md border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500"></textarea>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
 </div>
+
+<!-- Fixed Add Block Button -->
+<button 
+  (click)="addBlock()"
+  class="btn-add-block"
+  type="button"
+  title="Add Content Block">
+  <lucide-angular [img]="PlusIcon" size="24" class="text-white"></lucide-angular>
+  <span class="ml-2">Add Content Block</span>
+</button>
