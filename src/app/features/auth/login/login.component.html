@@ -1,136 +1,201 @@
-<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-white py-12 px-4 sm:px-6 lg:px-8">
-  <div class="max-w-md w-full space-y-8">
-    <!-- Logo and Title -->
-    <div class="text-center">
-      <h1 class="text-3xl font-bold text-blue-600 mb-2">Bloom Spectrum Centre</h1>
-      <h2 class="text-2xl font-semibold text-gray-900">Welcome Back</h2>
-      <p class="mt-2 text-sm text-gray-600">Sign in to access your dashboard</p>
+<div class="min-h-screen flex bg-[#fdf7ef]">
+  <!-- Left marketing panel -->
+  <div class="hidden lg:flex lg:w-1/2 xl:w-3/5 flex-col justify-between px-10 py-10">
+    <div>
+      <h1 class="text-3xl font-bold text-gray-900 mb-4">
+        Integrate Bloom Portal for a seamless experience
+      </h1>
+      <p class="text-base text-gray-700 max-w-xl">
+        Give parents and staff one simple place to manage bookings, reports, and communication.
+        Keep everything connected without switching between tools.
+      </p>
     </div>
 
-    <!-- Login Form -->
-    <div class="bg-white py-8 px-4 shadow-2xl rounded sm:px-10">
-      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-6">
-        <!-- Error Message -->
-        @if (error()) {
-          <div class="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded relative" role="alert">
-            <span class="block sm:inline">{{ error() }}</span>
-          </div>
-        }
+    <div class="mt-10">
+      <div class="rounded-2xl overflow-hidden shadow-2xl bg-white">
+        <img
+          src="assets/images/warm-place.jpg"
+          alt="Bloom Portal preview"
+          class="w-full h-full object-cover"
+        />
+      </div>
+    </div>
+  </div>
 
-        <!-- Email Field -->
-        <div>
-          <label for="email" class="block text-sm font-medium text-gray-700">Email Address</label>
-          <div class="mt-1 relative">
-            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <lucide-angular [img]="MailIcon" size="20" class="text-gray-400"></lucide-angular>
-            </div>
-            <input
-              id="email"
-              type="email"
-              formControlName="email"
-              autocomplete="email"
-              class="appearance-none block w-full pl-10 pr-3 py-2 border rounded shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-              [class.border-gray-300]="!email?.invalid || !email?.touched"
-              [class.border-red-300]="email?.invalid && email?.touched"
-              placeholder="admin@bloomspectrum.my"
-            />
-          </div>
-          @if (email?.invalid && email?.touched) {
-            <p class="mt-1 text-sm text-red-600">
-              @if (email?.errors?.['required']) {
-                Email is required
-              }
-              @if (email?.errors?.['email']) {
-                Please enter a valid email
-              }
-            </p>
-          }
+  <!-- Right auth panel -->
+  <div class="flex-1 flex flex-col bg-white">
+    <!-- Top branding -->
+    <div class="flex items-center justify-between px-4 pt-6 lg:px-8">
+      <div class="flex items-center gap-2">
+        <div class="h-8 w-8 rounded-xl bg-primary flex items-center justify-center text-white font-semibold">
+          B
         </div>
+        <span class="text-sm font-semibold text-gray-800">Bloom Spectrum</span>
+      </div>
+    </div>
 
-        <!-- Password Field -->
-        <div>
-          <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
-          <div class="mt-1 relative">
-            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <lucide-angular [img]="LockIcon" size="20" class="text-gray-400"></lucide-angular>
-            </div>
-            <input
-              id="password"
-              [type]="showPassword() ? 'text' : 'password'"
-              formControlName="password"
-              autocomplete="current-password"
-              class="appearance-none block w-full pl-10 pr-10 py-2 border rounded shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-              [class.border-gray-300]="!password?.invalid || !password?.touched"
-              [class.border-red-300]="password?.invalid && password?.touched"
-              placeholder="Enter your password"
-            />
-            <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
-              <button
-                type="button"
-                (click)="togglePasswordVisibility()"
-                class="text-gray-400 hover:text-gray-500 focus:outline-none focus:text-gray-500"
-              >
-                <lucide-angular 
-                  [img]="showPassword() ? EyeOffIcon : EyeIcon" 
-                  size="20"
-                ></lucide-angular>
-              </button>
-            </div>
-          </div>
-          @if (password?.invalid && password?.touched) {
-            <p class="mt-1 text-sm text-red-600">
-              @if (password?.errors?.['required']) {
-                Password is required
-              }
-              @if (password?.errors?.['minlength']) {
-                Password must be at least 6 characters
-              }
-            </p>
-          }
-        </div>
+    <!-- Login card -->
+    <div class="flex-1 flex items-center justify-center px-4 py-10 lg:px-8">
+      <div class="w-full max-w-md">
+        <h2 class="text-3xl font-semibold text-gray-900 leading-tight">
+          Log in to your account
+        </h2>
+        <p class="mt-3 text-sm text-gray-600">
+          Haven't signed up yet?
+          <a routerLink="/contact" class="text-primary font-medium hover:text-primary-700">
+            Create account
+          </a>
+        </p>
 
-        <!-- Remember Me and Forgot Password -->
-        <div class="flex items-center justify-between">
-          <div class="flex items-center">
-            <input
-              id="remember-me"
-              name="remember-me"
-              type="checkbox"
-              class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-            />
-            <label for="remember-me" class="ml-2 block text-sm text-gray-900">
-              Remember me
-            </label>
-          </div>
+        <!-- Top buttons -->
+        <div class="mt-8 space-y-3">
+   
 
-          <div class="text-sm">
-            <a href="#" class="font-medium text-blue-600 hover:text-blue-500">
-              Forgot password?
-            </a>
-          </div>
-        </div>
-
-        <!-- Submit Button -->
-        <div>
           <button
-            type="submit"
-            [disabled]="loading() || loginForm.invalid"
-            class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+            type="button"
+            (click)="onGoogleLogin()"
+            class="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border border-gray-200 bg-white text-sm font-medium text-gray-900 hover:bg-gray-50"
           >
-            @if (loading()) {
-              <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            <div class="w-5 h-5 flex items-center justify-center">
+              <svg
+                version="1.1"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 48 48"
+                class="w-5 h-5"
+                width="20"
+                height="20"
+              >
+                <g>
+                  <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"></path>
+                  <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"></path>
+                  <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"></path>
+                  <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"></path>
+                  <path fill="none" d="M0 0h48v48H0z"></path>
+                </g>
               </svg>
-              Signing in...
-            } @else {
-              <lucide-angular [img]="LogInIcon" size="20" class="mr-2"></lucide-angular>
-              Sign In
-            }
+            </div>
+            <span>Log in with Google</span>
           </button>
         </div>
-      </form>
 
+        <!-- Divider -->
+        <div class="mt-6 flex items-center gap-3 text-xs text-gray-400">
+          <div class="h-px bg-gray-200 flex-1"></div>
+          <span>or</span>
+          <div class="h-px bg-gray-200 flex-1"></div>
+        </div>
+
+        <!-- Email/password form -->
+        <div class="mt-6 bg-white">
+          <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-5">
+            <!-- Error Message -->
+            @if (error()) {
+              <div class="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded relative" role="alert">
+                <span class="block sm:inline">{{ error() }}</span>
+              </div>
+            }
+
+            <!-- Email Field -->
+            <div>
+              <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+              <div class="mt-1 relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <lucide-angular [img]="MailIcon" size="20" class="text-gray-400"></lucide-angular>
+                </div>
+                <input
+                  id="email"
+                  type="email"
+                  formControlName="email"
+                  autocomplete="email"
+                  class="appearance-none block w-full pl-10 pr-3 py-2 border rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+                  [class.border-gray-300]="!email?.invalid || !email?.touched"
+                  [class.border-red-300]="email?.invalid && email?.touched"
+                  placeholder="you@example.com"
+                />
+              </div>
+              @if (email?.invalid && email?.touched) {
+                <p class="mt-1 text-sm text-red-600">
+                  @if (email?.errors?.['required']) {
+                    Email is required
+                  }
+                  @if (email?.errors?.['email']) {
+                    Please enter a valid email
+                  }
+                </p>
+              }
+            </div>
+
+            <!-- Password Field -->
+            <div>
+              <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+              <div class="mt-1 relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <lucide-angular [img]="LockIcon" size="20" class="text-gray-400"></lucide-angular>
+                </div>
+                <input
+                  id="password"
+                  [type]="showPassword() ? 'text' : 'password'"
+                  formControlName="password"
+                  autocomplete="current-password"
+                  class="appearance-none block w-full pl-10 pr-10 py-2 border rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+                  [class.border-gray-300]="!password?.invalid || !password?.touched"
+                  [class.border-red-300]="password?.invalid && password?.touched"
+                  placeholder="Enter your password"
+                />
+                <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                  <button
+                    type="button"
+                    (click)="togglePasswordVisibility()"
+                    class="text-gray-400 hover:text-gray-500 focus:outline-none focus:text-gray-500"
+                  >
+                    <lucide-angular
+                      [img]="showPassword() ? EyeOffIcon : EyeIcon"
+                      size="20"
+                    ></lucide-angular>
+                  </button>
+                </div>
+              </div>
+              @if (password?.invalid && password?.touched) {
+                <p class="mt-1 text-sm text-red-600">
+                  @if (password?.errors?.['required']) {
+                    Password is required
+                  }
+                  @if (password?.errors?.['minlength']) {
+                    Password must be at least 6 characters
+                  }
+                </p>
+              }
+            </div>
+
+            <!-- Forgot password link -->
+            <div class="flex justify-end text-sm">
+              <a routerLink="/forgot-password" class="font-medium text-primary hover:text-primary-700">
+                Forgot password?
+              </a>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="pt-2">
+              <button
+                type="submit"
+                [disabled]="loading() || loginForm.invalid"
+                class="w-full inline-flex items-center justify-center py-2.5 px-4 text-sm font-medium rounded-lg text-white bg-primary hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+              >
+                @if (loading()) {
+                  <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Signing in...
+                } @else {
+                  <lucide-angular [img]="LogInIcon" size="20" class="mr-2"></lucide-angular>
+                  Continue
+                }
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
   </div>
 </div>

@@ -1,29 +1,23 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { User } from '../../../shared/models/user.model';
-import { LucideAngularModule, Users, Calendar, UserPlus, Baby, TrendingUp, Bell, Settings, LogOut } from 'lucide-angular';
+import { LucideAngularModule, Calendar, UserPlus, Baby, TrendingUp } from 'lucide-angular';
 
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule, LucideAngularModule],
+  imports: [CommonModule, LucideAngularModule],
   templateUrl: './admin-dashboard.component.html',
   styleUrls: ['./admin-dashboard.component.css']
 })
 export class AdminDashboardComponent implements OnInit {
   currentUser: User | null = null;
-
-  // Icons
-  UsersIcon = Users;
+  // Icons used in stats cards
   CalendarIcon = Calendar;
   UserPlusIcon = UserPlus;
   BabyIcon = Baby;
   TrendingUpIcon = TrendingUp;
-  BellIcon = Bell;
-  SettingsIcon = Settings;
-  LogOutIcon = LogOut;
 
   // Dashboard data (static for now)
   dashboardStats = {
@@ -44,9 +38,5 @@ export class AdminDashboardComponent implements OnInit {
 
   ngOnInit(): void {
     this.currentUser = this.authService.getCurrentUser();
-  }
-
-  logout(): void {
-    this.authService.logout();
   }
 }

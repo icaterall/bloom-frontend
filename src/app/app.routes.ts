@@ -26,11 +26,35 @@ export const routes: Routes = [
         .then(m => m.LoginComponent),
     title: 'Login - Bloom Spectrum Centre'
   },
+  {
+    path: 'forgot-password',
+    loadComponent: () =>
+      import('./features/auth/forgot-password/forgot-password.component')
+        .then(m => m.ForgotPasswordComponent),
+    title: 'Forgot Password - Bloom Spectrum Centre'
+  },
+  {
+    path: 'auth/reset-password/:token',
+    loadComponent: () =>
+      import('./features/auth/reset-password/reset-password.component')
+        .then(m => m.ResetPasswordComponent),
+    title: 'Reset Password - Bloom Spectrum Centre'
+  },
+  {
+    path: 'auth/google/callback',
+    loadComponent: () =>
+      import('./features/auth/google-callback/google-callback.component')
+        .then(m => m.GoogleCallbackComponent),
+    title: 'Google Login - Bloom Spectrum Centre'
+  },
   // Admin routes
   {
     path: 'admin',
     canActivate: [authGuard, roleGuard],
     data: { roles: ['admin'] },
+    loadComponent: () =>
+      import('./features/admin/layout/admin-layout.component')
+        .then(m => m.AdminLayoutComponent),
     children: [
       {
         path: 'dashboard',

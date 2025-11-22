@@ -1,13 +1,13 @@
 export const environment = {
   production: false,
   hmr: false, 
-  frontendUrl:"http://localhost:4200",
-  apiUrl:"http://127.0.0.1:3000/api/v1",
-  apiDirectUrl:"http://127.0.0.1:3000/",
+  frontendUrl:"http://localhost:4100",
+  apiUrl:"http://127.0.0.1:3200/api/v1",
+  apiDirectUrl:"http://127.0.0.1:3200/",
   apiUploadUrl:"https://pickpickgo.s3.ap-southeast-1.amazonaws.com",
-  apiSocketUrl:"http://127.0.0.1:3000/",
+  apiSocketUrl:"http://127.0.0.1:3200/",
   recaptchaSiteKey: '6Le_ytYrAAAAAPtWAIltkJkF4ijMK3jpGVQUEtQ-',
-  googleClientId: '255645745033-m554rtm8puu9l4p09qirqrfnd3cvr3te.apps.googleusercontent.com', // Replace with your actual Google Client ID
+  googleClientId: '524061599462-5ft652kfahvputtng3vr70e43tn741qg.apps.googleusercontent.com', // Replace with your actual Google Client ID
   enableServiceWorker: false,
   enableAnalytics: false,
     cacheTimeout: 300000, // 5 minutes in milliseconds

@@ -5,9 +5,9 @@ export const environment = {
   apiUrl:"https://backend.bloomspectrum.my/api/v1",
   apiSocketUrl:"https://backend.bloomspectrum.my/",
   apiDirectUrl:"https://backend.bloomspectrum.my/",
-  apiUploadUrl:"https://anataleb.s3.us-east-2.amazonaws.com/",
+  apiUploadUrl:"https://anataleb.s3.ap-southeast-1.amazonaws.com/",
   recaptchaSiteKey: '6Le_ytYrAAAAAPtWAIltkJkF4ijMK3jpGVQUEtQ-',
-  googleClientId: '255645745033-m554rtm8puu9l4p09qirqrfnd3cvr3te.apps.googleusercontent.com', // Replace with your actual Google Client ID
+  googleClientId: '524061599462-5ft652kfahvputtng3vr70e43tn741qg.apps.googleusercontent.com', // Replace with your actual Google Client ID
   enableServiceWorker: false,
   enableAnalytics: false,
     cacheTimeout: 300000, // 5 minutes in milliseconds

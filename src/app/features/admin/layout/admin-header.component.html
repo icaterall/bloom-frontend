@@ -1,0 +1,42 @@
+<nav class="bg-white shadow-sm border-b">
+  <div class="px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between h-16">
+      <!-- Left side -->
+      <div class="flex items-center space-x-3">
+        <h1 class="text-xl font-bold text-blue-600">Bloom Spectrum Centre</h1>
+        <span
+          class="hidden sm:inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-50 text-blue-700 border border-blue-100"
+        >
+          Admin Dashboard
+        </span>
+      </div>
+
+      <!-- Right side -->
+      <div class="flex items-center space-x-4">
+        <!-- Notifications -->
+        <button class="relative p-2 rounded-full hover:bg-gray-100">
+          <lucide-angular [img]="BellIcon" size="20" class="text-gray-600"></lucide-angular>
+          <span class="absolute -top-0.5 -right-0.5 inline-flex h-2 w-2 rounded-full bg-red-500"></span>
+        </button>
+        
+        <!-- Settings -->
+        <button class="p-2 rounded-full hover:bg-gray-100">
+          <lucide-angular [img]="SettingsIcon" size="20" class="text-gray-600"></lucide-angular>
+        </button>
+
+        <!-- User Menu -->
+        <div class="flex items-center space-x-3">
+          <div class="hidden sm:block text-right">
+            <p class="text-sm font-medium text-gray-900">{{ currentUser?.name }}</p>
+            <p class="text-xs text-gray-500">{{ currentUser?.email }}</p>
+          </div>
+          <div
+            class="h-9 w-9 rounded-full bg-blue-100 flex items-center justify-center text-sm font-semibold text-blue-700"
+          >
+            {{ currentUser?.name?.charAt(0) || 'A' }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>

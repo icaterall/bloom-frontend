@@ -11,6 +11,7 @@ import { environment } from '../../../environments/environment';
 })
 export class AuthService {
   private readonly TOKEN_KEY = 'bloom_auth_token';
+  private readonly USER_KEY = 'bloom_auth_user';
   private readonly API_URL = environment.apiUrl;
   
   private currentUserSubject = new BehaviorSubject<User | null>(null);
@@ -33,27 +34,45 @@ export class AuthService {
    */
   private async initializeAuth(): Promise<void> {
     const token = this.getToken();
-    if (token) {
-      // Try to load user from token
-      await this.loadCurrentUser().toPromise().catch(() => {
-        // If loading fails, clear auth state
-        this.clearAuth();
-      });
+    if (!token) {
+      return;
     }
+
+    // 1) Try to restore user directly from localStorage (fast path)
+    const storedUser = this.getStoredUser();
+    if (storedUser) {
+      this.setCurrentUser(storedUser);
+      return;
+    }
+
+    // 2) Fallback: try to load from backend using the token
+    await this.loadCurrentUser().toPromise().catch(() => {
+      // If loading fails, clear auth state so we don't keep a broken session
+      this.clearAuth();
+    });
   }
 
   /**
    * Login with email and password
    */
   login(credentials: LoginRequest): Observable<LoginResponse> {
-    console.log('Attempting login to:', `${this.API_URL}/auth/login`);
+    console.log('===== FRONTEND LOGIN DEBUG START =====');
+    console.log('1. Frontend - Login URL:', `${this.API_URL}/auth/login`);
+    console.log('2. Frontend - Credentials being sent:', {
+      email: credentials.email,
+      password: credentials.password ? `[PROVIDED - ${credentials.password.length} chars]` : '[NOT PROVIDED]'
+    });
     
     return this.http.post<LoginResponse>(`${this.API_URL}/auth/login`, credentials)
       .pipe(
         tap((response) => {
-          console.log('Login response:', response);
+          console.log('3. Frontend - Raw response received:', response);
           
           if (response.success && response.data) {
+            console.log('4. Frontend - Login successful!');
+            console.log('5. Frontend - User data:', response.data.user);
+            console.log('6. Frontend - Token received:', response.data.token ? 'YES' : 'NO');
+            
             // Store token
             this.setToken(response.data.token);
             
@@ -61,11 +80,20 @@ export class AuthService {
             this.setCurrentUser(response.data.user);
             
             // Navigate based on role
+            console.log('7. Frontend - Navigating to role-based dashboard:', response.data.user.role);
             this.navigateByRole(response.data.user.role);
+          } else {
+            console.log('4. Frontend - Login failed, response not successful');
+            console.log('5. Frontend - Response message:', response.message);
           }
+          console.log('===== FRONTEND LOGIN DEBUG END =====');
         }),
         catchError((error) => {
-          console.error('Login error:', error);
+          console.log('3. Frontend - ERROR caught in catchError');
+          console.log('4. Frontend - Error status:', error.status);
+          console.log('5. Frontend - Error message:', error.error?.message);
+          console.log('6. Frontend - Full error object:', error);
+          console.log('===== FRONTEND LOGIN DEBUG END (ERROR) =====');
           
           // Return a properly formatted error response
           const errorResponse: LoginResponse = {
@@ -160,11 +188,38 @@ export class AuthService {
   }
 
   /**
+   * Get stored user from localStorage (if any)
+   */
+  private getStoredUser(): User | null {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      const raw = localStorage.getItem(this.USER_KEY);
+      if (!raw) {
+        return null;
+      }
+      try {
+        return JSON.parse(raw) as User;
+      } catch {
+        return null;
+      }
+    }
+    return null;
+  }
+
+  /**
    * Set authentication token
    */
   private setToken(token: string): void {
     if (typeof window !== 'undefined' && window.localStorage) {
       localStorage.setItem(this.TOKEN_KEY, token);
+    }
+  }
+
+  /**
+   * Persist user in localStorage
+   */
+  private setStoredUser(user: User): void {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      localStorage.setItem(this.USER_KEY, JSON.stringify(user));
     }
   }
 
@@ -178,12 +233,22 @@ export class AuthService {
   }
 
   /**
+   * Remove stored user from localStorage
+   */
+  private removeStoredUser(): void {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      localStorage.removeItem(this.USER_KEY);
+    }
+  }
+
+  /**
    * Set current user
    */
   private setCurrentUser(user: User): void {
     this.currentUserSubject.next(user);
     this.isAuthenticated.set(true);
     this.userRole.set(user.role);
+    this.setStoredUser(user);
   }
 
   /**
@@ -191,6 +256,7 @@ export class AuthService {
    */
   private clearAuth(): void {
     this.removeToken();
+    this.removeStoredUser();
     this.currentUserSubject.next(null);
     this.isAuthenticated.set(false);
     this.userRole.set(null);
@@ -213,5 +279,54 @@ export class AuthService {
       default:
         this.router.navigate(['/']);
     }
+  }
+
+  /**
+   * Request password reset
+   */
+  forgotPassword(email: string): Observable<any> {
+    return this.http.post<any>(`${this.API_URL}/auth/forgot-password`, { 
+      email,
+      language: 'en' 
+    });
+  }
+
+  /**
+   * Validate reset token
+   */
+  validateResetToken(token: string): Observable<any> {
+    return this.http.get<any>(`${this.API_URL}/auth/validate-token/${token}`);
+  }
+
+  /**
+   * Reset password with token
+   */
+  resetPassword(token: string, newPassword: string): Observable<any> {
+    return this.http.post<any>(`${this.API_URL}/auth/reset-password`, {
+      token,
+      newPassword
+    });
+  }
+
+  /**
+   * Complete an external login (e.g. Google OAuth)
+   * by storing the token and user, then navigating by role.
+   */
+  completeExternalLogin(token: string, user: User): void {
+    // Reuse the existing private helpers so the behavior is
+    // identical to a normal email/password login.
+    this.setToken(token);
+    this.setCurrentUser(user);
+    this.navigateByRole(user.role);
+  }
+
+  /**
+   * Change password (for logged-in users)
+   */
+  changePassword(oldPassword: string, newPassword: string): Observable<any> {
+    return this.http.post<any>(`${this.API_URL}/auth/reset-password`, {
+      oldPassword,
+      newPassword
+    });
   }
 }

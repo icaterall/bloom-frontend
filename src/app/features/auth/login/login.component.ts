@@ -1,18 +1,20 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { LucideAngularModule, Mail, Lock, Eye, EyeOff, LogIn } from 'lucide-angular';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, LucideAngularModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, LucideAngularModule],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css']
 })
 export class LoginComponent implements OnInit {
+  private readonly apiUrl = environment.apiUrl;
   loginForm!: FormGroup;
   loading = signal(false);
   error = signal<string | null>(null);
@@ -57,10 +59,20 @@ export class LoginComponent implements OnInit {
   }
 
   onSubmit(): void {
+    console.log('===== LOGIN FORM SUBMISSION DEBUG =====');
+    console.log('1. Form valid:', this.loginForm.valid);
+    console.log('2. Form errors:', this.loginForm.errors);
+    
     if (this.loginForm.invalid) {
+      console.log('3. Form is INVALID - showing validation errors');
       // Mark all fields as touched to show validation errors
       Object.keys(this.loginForm.controls).forEach(key => {
         const control = this.loginForm.get(key);
+        console.log(`   Field '${key}':`, {
+          value: control?.value,
+          errors: control?.errors,
+          touched: control?.touched
+        });
         control?.markAsTouched();
       });
       return;
@@ -70,19 +82,28 @@ export class LoginComponent implements OnInit {
     this.error.set(null);
 
     const credentials = this.loginForm.value;
+    console.log('3. Form is VALID - Submitting credentials:', {
+      email: credentials.email,
+      password: credentials.password ? `[PROVIDED - ${credentials.password.length} chars]` : '[NOT PROVIDED]'
+    });
 
     this.authService.login(credentials).subscribe({
       next: (response) => {
+        console.log('4. Login response received in component:', response);
         this.loading.set(false);
         if (response.success) {
+          console.log('5. Login successful - navigation will be handled by AuthService');
           // Navigation is handled in AuthService
         } else {
+          console.log('5. Login failed - showing error message:', response.message);
           this.error.set(response.message || 'Login failed');
         }
       },
       error: (err) => {
         this.loading.set(false);
-        console.error('Login error:', err);
+        console.log('4. Login ERROR in component:', err);
+        console.log('5. Error status:', err.status);
+        console.log('6. Error message:', err.error?.message);
         
         if (err.error && err.error.message) {
           this.error.set(err.error.message);
@@ -95,6 +116,28 @@ export class LoginComponent implements OnInit {
         }
       }
     });
+    console.log('===== END LOGIN FORM SUBMISSION DEBUG =====');
+  }
+
+  onGoogleLogin(): void {
+    try {
+      const clientId = environment.googleClientId;
+      const redirectUri = `${environment.frontendUrl}/auth/google/callback`;
+
+      const params = new URLSearchParams({
+        client_id: clientId,
+        redirect_uri: redirectUri,
+        response_type: 'code',
+        scope: 'openid email profile',
+        access_type: 'offline',
+        prompt: 'select_account'
+      });
+
+      const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
+      window.location.href = authUrl;
+    } catch (e) {
+      console.error('Google login redirect failed', e);
+    }
   }
 
   private navigateByRole(role: string): void {

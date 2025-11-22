@@ -1,0 +1,145 @@
+<div class="space-y-4">
+  <!-- Page header -->
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">Landing page content</h1>
+      <p class="text-sm text-gray-600 mt-1">
+        Manage hero section text in both English and Bahasa Melayu.
+      </p>
+    </div>
+    <div class="hidden sm:flex items-center gap-2 text-sm text-gray-500">
+      <lucide-angular [img]="GlobeIcon" size="18" class="text-gray-400"></lucide-angular>
+      <span>Bilingual content (EN / MY)</span>
+    </div>
+  </div>
+
+  <!-- Hero content card -->
+  <div class="bg-white shadow-sm rounded-lg border border-gray-200">
+    <div class="px-4 py-3 border-b border-gray-200 flex items-center justify-between">
+      <div>
+        <h2 class="text-sm font-semibold text-gray-800">Hero section</h2>
+        <p class="text-xs text-gray-500 mt-0.5">
+          Main heading, subtitle, and overlay text on the homepage hero.
+        </p>
+      </div>
+      <button
+        type="button"
+        (click)="saveHeroContent()"
+        class="inline-flex items-center gap-2 px-4 py-2 rounded-md bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 disabled:opacity-60"
+        [disabled]="saving"
+      >
+        <lucide-angular [img]="SaveIcon" size="16" class="text-white"></lucide-angular>
+        <span>{{ saving ? 'Saving...' : 'Save changes' }}</span>
+      </button>
+    </div>
+
+    <!-- Hero image upload -->
+    <div class="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
+      <div class="text-xs text-gray-600">
+        <span class="font-semibold">Hero image</span>
+        <span *ngIf="heroImageUrl" class="ml-2 text-gray-500">Image uploaded</span>
+        <span *ngIf="!heroImageUrl" class="ml-2 text-gray-400">No image uploaded yet</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <input
+          type="file"
+          accept="image/*"
+          (change)="onHeroImageSelected($event)"
+          class="text-xs text-gray-700"
+        />
+      </div>
+    </div>
+
+    <!-- Loading state -->
+    <div class="px-4 py-4 border-b border-gray-100" *ngIf="loading">
+      <p class="text-sm text-gray-500">Loading hero content...</p>
+    </div>
+
+    <!-- Forms -->
+    <div class="px-4 py-4 grid gap-6 md:grid-cols-2" *ngIf="!loading">
+      <!-- English -->
+      <form [formGroup]="heroFormEn">
+        <h3 class="text-sm font-semibold text-gray-800 mb-3">English</h3>
+        <div class="space-y-3">
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">Title</label>
+            <input
+              type="text"
+              class="w-full rounded-md border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500"
+              formControlName="title"
+            />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">Subtitle</label>
+            <textarea
+              rows="2"
+              class="w-full rounded-md border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500"
+              formControlName="subtitle"
+            ></textarea>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">Overlay body (image)</label>
+            <textarea
+              rows="2"
+              class="w-full rounded-md border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500"
+              formControlName="body"
+            ></textarea>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">Overlay badge / slogan</label>
+            <input
+              type="text"
+              class="w-full rounded-md border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500"
+              formControlName="badge"
+            />
+          </div>
+        </div>
+      </form>
+
+      <!-- Bahasa Melayu -->
+      <form [formGroup]="heroFormMy">
+        <h3 class="text-sm font-semibold text-gray-800 mb-3">Bahasa Melayu</h3>
+        <div class="space-y-3">
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">Tajuk</label>
+            <input
+              type="text"
+              class="w-full rounded-md border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500"
+              formControlName="title"
+            />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">Subtajuk</label>
+            <textarea
+              rows="2"
+              class="w-full rounded-md border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500"
+              formControlName="subtitle"
+            ></textarea>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">Teks di atas imej</label>
+            <textarea
+              rows="2"
+              class="w-full rounded-md border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500"
+              formControlName="body"
+            ></textarea>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">Lencana / slogan</label>
+            <input
+              type="text"
+              class="w-full rounded-md border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500"
+              formControlName="badge"
+            />
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- Save status -->
+    <div class="px-4 py-3 border-t border-gray-100 text-sm" *ngIf="saveMessage || saveError">
+      <p *ngIf="saveMessage" class="text-green-600">{{ saveMessage }}</p>
+      <p *ngIf="saveError" class="text-red-600">{{ saveError }}</p>
+    </div>
+  </div>
+</div>

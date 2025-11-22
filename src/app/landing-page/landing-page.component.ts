@@ -6,17 +6,19 @@ import { HeaderComponent } from '../shared/header/header';
 import { FooterComponent } from '../shared/footer/footer';
 import { TranslatePipe } from '../shared/pipes/translate.pipe';
 import { TranslationService } from '../shared/services/translation.service';
-import { HttpClientModule } from '@angular/common/http';
 
 @Component({
   selector: 'app-landing-page',
   standalone: true,
-  imports: [CommonModule, RouterModule, LucideAngularModule, HeaderComponent, FooterComponent, TranslatePipe, HttpClientModule],
+  imports: [CommonModule, RouterModule, LucideAngularModule, HeaderComponent, FooterComponent, TranslatePipe],
   templateUrl: './landing-page.component.html',
   styleUrls: ['./landing-page.component.scss']
 })
 export class LandingPageComponent {
-  constructor(public translationService: TranslationService) {}
+  constructor(
+    public translationService: TranslationService
+  ) {}
+
   readonly CheckCircleIcon = CheckCircle;
   readonly UsersIcon = Users;
   readonly BookOpenIcon = BookOpen;
@@ -28,6 +30,9 @@ export class LandingPageComponent {
   readonly StarIcon = Star;
   readonly ClockIcon = Clock;
   readonly TargetIcon = Target;
+
+  // Dynamic content from backend (with initial static fallbacks)
+  heroContent: any | null = null;
 
   programmes = [
     {
@@ -109,4 +114,5 @@ export class LandingPageComponent {
       rating: 5
     }
   ];
+
 }
