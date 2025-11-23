@@ -5,6 +5,7 @@ import { LucideAngularModule, Menu, X, ChevronDown, Globe, User, Phone, Mail } f
 import { TranslationService } from '../services/translation.service';
 import { TranslatePipe } from '../pipes/translate.pipe';
 import { HttpClientModule } from '@angular/common/http';
+import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-header',
@@ -26,7 +27,10 @@ export class HeaderComponent {
   isScrolled = false;
   currentLanguage = 'my'; // Default to Malay
 
-  constructor(public translationService: TranslationService) {
+  constructor(
+    public translationService: TranslationService,
+    private authService: AuthService
+  ) {
     // Subscribe to language changes
     this.translationService.currentLang$.subscribe(lang => {
       this.currentLanguage = lang;
@@ -44,5 +48,13 @@ export class HeaderComponent {
 
   toggleLanguage() {
     this.translationService.toggleLanguage();
+    const newLang = this.translationService.getCurrentLanguage();
+    
+    // If user is logged in, update preference
+    if (this.authService.isAuthenticatedUser()) {
+      this.authService.updateProfile({ preferred_language: newLang }).subscribe({
+        error: (err) => console.error('Failed to update language preference', err)
+      });
+    }
   }
 }

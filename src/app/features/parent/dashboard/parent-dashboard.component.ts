@@ -2,18 +2,29 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
+import { ChildService } from '../../../core/services/child.service';
 import { User } from '../../../shared/models/user.model';
-import { LucideAngularModule, Baby, Calendar, Target, MessageSquare, FileText, TrendingUp, Bell, Settings, LogOut } from 'lucide-angular';
+import { Child } from '../../../shared/models/child.model';
+import { AddChildModalComponent } from '../components/add-child-modal/add-child-modal.component';
+import { LucideAngularModule, Baby, Calendar, Target, MessageSquare, FileText, TrendingUp, Bell, Settings, LogOut, Plus, CheckCircle } from 'lucide-angular';
 
 @Component({
   selector: 'app-parent-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule, LucideAngularModule],
+  imports: [
+    CommonModule, 
+    RouterModule, 
+    LucideAngularModule, 
+    AddChildModalComponent
+  ],
   templateUrl: './parent-dashboard.component.html',
   styleUrls: ['./parent-dashboard.component.css']
 })
 export class ParentDashboardComponent implements OnInit {
   currentUser: User | null = null;
+  children: Child[] = [];
+  isLoading = true;
+  showAddChildModal = false;
 
   // Icons
   BabyIcon = Baby;
@@ -25,16 +36,10 @@ export class ParentDashboardComponent implements OnInit {
   BellIcon = Bell;
   SettingsIcon = Settings;
   LogOutIcon = LogOut;
+  PlusIcon = Plus;
+  CheckCircleIcon = CheckCircle;
 
-  // Sample child data (will be loaded from API later)
-  childInfo = {
-    name: 'Ahmad',
-    age: 5,
-    programme: 'Early Intervention',
-    nextSession: 'Tomorrow, 10:00 AM',
-    therapist: 'Ms. Sarah'
-  };
-
+  // Sample data (will be replaced with real data later)
   upcomingSessions = [
     { date: 'Tomorrow', time: '10:00 AM', type: 'Individual Therapy', therapist: 'Ms. Sarah' },
     { date: 'Friday', time: '2:00 PM', type: 'Group Activity', therapist: 'Mr. John' },
@@ -47,13 +52,58 @@ export class ParentDashboardComponent implements OnInit {
     { area: 'Daily Living', progress: 'Successfully used utensils during lunch', date: '1 week ago' }
   ];
 
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    private childService: ChildService
+  ) {}
 
   ngOnInit(): void {
     this.currentUser = this.authService.getCurrentUser();
+    this.loadChildren();
+  }
+
+  loadChildren(): void {
+    this.isLoading = true;
+    this.childService.getChildren().subscribe({
+      next: (response) => {
+        if (response.success && Array.isArray(response.data)) {
+          this.children = response.data;
+        }
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Error loading children:', error);
+        this.isLoading = false;
+      }
+    });
+  }
+
+  openAddChildModal(): void {
+    this.showAddChildModal = true;
+  }
+
+  closeAddChildModal(): void {
+    this.showAddChildModal = false;
+  }
+
+  onChildAdded(): void {
+    this.loadChildren();
   }
 
   logout(): void {
     this.authService.logout();
   }
+
+  // Helper to calculate age
+  calculateAge(dateOfBirth: string): number {
+    const today = new Date();
+    const birthDate = new Date(dateOfBirth);
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const m = today.getMonth() - birthDate.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    return age;
+  }
 }
+

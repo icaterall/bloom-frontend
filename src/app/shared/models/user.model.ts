@@ -13,6 +13,7 @@ export interface User {
   updated_at: string;
   profileComplete: boolean;
   missingFields: string[];
+  preferred_language?: string;
 }
 
 export interface LoginRequest {
@@ -40,4 +41,5 @@ export interface AuthResponse {
 export interface UpdateProfileRequest {
   name?: string;
   mobile?: string;
+  preferred_language?: string;
 }

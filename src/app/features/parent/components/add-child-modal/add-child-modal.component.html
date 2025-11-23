@@ -1,0 +1,180 @@
+<div class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+  <!-- Backdrop with blur -->
+  <div class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity" (click)="onClose()"></div>
+
+  <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+    <div class="relative transform overflow-hidden rounded bg-white text-left shadow-2xl transition-all sm:w-full sm:max-w-2xl">
+      
+      <!-- Header with Gradient -->
+      <div class="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <div class="bg-white/20 p-2 rounded">
+              <lucide-angular [img]="BabyIcon" size="24" class="text-white"></lucide-angular>
+            </div>
+            <div>
+              <h3 class="text-lg font-bold text-white" id="modal-title">Add Child Profile</h3>
+              <p class="text-blue-100 text-xs mt-0.5">Let's get to know your little one</p>
+            </div>
+          </div>
+          <button (click)="onClose()" class="text-white/70 hover:text-white hover:bg-white/10 rounded p-1.5 transition-colors">
+            <lucide-angular [img]="XIcon" size="20"></lucide-angular>
+          </button>
+        </div>
+      </div>
+
+      <!-- Error Message -->
+      <div *ngIf="errorMessage" class="mx-6 mt-4 p-3 bg-red-50 border border-red-100 text-red-700 rounded flex items-start">
+        <lucide-angular [img]="AlertCircleIcon" size="16" class="mr-2 mt-0.5 flex-shrink-0"></lucide-angular>
+        <span class="text-xs">{{ errorMessage }}</span>
+      </div>
+
+      <!-- Form -->
+      <form [formGroup]="childForm" (ngSubmit)="onSubmit()" class="flex flex-col max-h-[calc(100vh-200px)]">
+        <div class="px-6 py-4 overflow-y-auto space-y-4">
+          
+          <!-- Section 1: Basic Information -->
+          <div class="space-y-3">
+            <h4 class="text-sm font-semibold text-gray-500 uppercase tracking-wider flex items-center">
+              <lucide-angular [img]="UserIcon" size="16" class="mr-2"></lucide-angular>
+              Basic Information
+            </h4>
+            
+            <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <!-- Full Name -->
+              <div class="col-span-2">
+                <label for="full_name" class="block text-xs font-medium text-gray-700 mb-1">Child's Full Name <span class="text-red-500">*</span></label>
+                <input type="text" id="full_name" formControlName="full_name" 
+                  class="block w-full rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-2 px-3 bg-gray-50 focus:bg-white transition-colors"
+                  [class.border-red-300]="hasError('full_name', 'required') || hasError('full_name', 'minlength')"
+                  placeholder="e.g. Ahmad bin Abdullah">
+                <p *ngIf="hasError('full_name', 'required')" class="mt-1 text-xs text-red-600 flex items-center">
+                  <lucide-angular [img]="AlertCircleIcon" size="12" class="mr-1"></lucide-angular> Name is required
+                </p>
+                <p *ngIf="hasError('full_name', 'minlength')" class="mt-1 text-xs text-red-600 flex items-center">
+                  <lucide-angular [img]="AlertCircleIcon" size="12" class="mr-1"></lucide-angular> Name must be at least 2 characters
+                </p>
+              </div>
+
+              <!-- Date of Birth -->
+              <div>
+                <label for="date_of_birth" class="block text-xs font-medium text-gray-700 mb-1">Date of Birth <span class="text-red-500">*</span></label>
+                <div class="relative">
+                  <input [matDatepicker]="picker" formControlName="date_of_birth" 
+                    class="block w-full rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-2 px-3 bg-gray-50 focus:bg-white transition-colors pr-10 cursor-pointer"
+                    [class.border-red-300]="hasError('date_of_birth', 'required') || hasError('date_of_birth', 'minimumAge')"
+                    placeholder="Select date" (click)="picker.open()">
+                  
+                  <div class="absolute inset-y-0 right-0 flex items-center pr-3 cursor-pointer" (click)="picker.open()">
+                    <lucide-angular [img]="CalendarIcon" size="16" class="text-gray-400 hover:text-blue-500"></lucide-angular>
+                  </div>
+                  
+                  <mat-datepicker #picker></mat-datepicker>
+                </div>
+                <p *ngIf="hasError('date_of_birth', 'required')" class="mt-1 text-xs text-red-600 flex items-center">
+                  <lucide-angular [img]="AlertCircleIcon" size="12" class="mr-1"></lucide-angular> Date of birth is required
+                </p>
+                <p *ngIf="hasError('date_of_birth', 'minimumAge')" class="mt-1 text-xs text-red-600 flex items-center">
+                  <lucide-angular [img]="AlertCircleIcon" size="12" class="mr-1"></lucide-angular> Child must be at least 6 months old
+                </p>
+              </div>
+
+              <!-- Gender -->
+              <div>
+                <label for="gender" class="block text-xs font-medium text-gray-700 mb-1">Gender <span class="text-red-500">*</span></label>
+                <select id="gender" formControlName="gender" 
+                  class="block w-full rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-2 px-3 bg-gray-50 focus:bg-white transition-colors"
+                  [class.border-red-300]="hasError('gender', 'required')">
+                  <option value="">Select gender</option>
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                </select>
+                <p *ngIf="hasError('gender', 'required')" class="mt-1 text-xs text-red-600 flex items-center">
+                  <lucide-angular [img]="AlertCircleIcon" size="12" class="mr-1"></lucide-angular> Gender is required
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 2: Background -->
+          <div class="space-y-3 pt-4 border-t border-gray-100">
+            <h4 class="text-sm font-semibold text-gray-500 uppercase tracking-wider flex items-center">
+              <lucide-angular [img]="LanguagesIcon" size="16" class="mr-2"></lucide-angular>
+              Background
+            </h4>
+
+            <!-- Primary Language -->
+            <div>
+              <label for="primary_language" class="block text-xs font-medium text-gray-700 mb-1">Primary Language at Home <span class="text-red-500">*</span></label>
+              <select id="primary_language" formControlName="primary_language" 
+                class="block w-full rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-2 px-3 bg-gray-50 focus:bg-white transition-colors"
+                [class.border-red-300]="hasError('primary_language', 'required')">
+                <option value="">Select language</option>
+                <option *ngFor="let lang of languages" [value]="lang">{{ lang }}</option>
+              </select>
+              <p *ngIf="hasError('primary_language', 'required')" class="mt-1 text-xs text-red-600 flex items-center">
+                <lucide-angular [img]="AlertCircleIcon" size="12" class="mr-1"></lucide-angular> Language is required
+              </p>
+            </div>
+          </div>
+
+          <!-- Section 3: Health & Development -->
+          <div class="space-y-3 pt-4 border-t border-gray-100">
+            <h4 class="text-sm font-semibold text-gray-500 uppercase tracking-wider flex items-center">
+              <lucide-angular [img]="StethoscopeIcon" size="16" class="mr-2"></lucide-angular>
+              Health & Development
+            </h4>
+
+            <!-- Diagnosis Status -->
+            <div>
+              <label for="diagnosis_status" class="block text-xs font-medium text-gray-700 mb-1">Has your child received a diagnosis? <span class="text-red-500">*</span></label>
+              <select id="diagnosis_status" formControlName="diagnosis_status" 
+                class="block w-full rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-2 px-3 bg-gray-50 focus:bg-white transition-colors">
+                <option value="unknown">Not sure / Not yet</option>
+                <option value="autism">Yes - Autism Spectrum Disorder (ASD)</option>
+                <option value="gdd">Yes - Global Developmental Delay (GDD)</option>
+                <option value="suspected">Suspected (Waiting for assessment)</option>
+                <option value="none">No concerns</option>
+              </select>
+            </div>
+
+            <!-- Diagnosis Details (Conditional) -->
+            <div *ngIf="['autism', 'gdd', 'suspected'].includes(childForm.get('diagnosis_status')?.value)" class="animate-fadeIn">
+              <label for="diagnosis_details" class="block text-xs font-medium text-gray-700 mb-1">Diagnosis Details (Optional)</label>
+              <textarea id="diagnosis_details" formControlName="diagnosis_details" rows="2"
+                class="block w-full rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-2 px-3 bg-gray-50 focus:bg-white transition-colors"
+                placeholder="Please share any specific details..."></textarea>
+            </div>
+
+            <!-- Main Concerns -->
+            <div>
+              <label for="main_concerns" class="block text-xs font-medium text-gray-700 mb-1">Any urgent concerns? (Optional)</label>
+              <textarea id="main_concerns" formControlName="main_concerns" rows="2"
+                class="block w-full rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-2 px-3 bg-gray-50 focus:bg-white transition-colors"
+                placeholder="Briefly describe your main concerns..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer Actions -->
+        <div class="bg-gray-50 px-6 py-3 flex flex-row-reverse gap-2 border-t border-gray-100 rounded-b">
+          <button type="submit" [disabled]="isLoading || childForm.invalid"
+            class="inline-flex w-full justify-center rounded bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 sm:w-auto sm:min-w-[100px] disabled:opacity-50 disabled:cursor-not-allowed transition-all">
+            <span *ngIf="isLoading" class="flex items-center">
+              <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Saving...
+            </span>
+            <span *ngIf="!isLoading">Save Profile</span>
+          </button>
+          <button type="button" (click)="onClose()"
+            class="mt-2 inline-flex w-full justify-center rounded bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto transition-all">
+            Cancel
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
