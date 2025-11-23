@@ -1,0 +1,106 @@
+<div class="profile-completion-container">
+  <div class="profile-completion-card">
+    <!-- Header -->
+    <div class="header">
+      <h1 class="title">Complete Your Profile</h1>
+      <p class="subtitle">
+        We need a few details to keep you updated about your child's sessions.
+      </p>
+    </div>
+
+    <!-- Missing Fields Alert -->
+    <div *ngIf="missingFields.length > 0" class="alert alert-info">
+      <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+      </svg>
+      <div>
+        <strong>Missing information:</strong>
+        <span *ngFor="let field of missingFields; let last = last">
+          {{ field }}<span *ngIf="!last">, </span>
+        </span>
+      </div>
+    </div>
+
+    <!-- Error Message -->
+    <div *ngIf="errorMessage" class="alert alert-error">
+      <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+              d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+      </svg>
+      <span>{{ errorMessage }}</span>
+    </div>
+
+    <!-- Form -->
+    <form [formGroup]="profileForm" (ngSubmit)="onSubmit()" class="profile-form">
+      <!-- Name Field -->
+      <div class="form-group">
+        <label for="name" class="form-label">
+          Full Name <span class="required">*</span>
+        </label>
+        <input
+          id="name"
+          type="text"
+          formControlName="name"
+          class="form-input"
+          [class.error]="hasError('name', 'required') || hasError('name', 'minlength')"
+          placeholder="Enter your full name"
+        />
+        <div *ngIf="hasError('name', 'required')" class="error-message">
+          Name is required
+        </div>
+        <div *ngIf="hasError('name', 'minlength')" class="error-message">
+          Name must be at least 2 characters
+        </div>
+      </div>
+
+      <!-- Mobile Field -->
+      <div class="form-group">
+        <label for="mobile" class="form-label">
+          Mobile Number <span class="required">*</span>
+        </label>
+        <input
+          id="mobile"
+          type="tel"
+          formControlName="mobile"
+          class="form-input"
+          [class.error]="hasError('mobile', 'required') || hasError('mobile', 'pattern')"
+          placeholder="+60123456789"
+        />
+        <div *ngIf="hasError('mobile', 'required')" class="error-message">
+          Mobile number is required
+        </div>
+        <div *ngIf="hasError('mobile', 'pattern')" class="error-message">
+          Please enter a valid mobile number (e.g., +60123456789)
+        </div>
+        <p class="helper-text">
+          We'll use this to send you important updates about your child's sessions.
+        </p>
+      </div>
+
+      <!-- Submit Button -->
+      <button 
+        type="submit" 
+        class="submit-button"
+        [disabled]="isLoading || profileForm.invalid"
+      >
+        <span *ngIf="!isLoading">Save & Continue</span>
+        <span *ngIf="isLoading" class="loading">
+          <svg class="spinner" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" 
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          Saving...
+        </span>
+      </button>
+    </form>
+
+    <!-- Footer -->
+    <div class="footer">
+      <p class="footer-text">
+        Your information is secure and will only be used to improve your experience.
+      </p>
+    </div>
+  </div>
+</div>

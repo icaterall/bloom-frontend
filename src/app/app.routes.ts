@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 import { roleGuard } from './core/guards/role.guard';
+import { profileCompleteGuard } from './core/guards/profile-complete.guard';
 
 export const routes: Routes = [
   {
@@ -73,7 +74,15 @@ export const routes: Routes = [
     data: { roles: ['parent'] },
     children: [
       {
+        path: 'onboarding/profile',
+        loadComponent: () =>
+          import('./features/parent/onboarding/profile-completion.component')
+            .then(m => m.ProfileCompletionComponent),
+        title: 'Complete Your Profile - Bloom Spectrum Centre'
+      },
+      {
         path: 'dashboard',
+        canActivate: [profileCompleteGuard],
         loadComponent: () =>
           import('./features/parent/dashboard/parent-dashboard.component')
             .then(m => m.ParentDashboardComponent),

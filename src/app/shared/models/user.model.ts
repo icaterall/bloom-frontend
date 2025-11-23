@@ -11,6 +11,8 @@ export interface User {
   last_login_at?: string;
   created_at: string;
   updated_at: string;
+  profileComplete: boolean;
+  missingFields: string[];
 }
 
 export interface LoginRequest {
@@ -33,4 +35,9 @@ export interface AuthResponse {
   data?: {
     user: User;
   };
+}
+
+export interface UpdateProfileRequest {
+  name?: string;
+  mobile?: string;
 }

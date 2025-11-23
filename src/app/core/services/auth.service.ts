@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, BehaviorSubject, of } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
-import { User, LoginRequest, LoginResponse, AuthResponse } from '../../shared/models/user.model';
+import { User, LoginRequest, LoginResponse, AuthResponse, UpdateProfileRequest } from '../../shared/models/user.model';
 import { environment } from '../../../environments/environment';
 
 @Injectable({
@@ -20,6 +20,7 @@ export class AuthService {
   // Using signals for reactive state
   public isAuthenticated = signal<boolean>(false);
   public userRole = signal<string | null>(null);
+  public profileComplete = signal<boolean>(true); // Default to true to avoid premature redirects
 
   constructor(
     private http: HttpClient,
@@ -79,9 +80,10 @@ export class AuthService {
             // Update user state
             this.setCurrentUser(response.data.user);
             
-            // Navigate based on role
+            // Navigate based on role and profile completeness
             console.log('7. Frontend - Navigating to role-based dashboard:', response.data.user.role);
-            this.navigateByRole(response.data.user.role);
+            console.log('8. Frontend - Profile complete:', response.data.user.profileComplete);
+            this.navigateByRole(response.data.user.role, response.data.user.profileComplete);
           } else {
             console.log('4. Frontend - Login failed, response not successful');
             console.log('5. Frontend - Response message:', response.message);
@@ -141,7 +143,13 @@ export class AuthService {
             this.setCurrentUser(response.data.user);
             
             // Navigate to parent dashboard (default for new registrations)
-            this.router.navigate(['/parent/dashboard']);
+            // Check profile completeness for new registrations too
+            const profileComplete = response.data.user.profileComplete ?? true;
+            if (!profileComplete) {
+              this.router.navigate(['/parent/onboarding/profile']);
+            } else {
+              this.router.navigate(['/parent/dashboard']);
+            }
           }
         })
       );
@@ -248,6 +256,7 @@ export class AuthService {
     this.currentUserSubject.next(user);
     this.isAuthenticated.set(true);
     this.userRole.set(user.role);
+    this.profileComplete.set(user.profileComplete ?? true);
     this.setStoredUser(user);
   }
 
@@ -260,12 +269,20 @@ export class AuthService {
     this.currentUserSubject.next(null);
     this.isAuthenticated.set(false);
     this.userRole.set(null);
+    this.profileComplete.set(true);
   }
 
   /**
-   * Navigate based on user role
+   * Navigate based on user role and profile completeness
    */
-  private navigateByRole(role: string): void {
+  private navigateByRole(role: string, profileComplete: boolean = true): void {
+    // For parents, check profile completeness first
+    if (role === 'parent' && !profileComplete) {
+      this.router.navigate(['/parent/onboarding/profile']);
+      return;
+    }
+
+    // Normal navigation based on role
     switch (role) {
       case 'admin':
         this.router.navigate(['/admin/dashboard']);
@@ -317,7 +334,8 @@ export class AuthService {
     // identical to a normal email/password login.
     this.setToken(token);
     this.setCurrentUser(user);
-    this.navigateByRole(user.role);
+    const profileComplete = user.profileComplete ?? true;
+    this.navigateByRole(user.role, profileComplete);
   }
 
   /**
@@ -328,5 +346,36 @@ export class AuthService {
       oldPassword,
       newPassword
     });
+  }
+
+  /**
+   * Update current user profile
+   */
+  updateProfile(profileData: UpdateProfileRequest): Observable<AuthResponse> {
+    return this.http.patch<AuthResponse>(`${this.API_URL}/auth/me`, profileData)
+      .pipe(
+        tap((response) => {
+          if (response.success && response.data) {
+            // Update the current user state
+            this.setCurrentUser(response.data.user);
+          }
+        })
+      );
+  }
+
+  /**
+   * Check if current user's profile is complete
+   */
+  isProfileComplete(): boolean {
+    const user = this.getCurrentUser();
+    return user ? (user.profileComplete ?? true) : true;
+  }
+
+  /**
+   * Get missing profile fields for current user
+   */
+  getMissingFields(): string[] {
+    const user = this.getCurrentUser();
+    return user ? (user.missingFields ?? []) : [];
   }
 }
