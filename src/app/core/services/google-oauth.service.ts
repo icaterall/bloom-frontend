@@ -118,20 +118,70 @@ export class GoogleOAuthService {
       google.accounts.id.initialize({
         client_id: this.clientId,
         callback: (response: any) => this.handleCredentialResponse(response),
+        auto_select: false,
+        itp_support: false  // Disable ITP support to avoid FedCM issues
       });
 
-      // Trigger the One Tap prompt
-      google.accounts.id.prompt((notification: any) => {
-        if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-          console.log('One Tap not displayed, reason:', notification.getNotDisplayedReason());
-          // Fallback: show sign-in popup manually
-          this.showGooglePopup();
-        }
-      });
+      // Skip One Tap and directly use OAuth flow
+      // This avoids CORS and FedCM issues
+      this.triggerGoogleSignIn();
     } catch (error) {
       console.error('Google login error:', error);
       window.dispatchEvent(new CustomEvent('google-login-error'));
       throw error;
+    }
+  }
+
+  /**
+   * Trigger Google Sign-In using OAuth 2.0 implicit flow
+   */
+  private triggerGoogleSignIn(): void {
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+
+    try {
+      // Use the OAuth 2.0 endpoint directly
+      const client = google.accounts.oauth2.initTokenClient({
+        client_id: this.clientId,
+        scope: 'openid email profile',
+        callback: async (tokenResponse: any) => {
+          // Get user info using the access token
+          try {
+            const userInfoResponse = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+              headers: {
+                'Authorization': `Bearer ${tokenResponse.access_token}`
+              }
+            });
+            
+            const userInfo = await userInfoResponse.json();
+            
+            // Create a credential-like object for compatibility
+            const credentialResponse = {
+              credential: tokenResponse.access_token,
+              clientId: this.clientId,
+              select_by: 'btn',
+              userInfo: userInfo
+            };
+            
+            this.handleOAuthResponse(credentialResponse);
+          } catch (error) {
+            console.error('Error fetching user info:', error);
+            window.dispatchEvent(new CustomEvent('google-login-error'));
+          }
+        },
+        error_callback: (error: any) => {
+          console.error('Google OAuth error:', error);
+          window.dispatchEvent(new CustomEvent('google-login-error'));
+        }
+      });
+      
+      // Request the access token
+      client.requestAccessToken();
+    } catch (error) {
+      console.error('Error triggering Google sign-in:', error);
+      // Fallback to popup method
+      this.showGooglePopup();
     }
   }
 
@@ -164,7 +214,58 @@ export class GoogleOAuthService {
   }
 
   /**
-   * Handle credential response from Google
+   * Handle OAuth response with access token
+   */
+  private async handleOAuthResponse(response: any): Promise<void> {
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+
+    const userInfo = response?.userInfo;
+    
+    if (!userInfo) {
+      console.error('No user info received from Google');
+      window.dispatchEvent(new CustomEvent('google-login-error'));
+      return;
+    }
+
+    console.log('Google OAuth user info received, sending to backend...');
+
+    try {
+      // Send user info to backend for authentication
+      const result: any = await this.http.post(`${this.baseUrl}/auth/google/oauth`, {
+        email: userInfo.email,
+        name: userInfo.name,
+        googleId: userInfo.sub,
+        picture: userInfo.picture,
+        email_verified: userInfo.email_verified
+      }).toPromise();
+
+      if (result?.success && result?.data) {
+        const { token, user } = result.data;
+        
+        // Complete login using AuthService
+        this.authService.completeExternalLogin(token, user);
+        
+        // Dispatch success event
+        window.dispatchEvent(new CustomEvent('google-login-success'));
+        
+        console.log('Google login successful');
+      } else {
+        throw new Error('Invalid response from server');
+      }
+    } catch (error: any) {
+      console.error('Error authenticating with backend:', error);
+      
+      // Dispatch error event
+      window.dispatchEvent(new CustomEvent('google-login-error'));
+      
+      throw error;
+    }
+  }
+
+  /**
+   * Handle credential response from Google (for ID token flow)
    */
   private async handleCredentialResponse(response: any): Promise<void> {
     if (!isPlatformBrowser(this.platformId)) {
