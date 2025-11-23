@@ -1,9 +1,10 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { LucideAngularModule, Mail, ArrowLeft, Send } from 'lucide-angular';
+import { TranslationService } from '../../../shared/services/translation.service';
 
 @Component({
   selector: 'app-forgot-password',
@@ -12,11 +13,12 @@ import { LucideAngularModule, Mail, ArrowLeft, Send } from 'lucide-angular';
   templateUrl: './forgot-password.component.html',
   styleUrls: ['./forgot-password.component.css']
 })
-export class ForgotPasswordComponent {
+export class ForgotPasswordComponent implements OnInit {
   forgotPasswordForm: FormGroup;
   loading = signal(false);
   success = signal(false);
   error = signal<string | null>(null);
+  currentLanguage: 'en' | 'my' = 'en';
   
   // Icons
   MailIcon = Mail;
@@ -26,11 +28,22 @@ export class ForgotPasswordComponent {
   constructor(
     private formBuilder: FormBuilder,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private translationService: TranslationService
   ) {
     this.forgotPasswordForm = this.formBuilder.group({
       email: ['', [Validators.required, Validators.email]]
     });
+  }
+
+  ngOnInit(): void {
+    this.translationService.currentLang$.subscribe(lang => {
+      this.currentLanguage = lang as 'en' | 'my';
+    });
+  }
+
+  toggleLanguage(): void {
+    this.translationService.toggleLanguage();
   }
   
   onSubmit(): void {

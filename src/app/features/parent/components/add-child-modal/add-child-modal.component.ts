@@ -2,7 +2,7 @@ import { Component, EventEmitter, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 import { ChildService } from '../../../../core/services/child.service';
-import { LucideAngularModule, X, Baby, Languages, Stethoscope, AlertCircle, Calendar, User } from 'lucide-angular';
+import { LucideAngularModule, X, AlertCircle, Calendar } from 'lucide-angular';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule, provideNativeDateAdapter } from '@angular/material/core';
 
@@ -45,12 +45,8 @@ export class AddChildModalComponent {
   
   // Icons
   XIcon = X;
-  BabyIcon = Baby;
-  LanguagesIcon = Languages;
-  StethoscopeIcon = Stethoscope;
   AlertCircleIcon = AlertCircle;
   CalendarIcon = Calendar;
-  UserIcon = User;
 
   languages = [
     'English',

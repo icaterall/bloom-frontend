@@ -32,9 +32,17 @@
         
         <!-- Language Toggle -->
         <button (click)="toggleLanguage()" 
-                class="flex items-center space-x-1 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors duration-200">
-          <lucide-angular [img]="GlobeIcon" size="20" class="text-primary"></lucide-angular>
-          <span class="text-sm font-medium">{{ currentLanguage === 'my' ? 'EN' : 'BM' }}</span>
+                class="flex items-center space-x-1 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"
+                [title]="currentLanguage === 'my' ? 'Switch to English' : 'Tukar ke Bahasa Melayu'">
+          <div class="flex items-center">
+            <span class="text-2xl leading-none transition-opacity duration-200" 
+                  [class.opacity-100]="currentLanguage === 'en'" 
+                  [class.opacity-40]="currentLanguage !== 'en'">🇬🇧</span>
+            <span class="mx-2 text-gray-300">|</span>
+            <span class="text-2xl leading-none transition-opacity duration-200" 
+                  [class.opacity-100]="currentLanguage === 'my'" 
+                  [class.opacity-40]="currentLanguage !== 'my'">🇲🇾</span>
+          </div>
         </button>
 
         <!-- CTA Buttons -->
@@ -81,9 +89,16 @@
         
         <div class="border-t pt-4">
           <button (click)="toggleLanguage()" 
-                  class="flex items-center space-x-2 w-full px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors duration-200">
-            <lucide-angular [img]="GlobeIcon" size="20" class="text-primary"></lucide-angular>
-            <span class="font-medium">{{ currentLanguage === 'my' ? 'English' : 'Bahasa Melayu' }}</span>
+                  class="flex items-center justify-center space-x-2 w-full px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors duration-200">
+            <div class="flex items-center">
+              <span class="text-2xl leading-none transition-opacity duration-200" 
+                    [class.opacity-100]="currentLanguage === 'en'" 
+                    [class.opacity-40]="currentLanguage !== 'en'">🇬🇧</span>
+              <span class="mx-3 text-gray-300">|</span>
+              <span class="text-2xl leading-none transition-opacity duration-200" 
+                    [class.opacity-100]="currentLanguage === 'my'" 
+                    [class.opacity-40]="currentLanguage !== 'my'">🇲🇾</span>
+            </div>
           </button>
         </div>
 

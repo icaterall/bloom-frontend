@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { ChildService } from '../../../core/services/child.service';
+import { TranslationService } from '../../../shared/services/translation.service';
 import { User } from '../../../shared/models/user.model';
 import { Child } from '../../../shared/models/child.model';
 import { AddChildModalComponent } from '../components/add-child-modal/add-child-modal.component';
@@ -25,6 +26,7 @@ export class ParentDashboardComponent implements OnInit {
   children: Child[] = [];
   isLoading = true;
   showAddChildModal = false;
+  currentLanguage = 'my';
 
   // Icons
   BabyIcon = Baby;
@@ -54,8 +56,13 @@ export class ParentDashboardComponent implements OnInit {
 
   constructor(
     private authService: AuthService,
-    private childService: ChildService
-  ) {}
+    private childService: ChildService,
+    private translationService: TranslationService
+  ) {
+    this.translationService.currentLang$.subscribe(lang => {
+      this.currentLanguage = lang;
+    });
+  }
 
   ngOnInit(): void {
     this.currentUser = this.authService.getCurrentUser();
@@ -92,6 +99,18 @@ export class ParentDashboardComponent implements OnInit {
 
   logout(): void {
     this.authService.logout();
+  }
+
+  toggleLanguage(): void {
+    this.translationService.toggleLanguage();
+    const newLang = this.translationService.getCurrentLanguage();
+    
+    // If user is logged in, update preference
+    if (this.authService.isAuthenticatedUser()) {
+      this.authService.updateProfile({ preferred_language: newLang }).subscribe({
+        error: (err) => console.error('Failed to update language preference', err)
+      });
+    }
   }
 
   // Helper to calculate age

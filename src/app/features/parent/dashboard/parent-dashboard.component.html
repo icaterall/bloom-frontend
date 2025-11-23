@@ -11,6 +11,21 @@
 
         <!-- Right side -->
         <div class="flex items-center space-x-4">
+          <!-- Language Toggle -->
+          <button (click)="toggleLanguage()" 
+                  class="flex items-center space-x-1 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"
+                  [title]="currentLanguage === 'my' ? 'Switch to English' : 'Tukar ke Bahasa Melayu'">
+            <div class="flex items-center">
+              <span class="text-2xl leading-none transition-opacity duration-200" 
+                    [class.opacity-100]="currentLanguage === 'en'" 
+                    [class.opacity-40]="currentLanguage !== 'en'">🇬🇧</span>
+              <span class="mx-2 text-gray-300">|</span>
+              <span class="text-2xl leading-none transition-opacity duration-200" 
+                    [class.opacity-100]="currentLanguage === 'my'" 
+                    [class.opacity-40]="currentLanguage !== 'my'">🇲🇾</span>
+            </div>
+          </button>
+
           <!-- Notifications -->
           <button class="p-2 rounded hover:bg-gray-100">
             <lucide-angular [img]="BellIcon" size="20" class="text-gray-600"></lucide-angular>

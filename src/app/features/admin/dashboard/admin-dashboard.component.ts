@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { AuthService } from '../../../core/services/auth.service';
 import { User } from '../../../shared/models/user.model';
 import { LucideAngularModule, Calendar, UserPlus, Baby, TrendingUp } from 'lucide-angular';
+import { TranslationService } from '../../../shared/services/translation.service';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -13,6 +14,7 @@ import { LucideAngularModule, Calendar, UserPlus, Baby, TrendingUp } from 'lucid
 })
 export class AdminDashboardComponent implements OnInit {
   currentUser: User | null = null;
+  currentLanguage: 'en' | 'my' = 'en';
   // Icons used in stats cards
   CalendarIcon = Calendar;
   UserPlusIcon = UserPlus;
@@ -34,9 +36,19 @@ export class AdminDashboardComponent implements OnInit {
     { type: 'payment', message: 'Payment received for monthly fee', time: '1 day ago' }
   ];
 
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    private translationService: TranslationService
+  ) {}
 
   ngOnInit(): void {
     this.currentUser = this.authService.getCurrentUser();
+    this.translationService.currentLang$.subscribe(lang => {
+      this.currentLanguage = lang as 'en' | 'my';
+    });
+  }
+
+  toggleLanguage(): void {
+    this.translationService.toggleLanguage();
   }
 }

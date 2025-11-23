@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractContro
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { LucideAngularModule, Lock, Eye, EyeOff, KeyRound, CheckCircle } from 'lucide-angular';
+import { TranslationService } from '../../../shared/services/translation.service';
 
 @Component({
   selector: 'app-reset-password',
@@ -22,6 +23,7 @@ export class ResetPasswordComponent implements OnInit {
   showPassword = signal(false);
   showConfirmPassword = signal(false);
   token: string = '';
+  currentLanguage: 'en' | 'my' = 'en';
   
   // Icons
   LockIcon = Lock;
@@ -34,7 +36,8 @@ export class ResetPasswordComponent implements OnInit {
     private formBuilder: FormBuilder,
     private authService: AuthService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private translationService: TranslationService
   ) {
     this.resetPasswordForm = this.formBuilder.group({
       password: ['', [Validators.required, Validators.minLength(8)]],
@@ -43,6 +46,10 @@ export class ResetPasswordComponent implements OnInit {
   }
   
   ngOnInit(): void {
+    this.translationService.currentLang$.subscribe(lang => {
+      this.currentLanguage = lang as 'en' | 'my';
+    });
+
     // Get token from URL
     this.token = this.route.snapshot.paramMap.get('token') || '';
     
@@ -54,6 +61,10 @@ export class ResetPasswordComponent implements OnInit {
     
     // Validate token
     this.validateToken();
+  }
+  
+  toggleLanguage(): void {
+    this.translationService.toggleLanguage();
   }
   
   validateToken(): void {

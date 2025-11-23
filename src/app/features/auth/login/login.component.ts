@@ -6,6 +6,7 @@ import { AuthService } from '../../../core/services/auth.service';
 import { GoogleOAuthService } from '../../../core/services/google-oauth.service';
 import { LucideAngularModule, Mail, Lock, Eye, EyeOff, LogIn } from 'lucide-angular';
 import { environment } from '../../../../environments/environment';
+import { TranslationService } from '../../../shared/services/translation.service';
 
 @Component({
   selector: 'app-login',
@@ -26,6 +27,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   showPassword = signal(false);
   returnUrl: string = '/';
   googleOAuthAvailable = false;
+  currentLanguage: 'en' | 'my' = 'en';
 
   // Icons
   MailIcon = Mail;
@@ -38,10 +40,15 @@ export class LoginComponent implements OnInit, OnDestroy {
     private formBuilder: FormBuilder,
     private authService: AuthService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private translationService: TranslationService
   ) {}
 
   ngOnInit(): void {
+    this.translationService.currentLang$.subscribe(lang => {
+      this.currentLanguage = lang as 'en' | 'my';
+    });
+
     // Check if already logged in
     if (this.authService.isAuthenticatedUser()) {
       const user = this.authService.getCurrentUser();
@@ -112,6 +119,10 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   togglePasswordVisibility(): void {
     this.showPassword.update(v => !v);
+  }
+
+  toggleLanguage(): void {
+    this.translationService.toggleLanguage();
   }
 
   onSubmit(): void {
