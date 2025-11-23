@@ -1,0 +1,129 @@
+<div class="container mx-auto px-4 py-8 max-w-3xl">
+  <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+    <!-- Header -->
+    <div class="px-6 py-4 border-b border-gray-100 bg-gray-50">
+      <h2 class="text-xl font-semibold text-gray-800 flex items-center gap-2">
+        <lucide-angular [img]="UserIcon" class="w-5 h-5 text-primary-600"></lucide-angular>
+        Profile Settings
+      </h2>
+      <p class="text-sm text-gray-500 mt-1">Manage your personal information and preferences</p>
+    </div>
+
+    <!-- Form -->
+    <div class="p-6">
+      <form [formGroup]="settingsForm" (ngSubmit)="onSubmit()" class="space-y-6">
+        
+        <!-- Success/Error Messages -->
+        <div *ngIf="successMessage" class="p-4 bg-green-50 text-green-700 rounded-lg border border-green-100 flex items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+          </svg>
+          {{ successMessage }}
+        </div>
+
+        <div *ngIf="errorMessage" class="p-4 bg-red-50 text-red-700 rounded-lg border border-red-100 flex items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+          </svg>
+          {{ errorMessage }}
+        </div>
+
+        <!-- Name Field -->
+        <div class="space-y-2">
+          <label for="name" class="block text-sm font-medium text-gray-700">Full Name</label>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <lucide-angular [img]="UserIcon" class="h-5 w-5 text-gray-400"></lucide-angular>
+            </div>
+            <input 
+              type="text" 
+              id="name" 
+              formControlName="name"
+              class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500 transition-colors"
+              [class.border-red-300]="settingsForm.get('name')?.invalid && settingsForm.get('name')?.touched"
+              placeholder="Your full name"
+            >
+          </div>
+          <p *ngIf="settingsForm.get('name')?.invalid && settingsForm.get('name')?.touched" class="text-sm text-red-600">
+            Name is required and must be at least 2 characters.
+          </p>
+        </div>
+
+        <!-- Email Field (Read-only) -->
+        <div class="space-y-2">
+          <label for="email" class="block text-sm font-medium text-gray-700">Email Address</label>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <lucide-angular [img]="MailIcon" class="h-5 w-5 text-gray-400"></lucide-angular>
+            </div>
+            <input 
+              type="email" 
+              id="email" 
+              formControlName="email"
+              class="block w-full pl-10 pr-3 py-2 bg-gray-50 border border-gray-300 rounded-lg text-gray-500 cursor-not-allowed"
+            >
+          </div>
+          <p class="text-xs text-gray-500">Email address cannot be changed.</p>
+        </div>
+
+        <!-- Mobile Field -->
+        <div class="space-y-2">
+          <label for="mobile" class="block text-sm font-medium text-gray-700">Phone Number</label>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <lucide-angular [img]="PhoneIcon" class="h-5 w-5 text-gray-400"></lucide-angular>
+            </div>
+            <input 
+              type="tel" 
+              id="mobile" 
+              formControlName="mobile"
+              class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500 transition-colors"
+              placeholder="+1 234 567 890"
+            >
+          </div>
+        </div>
+
+        <!-- Language Preference -->
+        <div class="space-y-2">
+          <label for="language" class="block text-sm font-medium text-gray-700">Preferred Language</label>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <lucide-angular [img]="GlobeIcon" class="h-5 w-5 text-gray-400"></lucide-angular>
+            </div>
+            <select 
+              id="language" 
+              formControlName="preferred_language"
+              class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500 transition-colors appearance-none bg-white"
+            >
+              <option value="en">English</option>
+              <option value="ar">Arabic</option>
+              <option value="my">Malay</option>
+            </select>
+            <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+              <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="pt-4 flex justify-end">
+          <button 
+            type="submit" 
+            [disabled]="settingsForm.invalid || isLoading || settingsForm.pristine"
+            class="flex items-center gap-2 px-6 py-2.5 bg-primary-600 text-white rounded-lg hover:bg-primary-700 focus:ring-4 focus:ring-primary-100 transition-all disabled:opacity-50 disabled:cursor-not-allowed font-medium shadow-sm hover:shadow"
+          >
+            <lucide-icon *ngIf="!isLoading" [img]="SaveIcon" class="w-4 h-4"></lucide-icon>
+            <svg *ngIf="isLoading" class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            {{ isLoading ? 'Saving...' : 'Save Changes' }}
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</div>

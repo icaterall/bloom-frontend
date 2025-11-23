@@ -88,6 +88,14 @@ export const routes: Routes = [
             .then(m => m.ParentDashboardComponent),
         title: 'Parent Dashboard - Bloom Spectrum Centre'
       },
+      {
+        path: 'settings',
+        canActivate: [profileCompleteGuard],
+        loadComponent: () =>
+          import('./features/parent/settings/settings.component')
+            .then(m => m.SettingsComponent),
+        title: 'Settings - Bloom Spectrum Centre'
+      },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
     ]
   },
