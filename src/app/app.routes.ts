@@ -72,6 +72,9 @@ export const routes: Routes = [
     path: 'parent',
     canActivate: [authGuard, roleGuard],
     data: { roles: ['parent'] },
+    loadComponent: () =>
+      import('./features/parent/layout/parent-layout.component')
+        .then(m => m.ParentLayoutComponent),
     children: [
       {
         path: 'onboarding/profile',

@@ -50,11 +50,54 @@
            class="bg-primary text-white px-5 py-2.5 rounded-lg font-medium hover:bg-primary-700 transition-colors duration-200 shadow-md hover:shadow-lg">
           {{ 'header.nav.bookTour' | translate }}
         </a>
-        <a routerLink="/login"
+        
+        <!-- Not Logged In -->
+        <a *ngIf="!currentUser" routerLink="/login"
            class="flex items-center space-x-2 px-4 py-2.5 rounded-lg border-2 border-primary text-primary hover:bg-primary hover:text-white transition-colors duration-200">
           <lucide-angular [img]="UserIcon" size="18"></lucide-angular>
           <span>{{ 'header.nav.portal' | translate }}</span>
         </a>
+
+        <!-- Logged In User Menu -->
+        <div *ngIf="currentUser" class="relative user-menu-container">
+          <button (click)="toggleUserMenu()" 
+                  class="flex items-center space-x-2 px-3 py-2 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors duration-200">
+            <div class="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center text-primary font-semibold text-sm">
+              {{ currentUser.name.charAt(0).toUpperCase() }}
+            </div>
+            <span class="font-medium text-gray-700 max-w-[100px] truncate hidden xl:block">{{ currentUser.name }}</span>
+            <lucide-angular [img]="ChevronDownIcon" size="16" class="text-gray-500"></lucide-angular>
+          </button>
+
+          <!-- Dropdown -->
+          <div *ngIf="isUserMenuOpen" 
+               class="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl border border-gray-100 py-2 z-50">
+            <div class="px-4 py-2 border-b border-gray-100">
+              <p class="text-sm font-medium text-gray-900 truncate">{{ currentUser.name }}</p>
+              <p class="text-xs text-gray-500 truncate">{{ currentUser.email }}</p>
+            </div>
+            
+            <a [routerLink]="getDashboardLink()" (click)="isUserMenuOpen = false" 
+               class="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-primary transition-colors">
+              <lucide-angular [img]="LayoutDashboardIcon" size="16"></lucide-angular>
+              <span>Dashboard</span>
+            </a>
+            
+            <a *ngIf="currentUser.role === 'parent'" routerLink="/parent/settings" (click)="isUserMenuOpen = false" 
+               class="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-primary transition-colors">
+              <lucide-angular [img]="SettingsIcon" size="16"></lucide-angular>
+              <span>Settings</span>
+            </a>
+
+            <div class="border-t border-gray-100 mt-1 pt-1">
+              <button (click)="logout()" 
+                      class="flex w-full items-center space-x-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors">
+                <lucide-angular [img]="LogOutIcon" size="16"></lucide-angular>
+                <span>Sign out</span>
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Mobile Menu Button -->
@@ -107,11 +150,44 @@
              class="bg-primary text-white px-5 py-3 rounded-lg font-medium hover:bg-primary-700 transition-colors duration-200 shadow-md hover:shadow-lg text-center">
             {{ 'header.nav.bookTour' | translate }}
           </a>
-          <a routerLink="/login" (click)="toggleMenu()"
+          
+          <!-- Not Logged In -->
+          <a *ngIf="!currentUser" routerLink="/login" (click)="toggleMenu()"
              class="flex items-center justify-center space-x-2 px-4 py-3 rounded-lg border-2 border-primary text-primary hover:bg-primary hover:text-white transition-colors duration-200">
             <lucide-angular [img]="UserIcon" size="18"></lucide-angular>
             <span>{{ 'header.nav.parentPortal' | translate }}</span>
           </a>
+
+          <!-- Logged In Mobile Menu -->
+          <div *ngIf="currentUser" class="space-y-2 pt-2">
+            <div class="flex items-center space-x-3 px-4 py-3 bg-gray-50 rounded-lg">
+              <div class="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center text-primary font-bold">
+                {{ currentUser.name.charAt(0).toUpperCase() }}
+              </div>
+              <div class="overflow-hidden">
+                <p class="font-medium text-gray-900 truncate">{{ currentUser.name }}</p>
+                <p class="text-xs text-gray-500 truncate">{{ currentUser.email }}</p>
+              </div>
+            </div>
+            
+            <a [routerLink]="getDashboardLink()" (click)="toggleMenu()" 
+               class="flex items-center space-x-2 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors">
+              <lucide-angular [img]="LayoutDashboardIcon" size="18"></lucide-angular>
+              <span>Dashboard</span>
+            </a>
+            
+            <a *ngIf="currentUser.role === 'parent'" routerLink="/parent/settings" (click)="toggleMenu()" 
+               class="flex items-center space-x-2 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors">
+              <lucide-angular [img]="SettingsIcon" size="18"></lucide-angular>
+              <span>Settings</span>
+            </a>
+
+            <button (click)="logout()" 
+                    class="flex w-full items-center space-x-2 px-4 py-3 text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+              <lucide-angular [img]="LogOutIcon" size="18"></lucide-angular>
+              <span>Sign out</span>
+            </button>
+          </div>
         </div>
       </div>
     </div>

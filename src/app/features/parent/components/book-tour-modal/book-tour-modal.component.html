@@ -1,0 +1,180 @@
+<div class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+  <!-- Backdrop -->
+  <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+    <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" (click)="onClose()"></div>
+
+    <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+
+    <!-- Modal Panel -->
+    <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg w-full">
+      
+      <!-- Header -->
+      <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4 border-b border-gray-100">
+        <div class="flex justify-between items-center">
+          <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
+            Book a Visit
+          </h3>
+          <button (click)="onClose()" class="text-gray-400 hover:text-gray-500 focus:outline-none">
+            <lucide-angular [img]="XIcon" size="24"></lucide-angular>
+          </button>
+        </div>
+        <p class="mt-1 text-sm text-gray-500">
+          Schedule a tour or consultation to get started with Bloom Spectrum Centre.
+        </p>
+      </div>
+
+      <!-- Form -->
+      <form [formGroup]="bookingForm" (ngSubmit)="onSubmit()">
+        <div class="px-4 py-5 sm:p-6 space-y-6">
+          
+          <!-- Error Message -->
+          <div *ngIf="errorMessage" class="p-3 bg-red-50 text-red-700 rounded-md text-sm">
+            {{ errorMessage }}
+          </div>
+
+          <!-- Child Selection -->
+          <div class="space-y-2">
+            <label for="child_id" class="block text-sm font-medium text-gray-700">Select Child</label>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <lucide-angular [img]="UserIcon" class="h-5 w-5 text-gray-400"></lucide-angular>
+              </div>
+              <select 
+                id="child_id" 
+                formControlName="child_id"
+                class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              >
+                <option value="" disabled>Choose a child</option>
+                <option *ngFor="let child of children" [value]="child.id">
+                  {{ child.full_name }}
+                </option>
+              </select>
+            </div>
+            <p *ngIf="bookingForm.get('child_id')?.invalid && bookingForm.get('child_id')?.touched" class="text-xs text-red-600">
+              Please select a child.
+            </p>
+          </div>
+
+          <!-- Visit Type -->
+          <div class="space-y-2">
+            <label class="block text-sm font-medium text-gray-700">Visit Type</label>
+            <div class="grid grid-cols-2 gap-4">
+              <label class="relative flex flex-col items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50 focus-within:ring-2 focus-within:ring-blue-500"
+                [class.border-blue-500]="bookingForm.get('booking_type')?.value === 'tour'"
+                [class.bg-blue-50]="bookingForm.get('booking_type')?.value === 'tour'"
+                [class.border-gray-200]="bookingForm.get('booking_type')?.value !== 'tour'">
+                <input type="radio" formControlName="booking_type" value="tour" class="sr-only">
+                <span class="font-medium text-gray-900">Centre Tour</span>
+                <span class="text-xs text-gray-500 mt-1">Visit our facilities</span>
+              </label>
+
+              <label class="relative flex flex-col items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50 focus-within:ring-2 focus-within:ring-blue-500"
+                [class.border-blue-500]="bookingForm.get('booking_type')?.value === 'consultation'"
+                [class.bg-blue-50]="bookingForm.get('booking_type')?.value === 'consultation'"
+                [class.border-gray-200]="bookingForm.get('booking_type')?.value !== 'consultation'">
+                <input type="radio" formControlName="booking_type" value="consultation" class="sr-only">
+                <span class="font-medium text-gray-900">Consultation</span>
+                <span class="text-xs text-gray-500 mt-1">Speak with an expert</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Date & Time -->
+          <div class="grid grid-cols-2 gap-4">
+            <div class="space-y-2">
+              <label for="date" class="block text-sm font-medium text-gray-700">Date</label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <lucide-angular [img]="CalendarIcon" class="h-5 w-5 text-gray-400"></lucide-angular>
+                </div>
+                <input 
+                  type="date" 
+                  id="date" 
+                  formControlName="date"
+                  [min]="minDate"
+                  class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                >
+              </div>
+              <p *ngIf="bookingForm.get('date')?.invalid && bookingForm.get('date')?.touched" class="text-xs text-red-600">
+                Required
+              </p>
+            </div>
+
+            <div class="space-y-2">
+              <label for="time" class="block text-sm font-medium text-gray-700">Time</label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <lucide-angular [img]="ClockIcon" class="h-5 w-5 text-gray-400"></lucide-angular>
+                </div>
+                <select 
+                  id="time" 
+                  formControlName="time"
+                  class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                >
+                  <option value="" disabled>Select time</option>
+                  <option value="09:00">09:00 AM</option>
+                  <option value="10:00">10:00 AM</option>
+                  <option value="11:00">11:00 AM</option>
+                  <option value="14:00">02:00 PM</option>
+                  <option value="15:00">03:00 PM</option>
+                  <option value="16:00">04:00 PM</option>
+                </select>
+              </div>
+              <p *ngIf="bookingForm.get('time')?.invalid && bookingForm.get('time')?.touched" class="text-xs text-red-600">
+                Required
+              </p>
+            </div>
+          </div>
+
+          <!-- Location Info (Static for now) -->
+          <div class="flex items-start p-3 bg-gray-50 rounded-md">
+            <lucide-angular [img]="MapPinIcon" class="h-5 w-5 text-gray-500 mt-0.5 mr-2 flex-shrink-0"></lucide-angular>
+            <div class="text-sm text-gray-600">
+              <span class="font-medium text-gray-900">Bloom Spectrum Centre</span><br>
+              IOI Conezion, Putrajaya
+            </div>
+          </div>
+
+          <!-- Notes -->
+          <div class="space-y-2">
+            <label for="notes" class="block text-sm font-medium text-gray-700">
+              Notes (Optional)
+            </label>
+            <div class="relative">
+              <div class="absolute top-3 left-3 pointer-events-none">
+                <lucide-angular [img]="FileTextIcon" class="h-5 w-5 text-gray-400"></lucide-angular>
+              </div>
+              <textarea 
+                id="notes" 
+                formControlName="notes"
+                rows="3"
+                class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                placeholder="Any specific concerns or requirements? e.g. Sensitive to loud noises"
+              ></textarea>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Footer -->
+        <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+          <button 
+            type="submit" 
+            [disabled]="bookingForm.invalid || isLoading"
+            class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <span *ngIf="isLoading">Booking...</span>
+            <span *ngIf="!isLoading">Confirm Booking</span>
+          </button>
+          <button 
+            type="button" 
+            (click)="onClose()"
+            class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+          >
+            Cancel
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

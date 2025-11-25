@@ -1,64 +1,6 @@
-<div class="min-h-screen bg-gray-50">
-  <!-- Navigation Header -->
-  <nav class="bg-white shadow-sm border-b">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex justify-between h-16">
-        <!-- Left side -->
-        <div class="flex items-center">
-          <h1 class="text-xl font-bold text-blue-600">Bloom Spectrum Centre</h1>
-          <span class="ml-4 text-sm text-gray-500">Parent Portal</span>
-        </div>
-
-        <!-- Right side -->
-        <div class="flex items-center space-x-4">
-          <!-- Language Toggle -->
-          <button (click)="toggleLanguage()" 
-                  class="flex items-center space-x-1 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"
-                  [title]="currentLanguage === 'my' ? 'Switch to English' : 'Tukar ke Bahasa Melayu'">
-            <div class="flex items-center">
-              <span class="text-2xl leading-none transition-opacity duration-200" 
-                    [class.opacity-100]="currentLanguage === 'en'" 
-                    [class.opacity-40]="currentLanguage !== 'en'">🇬🇧</span>
-              <span class="mx-2 text-gray-300">|</span>
-              <span class="text-2xl leading-none transition-opacity duration-200" 
-                    [class.opacity-100]="currentLanguage === 'my'" 
-                    [class.opacity-40]="currentLanguage !== 'my'">🇲🇾</span>
-            </div>
-          </button>
-
-          <!-- Notifications -->
-          <button class="p-2 rounded hover:bg-gray-100">
-            <lucide-angular [img]="BellIcon" size="20" class="text-gray-600"></lucide-angular>
-          </button>
-          
-          <!-- Settings -->
-          <button routerLink="/parent/settings" class="p-2 rounded hover:bg-gray-100">
-            <lucide-angular [img]="SettingsIcon" size="20" class="text-gray-600"></lucide-angular>
-          </button>
-
-          <!-- User Menu -->
-          <div class="flex items-center space-x-3">
-            <div class="text-right">
-              <p class="text-sm font-medium text-gray-900">{{ currentUser?.name }}</p>
-              <p class="text-xs text-gray-500">Parent</p>
-            </div>
-            <button 
-              (click)="logout()"
-              class="p-2 rounded hover:bg-gray-100"
-              title="Logout"
-            >
-              <lucide-angular [img]="LogOutIcon" size="20" class="text-gray-600"></lucide-angular>
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </nav>
-
-  <!-- Main Content -->
-  <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+<div class="max-w-7xl mx-auto space-y-6">
     <!-- Welcome Section -->
-    <div class="px-4 py-6 sm:px-0">
+    <div>
       <h2 class="text-2xl font-bold text-gray-900">Welcome back, {{ currentUser?.name }}! 👋</h2>
       
       <!-- Dynamic Subtitle based on state -->
@@ -71,7 +13,7 @@
     </div>
 
     <!-- STATE 1: No Children - Show Setup Checklist -->
-    <div *ngIf="children.length === 0 && !isLoading" class="px-4 sm:px-0 mb-8">
+    <div *ngIf="children.length === 0 && !isLoading" class="mb-8">
       <div class="bg-white shadow rounded-lg overflow-hidden">
         <div class="p-6">
           <h3 class="text-lg font-medium text-gray-900 mb-4">Getting Started Checklist</h3>
@@ -103,14 +45,17 @@
               </div>
             </div>
 
-            <!-- Step 3: Book Tour (Inactive) -->
-            <div class="flex items-start p-4 bg-gray-50 border border-gray-200 rounded-lg opacity-60">
+            <!-- Step 3: Book Tour (Active if children exist but no booking) -->
+            <div class="flex items-start p-4 bg-gray-50 border border-gray-200 rounded-lg" [class.opacity-60]="children.length === 0">
               <div class="flex-shrink-0 mt-1">
-                <div class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center text-gray-600 font-bold">3</div>
+                <div class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center text-gray-600 font-bold" [class.bg-blue-600]="children.length > 0" [class.text-white]="children.length > 0">3</div>
               </div>
               <div class="ml-4">
-                <h4 class="text-lg font-medium text-gray-900">Book a centre tour</h4>
-                <p class="text-sm text-gray-500 mt-1">Visit us to see our facilities and meet the team.</p>
+                <h4 class="text-lg font-medium text-gray-900" [class.text-blue-900]="children.length > 0">Book a centre tour</h4>
+                <p class="text-sm text-gray-500 mt-1" [class.text-blue-700]="children.length > 0">Visit us to see our facilities and meet the team.</p>
+                <button *ngIf="children.length > 0" (click)="openBookTourModal()" class="mt-3 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                  Book Now
+                </button>
               </div>
             </div>
           </div>
@@ -122,10 +67,10 @@
     <div *ngIf="children.length > 0" class="space-y-8">
       
       <!-- Children Cards -->
-      <div class="px-4 sm:px-0">
+      <div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           @for (child of children; track child.id) {
-            <div class="bg-white shadow rounded-lg p-6 border-l-4 border-blue-500">
+            <div class="bg-white shadow rounded-lg p-6 border-l-4 border-blue-500 hover:shadow-md transition-shadow">
               <div class="flex items-start justify-between">
                 <div class="flex items-center space-x-4">
                   <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
@@ -153,12 +98,26 @@
               
               <!-- Action based on status -->
               <div class="mt-6 pt-4 border-t border-gray-100">
-                <div *ngIf="child.child_status === 'not_enrolled'" class="flex items-center justify-between">
+                <!-- Case 1: Not Enrolled & No Booking -->
+                <div *ngIf="child.child_status === 'not_enrolled' && !getBookingForChild(child.id)" class="flex items-center justify-between">
                   <p class="text-sm text-gray-600">Next step: Book a tour or consultation</p>
-                  <button class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm font-medium">
+                  <button (click)="openBookTourModal()" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm font-medium">
                     Book Tour
                   </button>
                 </div>
+
+                <!-- Case 2: Not Enrolled & Has Booking -->
+                <div *ngIf="child.child_status === 'not_enrolled' && getBookingForChild(child.id) as booking" class="flex items-center justify-between">
+                  <div>
+                    <p class="text-sm font-medium text-blue-700">Upcoming {{ booking.booking_type | titlecase }}</p>
+                    <p class="text-xs text-gray-500">{{ booking.start_at | date:'mediumDate' }} at {{ booking.start_at | date:'shortTime' }}</p>
+                  </div>
+                  <span class="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-full font-medium">
+                    {{ booking.status | titlecase }}
+                  </span>
+                </div>
+
+                <!-- Case 3: Enrolled or In Assessment -->
                 <div *ngIf="child.child_status !== 'not_enrolled'" class="flex items-center justify-between">
                   <p class="text-sm text-gray-600">Next session: Tomorrow, 10:00 AM</p>
                   <button class="text-sm text-blue-600 hover:underline">View Schedule</button>
@@ -176,52 +135,48 @@
       </div>
 
       <!-- Quick Actions (Only show if enrolled or in assessment) -->
-      <div class="px-4 sm:px-0">
+      <div>
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <button class="p-4 bg-white shadow rounded hover:shadow-md transition-shadow text-left">
-            <lucide-angular [img]="CalendarIcon" size="24" class="text-blue-600 mb-2"></lucide-angular>
+          <button (click)="openBookTourModal()" class="p-4 bg-white shadow rounded hover:shadow-md transition-shadow text-left group">
+            <lucide-angular [img]="CalendarIcon" size="24" class="text-blue-600 mb-2 group-hover:scale-110 transition-transform"></lucide-angular>
             <p class="text-sm font-medium text-gray-900">Book a Tour</p>
           </button>
-          <button class="p-4 bg-white shadow rounded hover:shadow-md transition-shadow text-left">
-            <lucide-angular [img]="TargetIcon" size="24" class="text-green-600 mb-2"></lucide-angular>
+          <button class="p-4 bg-white shadow rounded hover:shadow-md transition-shadow text-left group">
+            <lucide-angular [img]="TargetIcon" size="24" class="text-green-600 mb-2 group-hover:scale-110 transition-transform"></lucide-angular>
             <p class="text-sm font-medium text-gray-900">Goals & Progress</p>
           </button>
-          <button class="p-4 bg-white shadow rounded hover:shadow-md transition-shadow text-left">
-            <lucide-angular [img]="MessageSquareIcon" size="24" class="text-purple-600 mb-2"></lucide-angular>
+          <button class="p-4 bg-white shadow rounded hover:shadow-md transition-shadow text-left group">
+            <lucide-angular [img]="MessageSquareIcon" size="24" class="text-purple-600 mb-2 group-hover:scale-110 transition-transform"></lucide-angular>
             <p class="text-sm font-medium text-gray-900">Messages</p>
           </button>
-          <button class="p-4 bg-white shadow rounded hover:shadow-md transition-shadow text-left">
-            <lucide-angular [img]="FileTextIcon" size="24" class="text-orange-600 mb-2"></lucide-angular>
+          <button class="p-4 bg-white shadow rounded hover:shadow-md transition-shadow text-left group">
+            <lucide-angular [img]="FileTextIcon" size="24" class="text-orange-600 mb-2 group-hover:scale-110 transition-transform"></lucide-angular>
             <p class="text-sm font-medium text-gray-900">Reports</p>
           </button>
         </div>
       </div>
-
-      <!-- Dashboard Content Grid (Only show if enrolled) -->
-      <!-- ... existing content ... -->
     </div>
 
     <!-- Additional Resources -->
-    <div class="mt-8 px-4 sm:px-0">
+    <div class="mt-8">
       <div class="bg-blue-50 border border-blue-200 rounded p-6">
         <h3 class="text-lg font-semibold text-blue-900 mb-2">Need Support?</h3>
         <p class="text-sm text-blue-700 mb-4">
           Our team is here to help you support your child's development journey.
         </p>
         <div class="flex flex-wrap gap-4">
-          <button class="px-4 py-2 bg-white text-blue-700 rounded hover:bg-blue-100 text-sm font-medium">
+          <button (click)="openBookTourModal()" class="px-4 py-2 bg-white text-blue-700 rounded hover:bg-blue-100 text-sm font-medium shadow-sm">
             Book Consultation
           </button>
-          <button class="px-4 py-2 bg-white text-blue-700 rounded hover:bg-blue-100 text-sm font-medium">
+          <button class="px-4 py-2 bg-white text-blue-700 rounded hover:bg-blue-100 text-sm font-medium shadow-sm">
             Resource Library
           </button>
-          <button class="px-4 py-2 bg-white text-blue-700 rounded hover:bg-blue-100 text-sm font-medium">
+          <button class="px-4 py-2 bg-white text-blue-700 rounded hover:bg-blue-100 text-sm font-medium shadow-sm">
             Parent Guide
           </button>
         </div>
       </div>
     </div>
-  </div>
 
   <!-- Add Child Modal -->
   <app-add-child-modal 
@@ -229,5 +184,13 @@
     (close)="closeAddChildModal()" 
     (childAdded)="onChildAdded()">
   </app-add-child-modal>
+
+  <!-- Book Tour Modal -->
+  <app-book-tour-modal
+    *ngIf="showBookTourModal"
+    [children]="children"
+    (close)="closeBookTourModal()"
+    (bookingCreated)="onBookingCreated()">
+  </app-book-tour-modal>
 </div>
 
