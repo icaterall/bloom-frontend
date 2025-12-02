@@ -9,7 +9,7 @@ import { Child } from '../../../shared/models/child.model';
 import { Booking } from '../../../shared/models/booking.model';
 import { AddChildModalComponent } from '../components/add-child-modal/add-child-modal.component';
 import { BookTourModalComponent } from '../components/book-tour-modal/book-tour-modal.component';
-import { LucideAngularModule, Baby, Calendar, Target, MessageSquare, FileText, Plus } from 'lucide-angular';
+import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 
 @Component({
   selector: 'app-parent-dashboard',
@@ -17,7 +17,7 @@ import { LucideAngularModule, Baby, Calendar, Target, MessageSquare, FileText, P
   imports: [
     CommonModule, 
     RouterModule, 
-    LucideAngularModule, 
+    TranslatePipe,
     AddChildModalComponent,
     BookTourModalComponent
   ],
@@ -28,17 +28,14 @@ export class ParentDashboardComponent implements OnInit {
   currentUser: User | null = null;
   children: Child[] = [];
   bookings: Booking[] = [];
-  isLoading = true;
+  isChildrenLoading = false;
+  isBookingsLoading = false;
   showAddChildModal = false;
   showBookTourModal = false;
 
-  // Icons
-  BabyIcon = Baby;
-  CalendarIcon = Calendar;
-  TargetIcon = Target;
-  MessageSquareIcon = MessageSquare;
-  FileTextIcon = FileText;
-  PlusIcon = Plus;
+  get isLoading(): boolean {
+    return this.isChildrenLoading || this.isBookingsLoading;
+  }
 
   // Sample data (will be replaced with real data later)
   upcomingSessions = [
@@ -66,30 +63,33 @@ export class ParentDashboardComponent implements OnInit {
   }
 
   loadChildren(): void {
-    this.isLoading = true;
+    this.isChildrenLoading = true;
     this.childService.getChildren().subscribe({
       next: (response) => {
         if (response.success && Array.isArray(response.data)) {
           this.children = response.data;
         }
-        this.isLoading = false;
+        this.isChildrenLoading = false;
       },
       error: (error) => {
         console.error('Error loading children:', error);
-        this.isLoading = false;
+        this.isChildrenLoading = false;
       }
     });
   }
 
   loadBookings(): void {
+    this.isBookingsLoading = true;
     this.bookingService.getBookings().subscribe({
       next: (response) => {
         if (response.success && Array.isArray(response.data)) {
           this.bookings = response.data;
         }
+        this.isBookingsLoading = false;
       },
       error: (error) => {
         console.error('Error loading bookings:', error);
+        this.isBookingsLoading = false;
       }
     });
   }

@@ -205,5 +205,54 @@
     "previous": "Sebelumnya",
     "yes": "Ya",
     "no": "Tidak"
+  },
+  "parentDashboard": {
+    "welcomeBack": "Selamat datang kembali,",
+    "noChildrenSubtitle": "Jom lengkapkan profil anak anda supaya kami boleh cadangkan program yang sesuai.",
+    "hasChildrenSubtitle": "Berikut ialah ringkasan kemajuan dan jadual anak anda.",
+    "gettingStartedChecklist": "Senarai Semak Permulaan",
+    "steps": {
+      "addChildTitle": "Tambah profil anak anda",
+      "addChildDescription": "Beritahu kami tentang anak anda supaya kami dapat memahami keperluannya.",
+      "addChildButton": "Tambah Anak",
+      "shareConcernsTitle": "Kongsi kebimbangan & matlamat utama",
+      "shareConcernsDescription": "Bantu kami menyesuaikan pendekatan kami dengan matlamat keluarga anda.",
+      "bookTourTitle": "Tempah lawatan pusat",
+      "bookTourDescription": "Lawati kami untuk melihat kemudahan dan berjumpa dengan pasukan kami.",
+      "bookTourButton": "Tempah Sekarang"
+    },
+    "childCard": {
+      "yearsOld": "tahun",
+      "status": {
+        "not_enrolled": "Belum Didaftar",
+        "enrolled": "Telah Didaftar",
+        "in_assessment": "Dalam Penilaian"
+      },
+      "viewProfile": "Lihat Profil",
+      "nextStepNotEnrolledNoBooking": "Langkah seterusnya: Tempah lawatan atau sesi konsultasi",
+      "bookTour": "Tempah Lawatan",
+      "upcoming": "Akan datang",
+      "at": "pada",
+      "bookingStatus": {
+        "pending": "Menunggu Pengesahan",
+        "confirmed": "Disahkan"
+      },
+      "nextSessionLabel": "Sesi seterusnya:",
+      "viewSchedule": "Lihat Jadual"
+    },
+    "addAnotherChild": "Tambah Anak Lain",
+    "quickActions": {
+      "bookTour": "Tempah Lawatan",
+      "goalsProgress": "Matlamat & Kemajuan",
+      "messages": "Mesej",
+      "reports": "Laporan"
+    },
+    "support": {
+      "title": "Perlukan Sokongan?",
+      "description": "Pasukan kami sedia membantu anda menyokong perjalanan perkembangan anak anda.",
+      "bookConsultation": "Tempah Konsultasi",
+      "resourceLibrary": "Perpustakaan Sumber",
+      "parentGuide": "Panduan Ibu Bapa"
+    }
   }
 }

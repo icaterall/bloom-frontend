@@ -1,60 +1,61 @@
 <div class="max-w-7xl mx-auto space-y-6">
+    <ng-container *ngIf="!isLoading; else loadingState">
     <!-- Welcome Section -->
     <div>
-      <h2 class="text-2xl font-bold text-gray-900">Welcome back, {{ currentUser?.name }}! 👋</h2>
+      <h2 class="text-2xl font-bold text-gray-900">{{ 'parentDashboard.welcomeBack' | translate }} {{ currentUser?.name }}! 👋</h2>
       
       <!-- Dynamic Subtitle based on state -->
       <p *ngIf="children.length === 0" class="mt-1 text-gray-600">
-        Let's set up your child's profile so we can recommend the right programme.
+        {{ 'parentDashboard.noChildrenSubtitle' | translate }}
       </p>
       <p *ngIf="children.length > 0" class="mt-1 text-gray-600">
-        Here's an overview of your child's progress and schedule.
+        {{ 'parentDashboard.hasChildrenSubtitle' | translate }}
       </p>
     </div>
 
     <!-- STATE 1: No Children - Show Setup Checklist -->
     <div *ngIf="children.length === 0 && !isLoading" class="mb-8">
-      <div class="bg-white shadow rounded-lg overflow-hidden">
-        <div class="p-6">
-          <h3 class="text-lg font-medium text-gray-900 mb-4">Getting Started Checklist</h3>
+      <div class="bg-white border border-blue-100 shadow-sm rounded overflow-hidden">
+        <div class="p-4">
+          <h3 class="text-lg font-medium text-gray-900 mb-4">{{ 'parentDashboard.gettingStartedChecklist' | translate }}</h3>
           
-          <div class="space-y-4">
+          <div class="space-y-3">
             <!-- Step 1: Add Child (Active) -->
-            <div class="flex items-start p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <div class="flex items-start p-3 bg-blue-50 border border-blue-200 rounded">
               <div class="flex-shrink-0 mt-1">
                 <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold">1</div>
               </div>
               <div class="ml-4 flex-1">
-                <h4 class="text-lg font-medium text-blue-900">Add your child's profile</h4>
-                <p class="text-sm text-blue-700 mt-1">Tell us about your child so we can understand their needs.</p>
+                <h4 class="text-lg font-medium text-blue-900">{{ 'parentDashboard.steps.addChildTitle' | translate }}</h4>
+                <p class="text-sm text-blue-700 mt-1">{{ 'parentDashboard.steps.addChildDescription' | translate }}</p>
                 <button (click)="openAddChildModal()" class="mt-3 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                  <lucide-angular [img]="PlusIcon" size="16" class="mr-2"></lucide-angular>
-                  Add Child
+                  <span class="mr-2 text-lg" aria-hidden="true">➕</span>
+                  {{ 'parentDashboard.steps.addChildButton' | translate }}
                 </button>
               </div>
             </div>
 
             <!-- Step 2: Share Concerns (Inactive) -->
-            <div class="flex items-start p-4 bg-gray-50 border border-gray-200 rounded-lg opacity-60">
+            <div class="flex items-start p-3 bg-gray-50 border border-gray-200 rounded opacity-60">
               <div class="flex-shrink-0 mt-1">
                 <div class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center text-gray-600 font-bold">2</div>
               </div>
               <div class="ml-4">
-                <h4 class="text-lg font-medium text-gray-900">Share main concerns & goals</h4>
-                <p class="text-sm text-gray-500 mt-1">Help us tailor our approach to your family's goals.</p>
+                <h4 class="text-lg font-medium text-gray-900">{{ 'parentDashboard.steps.shareConcernsTitle' | translate }}</h4>
+                <p class="text-sm text-gray-500 mt-1">{{ 'parentDashboard.steps.shareConcernsDescription' | translate }}</p>
               </div>
             </div>
 
             <!-- Step 3: Book Tour (Active if children exist but no booking) -->
-            <div class="flex items-start p-4 bg-gray-50 border border-gray-200 rounded-lg" [class.opacity-60]="children.length === 0">
+            <div class="flex items-start p-3 bg-gray-50 border border-gray-200 rounded" [class.opacity-60]="children.length === 0">
               <div class="flex-shrink-0 mt-1">
                 <div class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center text-gray-600 font-bold" [class.bg-blue-600]="children.length > 0" [class.text-white]="children.length > 0">3</div>
               </div>
               <div class="ml-4">
-                <h4 class="text-lg font-medium text-gray-900" [class.text-blue-900]="children.length > 0">Book a centre tour</h4>
-                <p class="text-sm text-gray-500 mt-1" [class.text-blue-700]="children.length > 0">Visit us to see our facilities and meet the team.</p>
+                <h4 class="text-lg font-medium text-gray-900" [class.text-blue-900]="children.length > 0">{{ 'parentDashboard.steps.bookTourTitle' | translate }}</h4>
+                <p class="text-sm text-gray-500 mt-1" [class.text-blue-700]="children.length > 0">{{ 'parentDashboard.steps.bookTourDescription' | translate }}</p>
                 <button *ngIf="children.length > 0" (click)="openBookTourModal()" class="mt-3 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                  Book Now
+                  {{ 'parentDashboard.steps.bookTourButton' | translate }}
                 </button>
               </div>
             </div>
@@ -68,18 +69,18 @@
       
       <!-- Children Cards -->
       <div>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
           @for (child of children; track child.id) {
-            <div class="bg-white shadow rounded-lg p-6 border-l-4 border-blue-500 hover:shadow-md transition-shadow">
+            <div class="bg-white border border-blue-100 rounded p-4 shadow-sm border-l-4 border-l-blue-500 hover:shadow-md transition-shadow">
               <div class="flex items-start justify-between">
                 <div class="flex items-center space-x-4">
-                  <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
-                    <lucide-angular [img]="BabyIcon" size="32" class="text-blue-600"></lucide-angular>
+                  <div class="w-16 h-16 rounded-full flex items-center justify-center text-3xl">
+                    <span aria-hidden="true">👶</span>
                   </div>
                   <div>
                     <h3 class="text-lg font-semibold text-gray-900">{{ child.full_name }}</h3>
                     <p class="text-sm text-gray-500">
-                      {{ calculateAge(child.date_of_birth) }} years old • {{ child.gender | titlecase }}
+                      {{ calculateAge(child.date_of_birth) }} {{ 'parentDashboard.childCard.yearsOld' | translate }} • {{ child.gender | titlecase }}
                     </p>
                     <div class="mt-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
                       [ngClass]="{
@@ -87,12 +88,12 @@
                         'bg-green-100 text-green-800': child.child_status === 'enrolled',
                         'bg-blue-100 text-blue-800': child.child_status === 'in_assessment'
                       }">
-                      {{ child.child_status === 'not_enrolled' ? 'Not Enrolled Yet' : (child.child_status | titlecase) }}
+                      {{ ('parentDashboard.childCard.status.' + child.child_status) | translate }}
                     </div>
                   </div>
                 </div>
                 <button class="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                  View Profile
+                  {{ 'parentDashboard.childCard.viewProfile' | translate }}
                 </button>
               </div>
               
@@ -100,58 +101,58 @@
               <div class="mt-6 pt-4 border-t border-gray-100">
                 <!-- Case 1: Not Enrolled & No Booking -->
                 <div *ngIf="child.child_status === 'not_enrolled' && !getBookingForChild(child.id)" class="flex items-center justify-between">
-                  <p class="text-sm text-gray-600">Next step: Book a tour or consultation</p>
+                  <p class="text-sm text-gray-600">{{ 'parentDashboard.childCard.nextStepNotEnrolledNoBooking' | translate }}</p>
                   <button (click)="openBookTourModal()" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm font-medium">
-                    Book Tour
+                    {{ 'parentDashboard.childCard.bookTour' | translate }}
                   </button>
                 </div>
 
                 <!-- Case 2: Not Enrolled & Has Booking -->
                 <div *ngIf="child.child_status === 'not_enrolled' && getBookingForChild(child.id) as booking" class="flex items-center justify-between">
                   <div>
-                    <p class="text-sm font-medium text-blue-700">Upcoming {{ booking.booking_type | titlecase }}</p>
-                    <p class="text-xs text-gray-500">{{ booking.start_at | date:'mediumDate' }} at {{ booking.start_at | date:'shortTime' }}</p>
+                    <p class="text-sm font-medium text-blue-700">{{ 'parentDashboard.childCard.upcoming' | translate }} {{ booking.booking_type | titlecase }}</p>
+                    <p class="text-xs text-gray-500">{{ booking.start_at | date:'mediumDate' }} {{ 'parentDashboard.childCard.at' | translate }} {{ booking.start_at | date:'shortTime' }}</p>
                   </div>
                   <span class="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-full font-medium">
-                    {{ booking.status | titlecase }}
+                    {{ ('parentDashboard.childCard.bookingStatus.' + booking.status) | translate }}
                   </span>
                 </div>
 
                 <!-- Case 3: Enrolled or In Assessment -->
                 <div *ngIf="child.child_status !== 'not_enrolled'" class="flex items-center justify-between">
-                  <p class="text-sm text-gray-600">Next session: Tomorrow, 10:00 AM</p>
-                  <button class="text-sm text-blue-600 hover:underline">View Schedule</button>
+                  <p class="text-sm text-gray-600">{{ 'parentDashboard.childCard.nextSessionLabel' | translate }} Tomorrow, 10:00 AM</p>
+                  <button class="text-sm text-blue-600 hover:underline">{{ 'parentDashboard.childCard.viewSchedule' | translate }}</button>
                 </div>
               </div>
             </div>
           }
           
           <!-- Add Another Child Card -->
-          <button (click)="openAddChildModal()" class="border-2 border-dashed border-gray-300 rounded-lg p-6 flex flex-col items-center justify-center text-gray-500 hover:border-blue-500 hover:text-blue-600 hover:bg-blue-50 transition-colors h-full min-h-[200px]">
-            <lucide-angular [img]="PlusIcon" size="32" class="mb-2"></lucide-angular>
-            <span class="font-medium">Add Another Child</span>
+          <button (click)="openAddChildModal()" class="border-2 border-dashed border-blue-200 rounded p-4 flex flex-col items-center justify-center text-gray-500 hover:border-blue-500 hover:text-blue-600 hover:bg-blue-50 transition-colors h-full min-h-[180px]">
+            <span class="mb-2 text-3xl" aria-hidden="true">➕</span>
+            <span class="font-medium">{{ 'parentDashboard.addAnotherChild' | translate }}</span>
           </button>
         </div>
       </div>
 
       <!-- Quick Actions (Only show if enrolled or in assessment) -->
       <div>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <button (click)="openBookTourModal()" class="p-4 bg-white shadow rounded hover:shadow-md transition-shadow text-left group">
-            <lucide-angular [img]="CalendarIcon" size="24" class="text-blue-600 mb-2 group-hover:scale-110 transition-transform"></lucide-angular>
-            <p class="text-sm font-medium text-gray-900">Book a Tour</p>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <button (click)="openBookTourModal()" class="p-3 bg-white border border-gray-100 rounded shadow-sm hover:shadow-md transition-shadow text-left group">
+            <span class="mb-2 text-2xl block" aria-hidden="true">📅</span>
+            <p class="text-sm font-medium text-gray-900">{{ 'parentDashboard.quickActions.bookTour' | translate }}</p>
           </button>
-          <button class="p-4 bg-white shadow rounded hover:shadow-md transition-shadow text-left group">
-            <lucide-angular [img]="TargetIcon" size="24" class="text-green-600 mb-2 group-hover:scale-110 transition-transform"></lucide-angular>
-            <p class="text-sm font-medium text-gray-900">Goals & Progress</p>
+          <button class="p-3 bg-white border border-gray-100 rounded shadow-sm hover:shadow-md transition-shadow text-left group">
+            <span class="mb-2 text-2xl block" aria-hidden="true">🎯</span>
+            <p class="text-sm font-medium text-gray-900">{{ 'parentDashboard.quickActions.goalsProgress' | translate }}</p>
           </button>
-          <button class="p-4 bg-white shadow rounded hover:shadow-md transition-shadow text-left group">
-            <lucide-angular [img]="MessageSquareIcon" size="24" class="text-purple-600 mb-2 group-hover:scale-110 transition-transform"></lucide-angular>
-            <p class="text-sm font-medium text-gray-900">Messages</p>
+          <button class="p-3 bg-white border border-gray-100 rounded shadow-sm hover:shadow-md transition-shadow text-left group">
+            <span class="mb-2 text-2xl block" aria-hidden="true">💬</span>
+            <p class="text-sm font-medium text-gray-900">{{ 'parentDashboard.quickActions.messages' | translate }}</p>
           </button>
-          <button class="p-4 bg-white shadow rounded hover:shadow-md transition-shadow text-left group">
-            <lucide-angular [img]="FileTextIcon" size="24" class="text-orange-600 mb-2 group-hover:scale-110 transition-transform"></lucide-angular>
-            <p class="text-sm font-medium text-gray-900">Reports</p>
+          <button class="p-3 bg-white border border-gray-100 rounded shadow-sm hover:shadow-md transition-shadow text-left group">
+            <span class="mb-2 text-2xl block" aria-hidden="true">📄</span>
+            <p class="text-sm font-medium text-gray-900">{{ 'parentDashboard.quickActions.reports' | translate }}</p>
           </button>
         </div>
       </div>
@@ -159,24 +160,34 @@
 
     <!-- Additional Resources -->
     <div class="mt-8">
-      <div class="bg-blue-50 border border-blue-200 rounded p-6">
-        <h3 class="text-lg font-semibold text-blue-900 mb-2">Need Support?</h3>
+      <div class="bg-blue-50 border border-blue-200 rounded p-4 shadow-sm">
+        <h3 class="text-lg font-semibold text-blue-900 mb-2">{{ 'parentDashboard.support.title' | translate }}</h3>
         <p class="text-sm text-blue-700 mb-4">
-          Our team is here to help you support your child's development journey.
+          {{ 'parentDashboard.support.description' | translate }}
         </p>
         <div class="flex flex-wrap gap-4">
           <button (click)="openBookTourModal()" class="px-4 py-2 bg-white text-blue-700 rounded hover:bg-blue-100 text-sm font-medium shadow-sm">
-            Book Consultation
+            {{ 'parentDashboard.support.bookConsultation' | translate }}
           </button>
           <button class="px-4 py-2 bg-white text-blue-700 rounded hover:bg-blue-100 text-sm font-medium shadow-sm">
-            Resource Library
+            {{ 'parentDashboard.support.resourceLibrary' | translate }}
           </button>
           <button class="px-4 py-2 bg-white text-blue-700 rounded hover:bg-blue-100 text-sm font-medium shadow-sm">
-            Parent Guide
+            {{ 'parentDashboard.support.parentGuide' | translate }}
           </button>
         </div>
       </div>
     </div>
+    </ng-container>
+
+    <ng-template #loadingState>
+      <div class="flex items-center justify-center py-16">
+        <div class="inline-flex items-center space-x-3">
+          <span class="h-6 w-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></span>
+          <span class="text-sm text-gray-600">{{ 'common.loading' | translate }}</span>
+        </div>
+      </div>
+    </ng-template>
 
   <!-- Add Child Modal -->
   <app-add-child-modal 

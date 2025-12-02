@@ -205,5 +205,54 @@
     "previous": "Previous",
     "yes": "Yes",
     "no": "No"
+  },
+  "parentDashboard": {
+    "welcomeBack": "Welcome back,",
+    "noChildrenSubtitle": "Let's set up your child's profile so we can recommend the right programme.",
+    "hasChildrenSubtitle": "Here's an overview of your child's progress and schedule.",
+    "gettingStartedChecklist": "Getting Started Checklist",
+    "steps": {
+      "addChildTitle": "Add your child's profile",
+      "addChildDescription": "Tell us about your child so we can understand their needs.",
+      "addChildButton": "Add Child",
+      "shareConcernsTitle": "Share main concerns & goals",
+      "shareConcernsDescription": "Help us tailor our approach to your family's goals.",
+      "bookTourTitle": "Book a centre tour",
+      "bookTourDescription": "Visit us to see our facilities and meet the team.",
+      "bookTourButton": "Book Now"
+    },
+    "childCard": {
+      "yearsOld": "years old",
+      "status": {
+        "not_enrolled": "Not Enrolled Yet",
+        "enrolled": "Enrolled",
+        "in_assessment": "In Assessment"
+      },
+      "viewProfile": "View Profile",
+      "nextStepNotEnrolledNoBooking": "Next step: Book a tour or consultation",
+      "bookTour": "Book Tour",
+      "upcoming": "Upcoming",
+      "at": "at",
+      "bookingStatus": {
+        "pending": "Pending",
+        "confirmed": "Confirmed"
+      },
+      "nextSessionLabel": "Next session:",
+      "viewSchedule": "View Schedule"
+    },
+    "addAnotherChild": "Add Another Child",
+    "quickActions": {
+      "bookTour": "Book a Tour",
+      "goalsProgress": "Goals & Progress",
+      "messages": "Messages",
+      "reports": "Reports"
+    },
+    "support": {
+      "title": "Need Support?",
+      "description": "Our team is here to help you support your child's development journey.",
+      "bookConsultation": "Book Consultation",
+      "resourceLibrary": "Resource Library",
+      "parentGuide": "Parent Guide"
+    }
   }
 }
