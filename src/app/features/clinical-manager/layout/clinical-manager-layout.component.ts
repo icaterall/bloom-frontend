@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
@@ -17,6 +17,7 @@ export class ClinicalManagerLayoutComponent implements OnInit {
   currentLanguage = 'my';
   isSidebarOpen = true;
   isMobile = false;
+  isUserMenuOpen = false;
 
   menuItems = [
     { 
@@ -98,8 +99,21 @@ export class ClinicalManagerLayoutComponent implements OnInit {
     this.isSidebarOpen = !this.isSidebarOpen;
   }
 
+  toggleUserMenu(): void {
+    this.isUserMenuOpen = !this.isUserMenuOpen;
+  }
+
   logout(): void {
     this.authService.logout();
+    this.isUserMenuOpen = false;
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    const target = event.target as HTMLElement;
+    if (!target.closest('.cm-user-menu')) {
+      this.isUserMenuOpen = false;
+    }
   }
 
   toggleLanguage(): void {

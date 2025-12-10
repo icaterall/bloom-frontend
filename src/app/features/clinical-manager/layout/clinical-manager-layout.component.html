@@ -119,6 +119,37 @@
           <span class="text-xl">🔔</span>
           <span class="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
         </button>
+
+        <!-- User Profile Menu -->
+        <div class="relative cm-user-menu">
+          <button (click)="toggleUserMenu()"
+                  class="flex items-center gap-2 px-2 py-1 rounded-full hover:bg-gray-100 transition-colors">
+            <div class="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center border border-gray-200">
+              <span class="text-sm font-semibold text-gray-700">
+                {{ (currentUser?.name || 'C').charAt(0).toUpperCase() }}
+              </span>
+            </div>
+            <div class="hidden sm:flex flex-col items-start max-w-[160px]">
+              <span class="text-sm font-medium text-gray-900 truncate">
+                {{ currentUser?.name || 'Clinical Manager' }}
+              </span>
+              <span class="text-xs text-gray-500 truncate">
+                {{ currentUser?.email }}
+              </span>
+            </div>
+            <span class="text-xs text-gray-400">▼</span>
+          </button>
+
+          <!-- Dropdown -->
+          <div *ngIf="isUserMenuOpen"
+               class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-50">
+            <button (click)="logout()"
+                    class="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 text-left">
+              <span class="text-lg">🚪</span>
+              <span>Logout</span>
+            </button>
+          </div>
+        </div>
       </div>
     </header>
 
