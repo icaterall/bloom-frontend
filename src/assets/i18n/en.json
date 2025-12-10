@@ -206,6 +206,63 @@
     "yes": "Yes",
     "no": "No"
   },
+  "clinicalManager": {
+    "dashboardTitle": "Clinical Manager Dashboard",
+    "dashboardSubtitle": "Overview for today",
+    "viewAll": "View All",
+    "kpi": {
+      "newPaidBookings": {
+        "title": "New paid bookings",
+        "subtitle": "Waiting for clinical review"
+      },
+      "sessionsToday": {
+        "title": "Sessions today",
+        "subtitle": "Confirmed sessions on today's schedule"
+      },
+      "waitingAssessment": {
+        "title": "Waiting for initial assessment",
+        "subtitle": "Children without a first session date"
+      },
+      "noShows": {
+        "title": "No-shows this week",
+        "subtitle": "Sessions where the child did not attend"
+      }
+    },
+    "pendingBookings": {
+      "title": "Bookings awaiting approval",
+      "child": "Child",
+      "parent": "Parent",
+      "sessionType": "Session Type",
+      "mode": "Mode",
+      "preferredTime": "Preferred Time",
+      "paidAmount": "Paid Amount",
+      "status": "Status",
+      "actions": "Actions",
+      "approve": "Approve",
+      "reject": "Reject",
+      "view": "View",
+      "empty": "No pending bookings"
+    },
+    "todaySessions": {
+      "title": "Today's sessions",
+      "time": "Time",
+      "child": "Child",
+      "therapist": "Therapist",
+      "mode": "Mode",
+      "status": "Status",
+      "empty": "No sessions scheduled for today"
+    },
+    "therapistWorkload": {
+      "title": "Therapist workload",
+      "today": "Today",
+      "thisWeek": "This Week",
+      "newChildren": "New Children"
+    },
+    "alerts": {
+      "title": "Alerts & follow-up",
+      "empty": "No alerts at this time"
+    }
+  },
   "parentDashboard": {
     "welcomeBack": "Welcome back,",
     "noChildrenSubtitle": "Let's set up your child's profile so we can recommend the right programme.",

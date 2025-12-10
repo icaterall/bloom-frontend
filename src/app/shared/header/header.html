@@ -45,18 +45,12 @@
           </div>
         </button>
 
-        <!-- CTA Buttons -->
-        <a routerLink="/book-tour" 
-           class="bg-primary text-white px-5 py-2.5 rounded-lg font-medium hover:bg-primary-700 transition-colors duration-200 shadow-md hover:shadow-lg">
+        <!-- CTA Button: Book a Tour (acts as login/parent dashboard entry) -->
+        <button
+          (click)="goToParentPortal()"
+          class="bg-primary text-white px-5 py-2.5 rounded-lg font-medium hover:bg-primary-700 transition-colors duration-200 shadow-md hover:shadow-lg">
           {{ 'header.nav.bookTour' | translate }}
-        </a>
-        
-        <!-- Not Logged In -->
-        <a *ngIf="!currentUser" routerLink="/login"
-           class="flex items-center space-x-2 px-4 py-2.5 rounded-lg border-2 border-primary text-primary hover:bg-primary hover:text-white transition-colors duration-200">
-          <lucide-angular [img]="UserIcon" size="18"></lucide-angular>
-          <span>{{ 'header.nav.portal' | translate }}</span>
-        </a>
+        </button>
 
         <!-- Logged In User Menu -->
         <div *ngIf="currentUser" class="relative user-menu-container">
@@ -146,17 +140,11 @@
         </div>
 
         <div class="flex flex-col space-y-3 pt-4 border-t">
-          <a routerLink="/book-tour" (click)="toggleMenu()"
-             class="bg-primary text-white px-5 py-3 rounded-lg font-medium hover:bg-primary-700 transition-colors duration-200 shadow-md hover:shadow-lg text-center">
+          <button
+            (click)="goToParentPortal(); toggleMenu()"
+            class="bg-primary text-white px-5 py-3 rounded-lg font-medium hover:bg-primary-700 transition-colors duration-200 shadow-md hover:shadow-lg text-center">
             {{ 'header.nav.bookTour' | translate }}
-          </a>
-          
-          <!-- Not Logged In -->
-          <a *ngIf="!currentUser" routerLink="/login" (click)="toggleMenu()"
-             class="flex items-center justify-center space-x-2 px-4 py-3 rounded-lg border-2 border-primary text-primary hover:bg-primary hover:text-white transition-colors duration-200">
-            <lucide-angular [img]="UserIcon" size="18"></lucide-angular>
-            <span>{{ 'header.nav.parentPortal' | translate }}</span>
-          </a>
+          </button>
 
           <!-- Logged In Mobile Menu -->
           <div *ngIf="currentUser" class="space-y-2 pt-2">

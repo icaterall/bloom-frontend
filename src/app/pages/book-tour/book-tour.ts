@@ -1,85 +1,37 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
-import { LucideAngularModule, Calendar, Clock, MapPin, User, Phone, Mail, Users, CheckCircle, Info } from 'lucide-angular';
-import { HeaderComponent } from '../../shared/header/header';
-import { FooterComponent } from '../../shared/footer/footer';
+import { RouterModule, Router } from '@angular/router';
+import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-book-tour',
-  imports: [CommonModule, FormsModule, RouterModule, LucideAngularModule, HeaderComponent, FooterComponent],
+  imports: [CommonModule, RouterModule],
   templateUrl: './book-tour.html',
   styleUrls: ['./book-tour.scss'],
   standalone: true
 })
-export class BookTourComponent {
-  readonly CalendarIcon = Calendar;
-  readonly ClockIcon = Clock;
-  readonly MapPinIcon = MapPin;
-  readonly UserIcon = User;
-  readonly PhoneIcon = Phone;
-  readonly MailIcon = Mail;
-  readonly UsersIcon = Users;
-  readonly CheckCircleIcon = CheckCircle;
-  readonly InfoIcon = Info;
+export class BookTourComponent implements OnInit {
 
-  booking = {
-    date: '',
-    time: '',
-    parentName: '',
-    phoneNumber: '',
-    email: '',
-    childName: '',
-    childAge: '',
-    concerns: '',
-    howHeard: '',
-    preferredLanguage: 'english'
-  };
+  constructor(
+    private authService: AuthService,
+    private router: Router
+  ) {}
 
-  availableSlots = [
-    '9:00 AM',
-    '10:00 AM',
-    '11:00 AM',
-    '2:00 PM',
-    '3:00 PM',
-    '4:00 PM'
-  ];
+  ngOnInit(): void {
+    if (this.authService.isAuthenticatedUser()) {
+      const user = this.authService.getCurrentUser();
 
-  submitted = false;
-  minDate = new Date().toISOString().split('T')[0];
-  maxDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-
-  onSubmit() {
-    if (this.isFormValid()) {
-      console.log('Booking submitted:', this.booking);
-      this.submitted = true;
-      // In production, this would send to backend API
-      // and send confirmation email/SMS
+      if (user?.role === 'parent') {
+        this.router.navigate(['/parent/dashboard']);
+      } else if (user?.role === 'admin') {
+        this.router.navigate(['/admin/dashboard']);
+      } else if (user?.role === 'staff') {
+        this.router.navigate(['/staff/dashboard']);
+      } else {
+        this.router.navigate(['/']);
+      }
+    } else {
+      this.router.navigate(['/login']);
     }
-  }
-
-  isFormValid(): boolean {
-    return !!(this.booking.date && 
-             this.booking.time && 
-             this.booking.parentName && 
-             this.booking.phoneNumber && 
-             this.booking.email);
-  }
-
-  resetForm() {
-    this.booking = {
-      date: '',
-      time: '',
-      parentName: '',
-      phoneNumber: '',
-      email: '',
-      childName: '',
-      childAge: '',
-      concerns: '',
-      howHeard: '',
-      preferredLanguage: 'english'
-    };
-    this.submitted = false;
   }
 }

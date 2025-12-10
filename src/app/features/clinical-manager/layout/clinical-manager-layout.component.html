@@ -19,7 +19,7 @@
     <!-- Logo Area -->
     <div class="h-16 flex items-center justify-center border-b border-gray-100 px-4" [ngClass]="{'justify-start': isSidebarOpen}">
       <a routerLink="/" class="flex items-center gap-3 overflow-hidden whitespace-nowrap">
-        <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center flex-shrink-0 text-white font-bold text-xl">
+        <div class="w-8 h-8 bg-blue-600 rounded flex items-center justify-center flex-shrink-0 text-white font-bold text-xl">
           B
         </div>
         <span class="font-bold text-xl text-gray-800 transition-opacity duration-200"
@@ -35,42 +35,42 @@
       <a *ngFor="let item of menuItems" 
          [routerLink]="item.route"
          routerLinkActive="bg-blue-50 text-blue-600"
-         class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors group relative"
-         [title]="!isSidebarOpen ? item.label : ''">
+         class="flex items-center gap-3 px-3 py-2.5 rounded text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors group relative"
+         [title]="!isSidebarOpen ? getMenuLabel(item) : ''">
         
-        <lucide-angular [img]="item.icon" class="w-5 h-5 flex-shrink-0"></lucide-angular>
+        <span class="text-xl flex-shrink-0">{{ item.icon }}</span>
         
         <span class="font-medium whitespace-nowrap transition-opacity duration-200"
               [class.opacity-0]="!isSidebarOpen && !isMobile"
               [class.hidden]="!isSidebarOpen && !isMobile">
-          {{ item.label }}
+          {{ getMenuLabel(item) }}
         </span>
 
         <!-- Tooltip for collapsed state -->
         <div *ngIf="!isSidebarOpen && !isMobile" 
              class="absolute left-full ml-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50">
-          {{ item.label }}
+          {{ getMenuLabel(item) }}
         </div>
       </a>
     </div>
 
     <!-- Bottom Actions (User & Logout) -->
     <div class="p-3 border-t border-gray-100 space-y-1">
-      <!-- User Profile (Simplified) -->
-      <div class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-600 transition-colors overflow-hidden">
+      <!-- User Profile -->
+      <div class="flex items-center gap-3 px-3 py-2.5 rounded text-gray-600 transition-colors overflow-hidden">
         <div class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0 border border-gray-200">
-          <lucide-angular [img]="UserIcon" class="w-4 h-4 text-gray-500"></lucide-angular>
+          <span class="text-sm font-semibold text-gray-700">{{ (currentUser?.name || 'C').charAt(0).toUpperCase() }}</span>
         </div>
         <div class="flex-1 min-w-0" [class.hidden]="!isSidebarOpen && !isMobile">
           <p class="text-sm font-medium text-gray-900 truncate">{{ currentUser?.name }}</p>
-          <p class="text-xs text-gray-500 truncate">Parent</p>
+          <p class="text-xs text-gray-500 truncate">Clinical Manager</p>
         </div>
       </div>
 
       <!-- Logout -->
       <button (click)="logout()" 
-              class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-red-600 hover:bg-red-50 transition-colors group relative">
-        <lucide-angular [img]="LogOutIcon" class="w-5 h-5 flex-shrink-0"></lucide-angular>
+              class="w-full flex items-center gap-3 px-3 py-2.5 rounded text-red-600 hover:bg-red-50 transition-colors group relative">
+        <span class="text-xl flex-shrink-0">🚪</span>
         <span class="font-medium whitespace-nowrap transition-opacity duration-200"
               [class.opacity-0]="!isSidebarOpen && !isMobile"
               [class.hidden]="!isSidebarOpen && !isMobile">
@@ -92,16 +92,16 @@
     <!-- Top Header -->
     <header class="bg-white border-b border-gray-200 h-16 flex items-center justify-between px-4 sm:px-6 lg:px-8 sticky top-0 z-30">
       <div class="flex items-center gap-4">
-        <button (click)="toggleSidebar()" class="p-2 rounded-lg hover:bg-gray-100 text-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-200">
-          <lucide-angular [img]="isSidebarOpen ? ChevronLeftIcon : MenuIcon" class="w-5 h-5"></lucide-angular>
+        <button (click)="toggleSidebar()" class="p-2 rounded hover:bg-gray-100 text-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-200">
+          <span class="text-xl">{{ isSidebarOpen ? '◀' : '☰' }}</span>
         </button>
-        <h1 class="text-xl font-semibold text-gray-800 hidden sm:block">Parent Portal</h1>
+        <h1 class="text-xl font-semibold text-gray-800 hidden sm:block">Clinical Manager Portal</h1>
       </div>
 
       <div class="flex items-center gap-3">
         <!-- Language Toggle -->
         <button (click)="toggleLanguage()" 
-                class="flex items-center space-x-1 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"
+                class="flex items-center space-x-1 px-3 py-2 rounded hover:bg-gray-100 transition-colors duration-200"
                 [title]="currentLanguage === 'my' ? 'Switch to English' : 'Tukar ke Bahasa Melayu'">
           <div class="flex items-center">
             <span class="text-xl leading-none transition-opacity duration-200" 
@@ -115,8 +115,8 @@
         </button>
 
         <!-- Notifications -->
-        <button class="p-2 rounded-lg hover:bg-gray-100 text-gray-600 relative">
-          <lucide-angular [img]="BellIcon" class="w-5 h-5"></lucide-angular>
+        <button class="p-2 rounded hover:bg-gray-100 text-gray-600 relative">
+          <span class="text-xl">🔔</span>
           <span class="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
         </button>
       </div>

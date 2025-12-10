@@ -1,19 +1,18 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { User } from '../../../shared/models/user.model';
-import { TranslationService } from '../../../shared/services/translation.service';
 
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterModule],
   templateUrl: './admin-dashboard.component.html',
   styleUrls: ['./admin-dashboard.component.css']
 })
 export class AdminDashboardComponent implements OnInit {
   currentUser: User | null = null;
-  currentLanguage: 'en' | 'my' = 'en';
 
   // Dashboard data (static for now)
   dashboardStats = {
@@ -31,18 +30,10 @@ export class AdminDashboardComponent implements OnInit {
   ];
 
   constructor(
-    private authService: AuthService,
-    private translationService: TranslationService
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
     this.currentUser = this.authService.getCurrentUser();
-    this.translationService.currentLang$.subscribe(lang => {
-      this.currentLanguage = lang as 'en' | 'my';
-    });
-  }
-
-  toggleLanguage(): void {
-    this.translationService.toggleLanguage();
   }
 }

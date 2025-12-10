@@ -78,12 +78,29 @@ export class HeaderComponent implements OnInit {
     this.isMenuOpen = false;
   }
 
+  goToParentPortal(): void {
+    if (this.authService.isAuthenticatedUser()) {
+      // If logged in, send parents to parent dashboard, others to their role dashboard
+      if (this.currentUser?.role === 'parent') {
+        this.router.navigate(['/parent/dashboard']);
+      } else {
+        const dashboardLink = this.getDashboardLink();
+        this.router.navigate([dashboardLink]);
+      }
+    } else {
+      // Not authenticated: go to login
+      this.router.navigate(['/login']);
+    }
+  }
+
   getDashboardLink(): string {
     if (!this.currentUser) return '/';
     
     switch (this.currentUser.role) {
       case 'admin': return '/admin/dashboard';
       case 'parent': return '/parent/dashboard';
+      case 'clinical_manager': return '/clinical-manager/dashboard';
+      case 'therapist': return '/therapist/dashboard';
       case 'staff': return '/staff/dashboard';
       default: return '/';
     }

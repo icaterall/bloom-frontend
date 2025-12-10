@@ -16,6 +16,7 @@ export const roleGuard: CanActivateFn = (route, state) => {
   const user = authService.getCurrentUser();
   
   if (!user) {
+    console.warn('[roleGuard] No current user, redirecting to /login.');
     router.navigate(['/login']);
     return false;
   }
@@ -26,12 +27,19 @@ export const roleGuard: CanActivateFn = (route, state) => {
   }
 
   // User doesn't have required role, redirect to their dashboard
+  console.warn('[roleGuard] Access denied for role', user.role, 'required roles:', requiredRoles);
   switch (user.role) {
     case 'admin':
       router.navigate(['/admin/dashboard']);
       break;
     case 'parent':
       router.navigate(['/parent/dashboard']);
+      break;
+    case 'clinical_manager':
+      router.navigate(['/clinical-manager/dashboard']);
+      break;
+    case 'therapist':
+      router.navigate(['/therapist/dashboard']);
       break;
     case 'staff':
       router.navigate(['/staff/dashboard']);

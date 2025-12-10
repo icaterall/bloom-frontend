@@ -209,6 +209,12 @@ export class LoginComponent implements OnInit, OnDestroy {
       case 'parent':
         this.router.navigate(['/parent/dashboard']);
         break;
+      case 'clinical_manager':
+        this.router.navigate(['/clinical-manager/dashboard']);
+        break;
+      case 'therapist':
+        this.router.navigate(['/therapist/dashboard']);
+        break;
       case 'staff':
         this.router.navigate(['/staff/dashboard']);
         break;

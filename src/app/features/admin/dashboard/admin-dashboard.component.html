@@ -4,15 +4,6 @@
     <h2 class="text-2xl font-bold text-gray-900">Welcome back, {{ currentUser?.name }}!</h2>
     <p class="mt-1 text-gray-600">Here's what's happening at the centre today.</p>
   </div>
-  <button 
-    (click)="toggleLanguage()"
-    class="flex items-center space-x-2 px-3 py-2 rounded-lg bg-white border border-gray-200 hover:bg-gray-50 transition-colors"
-    title="Switch Language"
-  >
-    <span class="text-xl filter transition-opacity duration-200" [class.opacity-100]="currentLanguage === 'en'" [class.opacity-40]="currentLanguage !== 'en'">🇬🇧</span>
-    <span class="text-gray-300">|</span>
-    <span class="text-xl filter transition-opacity duration-200" [class.opacity-100]="currentLanguage === 'my'" [class.opacity-40]="currentLanguage !== 'my'">🇲🇾</span>
-  </button>
 </div>
 
 <!-- Stats Grid -->
@@ -134,8 +125,8 @@
           <button class="px-4 py-3 bg-green-50 text-green-700 rounded hover:bg-green-100 text-sm font-medium">
             View Leads
           </button>
-          <button class="px-4 py-3 bg-purple-50 text-purple-700 rounded hover:bg-purple-100 text-sm font-medium">
-            Children List
+          <button routerLink="/admin/staff" class="px-4 py-3 bg-purple-50 text-purple-700 rounded hover:bg-purple-100 text-sm font-medium">
+            Staff
           </button>
           <button class="px-4 py-3 bg-orange-50 text-orange-700 rounded hover:bg-orange-100 text-sm font-medium">
             Reports

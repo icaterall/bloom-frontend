@@ -42,6 +42,13 @@ export const routes: Routes = [
     title: 'Reset Password - Bloom Spectrum Centre'
   },
   {
+    path: 'auth/activate',
+    loadComponent: () =>
+      import('./features/auth/activate-account/activate-account.component')
+        .then(m => m.ActivateAccountComponent),
+    title: 'Activate Account - Bloom Spectrum Centre'
+  },
+  {
     path: 'auth/google/callback',
     loadComponent: () =>
       import('./features/auth/google-callback/google-callback.component')
@@ -63,6 +70,32 @@ export const routes: Routes = [
           import('./features/admin/dashboard/admin-dashboard.component')
             .then(m => m.AdminDashboardComponent),
         title: 'Admin Dashboard - Bloom Spectrum Centre'
+      },
+      {
+        path: 'staff',
+        loadComponent: () =>
+          import('./features/admin/staff/staff-list.component')
+            .then(m => m.StaffListComponent),
+        title: 'Staff Management - Bloom Spectrum Centre'
+      },
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
+    ]
+  },
+  // Clinical Manager routes
+  {
+    path: 'clinical-manager',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['clinical_manager', 'admin'] },
+    loadComponent: () =>
+      import('./features/clinical-manager/layout/clinical-manager-layout.component')
+        .then(m => m.ClinicalManagerLayoutComponent),
+    children: [
+      {
+        path: 'dashboard',
+        loadComponent: () =>
+          import('./features/clinical-manager/dashboard/clinical-manager-dashboard.component')
+            .then(m => m.ClinicalManagerDashboardComponent),
+        title: 'Clinical Manager Dashboard - Bloom Spectrum Centre'
       },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
     ]

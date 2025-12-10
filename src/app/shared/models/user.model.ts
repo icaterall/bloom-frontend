@@ -3,7 +3,7 @@ export interface User {
   name: string;
   email: string;
   mobile?: string;
-  role: 'admin' | 'parent' | 'staff';
+  role: 'admin' | 'parent' | 'staff' | 'clinical_manager' | 'therapist';
   is_active: boolean;
   email_verified: boolean;
   auth_provider: 'local' | 'google';

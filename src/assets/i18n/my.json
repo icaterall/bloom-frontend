@@ -206,6 +206,63 @@
     "yes": "Ya",
     "no": "Tidak"
   },
+  "clinicalManager": {
+    "dashboardTitle": "Papan Pemuka Pengurus Klinikal",
+    "dashboardSubtitle": "Ringkasan untuk hari ini",
+    "viewAll": "Lihat Semua",
+    "kpi": {
+      "newPaidBookings": {
+        "title": "Tempahan berbayar baharu",
+        "subtitle": "Menunggu semakan klinikal"
+      },
+      "sessionsToday": {
+        "title": "Sesi hari ini",
+        "subtitle": "Sesi yang disahkan untuk hari ini"
+      },
+      "waitingAssessment": {
+        "title": "Menunggu penilaian awal",
+        "subtitle": "Kanak-kanak tanpa tarikh sesi pertama"
+      },
+      "noShows": {
+        "title": "Tidak hadir minggu ini",
+        "subtitle": "Sesi di mana kanak-kanak tidak hadir"
+      }
+    },
+    "pendingBookings": {
+      "title": "Tempahan menunggu kelulusan",
+      "child": "Kanak-kanak",
+      "parent": "Ibu bapa / Penjaga",
+      "sessionType": "Jenis sesi",
+      "mode": "Mod",
+      "preferredTime": "Masa pilihan",
+      "paidAmount": "Jumlah dibayar",
+      "status": "Status",
+      "actions": "Tindakan",
+      "approve": "Lulus",
+      "reject": "Tolak",
+      "view": "Lihat",
+      "empty": "Tiada tempahan menunggu kelulusan"
+    },
+    "todaySessions": {
+      "title": "Sesi hari ini",
+      "time": "Masa",
+      "child": "Kanak-kanak",
+      "therapist": "Ahli terapi",
+      "mode": "Mod",
+      "status": "Status",
+      "empty": "Tiada sesi dijadualkan untuk hari ini"
+    },
+    "therapistWorkload": {
+      "title": "Beban kerja ahli terapi",
+      "today": "Hari ini",
+      "thisWeek": "Minggu ini",
+      "newChildren": "Kanak-kanak baharu"
+    },
+    "alerts": {
+      "title": "Amaran & tindakan susulan",
+      "empty": "Tiada amaran pada masa ini"
+    }
+  },
   "parentDashboard": {
     "welcomeBack": "Selamat datang kembali,",
     "noChildrenSubtitle": "Jom lengkapkan profil anak anda supaya kami boleh cadangkan program yang sesuai.",
