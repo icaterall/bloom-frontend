@@ -149,7 +149,17 @@ export class ParentDashboardComponent implements OnInit {
 
   getBookingForChild(childId: number | undefined): Booking | undefined {
     if (!childId) return undefined;
-    return this.bookings.find(b => b.child_id === childId && b.status && ['pending', 'confirmed'].includes(b.status));
+    // Treat these statuses as “active” bookings that should block new session creation
+    const activeStatuses = [
+      'pending',
+      'awaiting_payment',
+      'awaiting_cash_payment',
+      'awaiting_clinical_review',
+      'confirmed'
+    ];
+    return this.bookings.find(
+      b => b.child_id === childId && b.status && activeStatuses.includes(b.status)
+    );
   }
 
   getUpcomingBookingForChild(childId: number | undefined): Booking | undefined {
@@ -166,6 +176,16 @@ export class ParentDashboardComponent implements OnInit {
              b.status && 
              ['pending', 'awaiting_payment', 'awaiting_cash_payment', 'awaiting_clinical_review', 'confirmed'].includes(b.status);
     });
+  }
+
+  isAwaitingCash(booking?: Booking | undefined): boolean {
+    return !!booking && booking.payment_method === 'cash' && booking.status === 'awaiting_cash_payment';
+  }
+
+  getCashPayBy(booking?: Booking | undefined): Date | null {
+    if (!booking || !booking.created_at) return null;
+    const created = new Date(booking.created_at);
+    return new Date(created.getTime() + 24 * 60 * 60 * 1000); // 24h window
   }
 
   // Helper to calculate age

@@ -12,6 +12,11 @@ export interface Booking {
   end_at?: string;
   location?: string;
   status?: 'pending' | 'awaiting_payment' | 'awaiting_cash_payment' | 'awaiting_clinical_review' | 'confirmed' | 'cancelled' | 'completed' | 'no_show';
+  payment_method?: 'card' | 'online_banking' | 'cash';
+  payment_status?: 'not_required' | 'unpaid' | 'pending' | 'paid' | 'failed' | 'refunded';
+  payment_required?: boolean;
+  price?: number;
+  currency?: string;
   notes?: string;
   created_at?: string;
   
