@@ -283,16 +283,26 @@
       "status": {
         "not_enrolled": "Not Enrolled Yet",
         "enrolled": "Enrolled",
-        "in_assessment": "In Assessment"
+        "in_assessment": "In Assessment",
+        "unknown": "Status not set yet"
       },
       "viewProfile": "View Profile",
+      "bookSession": "Book Session",
+      "bookSessionTooltip": "Start here to choose online or centre session.",
+      "noSessionsBooked": "No sessions booked yet.",
       "nextStepNotEnrolledNoBooking": "Next step: Book a tour or consultation",
       "bookTour": "Book Tour",
       "upcoming": "Upcoming",
       "at": "at",
       "bookingStatus": {
         "pending": "Pending",
-        "confirmed": "Confirmed"
+        "awaiting_payment": "Awaiting Payment",
+        "awaiting_cash_payment": "Awaiting Cash Payment",
+        "awaiting_clinical_review": "Awaiting Review",
+        "confirmed": "Confirmed",
+        "cancelled": "Cancelled",
+        "completed": "Completed",
+        "no_show": "No Show"
       },
       "nextSessionLabel": "Next session:",
       "viewSchedule": "View Schedule"

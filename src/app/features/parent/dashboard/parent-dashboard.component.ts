@@ -7,8 +7,10 @@ import { BookingService } from '../../../core/services/booking.service';
 import { User } from '../../../shared/models/user.model';
 import { Child } from '../../../shared/models/child.model';
 import { Booking } from '../../../shared/models/booking.model';
+import { LucideAngularModule, Pencil } from 'lucide-angular';
 import { AddChildModalComponent } from '../components/add-child-modal/add-child-modal.component';
 import { BookTourModalComponent } from '../components/book-tour-modal/book-tour-modal.component';
+import { BookingWizardComponent } from '../components/booking-wizard/booking-wizard.component';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 
 @Component({
@@ -18,8 +20,10 @@ import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
     CommonModule, 
     RouterModule, 
     TranslatePipe,
+    LucideAngularModule,
     AddChildModalComponent,
-    BookTourModalComponent
+    BookTourModalComponent,
+    BookingWizardComponent
   ],
   templateUrl: './parent-dashboard.component.html',
   styleUrls: ['./parent-dashboard.component.css']
@@ -32,6 +36,12 @@ export class ParentDashboardComponent implements OnInit {
   isBookingsLoading = false;
   showAddChildModal = false;
   showBookTourModal = false;
+  showBookingWizard = false;
+  selectedChild: Child | null = null;
+  selectedChildForBooking: Child | null = null;
+  selectedChildForWizard: Child | null = null;
+  hasAnimatedBookButton: { [key: number]: boolean } = {};
+  readonly PencilIcon = Pencil;
 
   get isLoading(): boolean {
     return this.isChildrenLoading || this.isBookingsLoading;
@@ -95,14 +105,25 @@ export class ParentDashboardComponent implements OnInit {
   }
 
   openAddChildModal(): void {
+    this.selectedChild = null;
+    this.showAddChildModal = true;
+  }
+
+  openEditChildModal(child: Child): void {
+    this.selectedChild = child;
     this.showAddChildModal = true;
   }
 
   closeAddChildModal(): void {
     this.showAddChildModal = false;
+    this.selectedChild = null;
   }
 
   onChildAdded(): void {
+    this.loadChildren();
+  }
+
+  onChildUpdated(): void {
     this.loadChildren();
   }
 
@@ -110,8 +131,15 @@ export class ParentDashboardComponent implements OnInit {
     this.showBookTourModal = true;
   }
 
+  openBookSessionModal(child: Child): void {
+    // Open booking wizard with pre-selected child
+    this.selectedChildForWizard = child;
+    this.showBookingWizard = true;
+  }
+
   closeBookTourModal(): void {
     this.showBookTourModal = false;
+    this.selectedChildForBooking = null;
   }
 
   onBookingCreated(): void {
@@ -122,6 +150,22 @@ export class ParentDashboardComponent implements OnInit {
   getBookingForChild(childId: number | undefined): Booking | undefined {
     if (!childId) return undefined;
     return this.bookings.find(b => b.child_id === childId && b.status && ['pending', 'confirmed'].includes(b.status));
+  }
+
+  getUpcomingBookingForChild(childId: number | undefined): Booking | undefined {
+    if (!childId) return undefined;
+    const now = new Date();
+    return this.bookings.find(b => {
+      if (b.child_id !== childId) return false;
+      // Check if booking has a future start time
+      const startAt = b.preferred_start_at || b.confirmed_start_at || b.start_at;
+      if (!startAt) return false;
+      const bookingDate = new Date(startAt);
+      // Only show bookings that are in the future and have valid statuses
+      return bookingDate > now && 
+             b.status && 
+             ['pending', 'awaiting_payment', 'awaiting_cash_payment', 'awaiting_clinical_review', 'confirmed'].includes(b.status);
+    });
   }
 
   // Helper to calculate age
@@ -135,6 +179,32 @@ export class ParentDashboardComponent implements OnInit {
       age--;
     }
     return age;
+  }
+
+  onBookButtonAnimationEnd(childId: number | undefined): void {
+    if (childId) {
+      this.hasAnimatedBookButton[childId] = true;
+    }
+  }
+
+  closeBookingWizard(): void {
+    this.showBookingWizard = false;
+    this.selectedChildForWizard = null;
+  }
+
+  onWizardStepComplete(event: any): void {
+    console.log('Wizard step complete:', event);
+    // Handle step completion
+    if (event.step === 2) {
+      // Booking created, continue to payment step (handled in wizard)
+    } else if (event.step === 3) {
+      // Payment method selected
+      if (event.data?.payment_method === 'cash') {
+        // Cash payment - booking is reserved, refresh bookings
+        this.loadBookings();
+      }
+      // For card/online_banking, user is redirected to Stripe, so no refresh needed
+    }
   }
 }
 

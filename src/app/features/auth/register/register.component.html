@@ -1,0 +1,158 @@
+<div class="min-h-screen flex bg-[#fdf7ef]">
+  <!-- Left Panel (Marketing) -->
+  <div class="hidden lg:flex lg:w-1/2 xl:w-3/5 flex-col justify-between px-10 py-10 bg-white">
+    <div>
+      <h1 class="text-3xl font-bold text-gray-900 mb-4">
+        Start your journey with Bloom Spectrum
+      </h1>
+      <p class="text-base text-gray-700 max-w-xl">
+        Join our community of parents and educators. Track progress, manage bookings, and access resources—all in one place.
+      </p>
+    </div>
+
+    <div class="mt-10 flex-1 relative rounded-2xl overflow-hidden shadow-2xl">
+      <img
+        src="assets/images/warm-place.jpg"
+        alt="Bloom Portal preview"
+        class="absolute inset-0 w-full h-full object-cover"
+      />
+      <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent flex items-end p-8">
+        <p class="text-white font-medium text-lg">
+          "The best decision we made for our child's development."
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Panel (Form) -->
+  <div class="flex-1 flex flex-col bg-white">
+    <!-- Header -->
+    <div class="flex items-center justify-between px-4 pt-6 lg:px-8">
+      <a routerLink="/" class="flex items-center gap-2">
+        <div class="h-8 w-8 rounded-xl bg-primary flex items-center justify-center text-white font-semibold">
+          B
+        </div>
+        <span class="text-sm font-semibold text-gray-800">Bloom Spectrum</span>
+      </a>
+
+      <button 
+        (click)="toggleLanguage()"
+        class="flex items-center space-x-2 px-3 py-2 rounded-lg bg-white border border-gray-200 hover:bg-gray-50 transition-colors"
+      >
+        <span class="text-xl" [class.opacity-40]="currentLanguage !== 'en'">🇬🇧</span>
+        <span class="text-gray-300">|</span>
+        <span class="text-xl" [class.opacity-40]="currentLanguage !== 'my'">🇲🇾</span>
+      </button>
+    </div>
+
+    <!-- Form Container -->
+    <div class="flex-1 flex items-center justify-center px-4 py-10 lg:px-8">
+      <div class="w-full max-w-md space-y-8">
+        <div>
+          <h2 class="text-3xl font-semibold text-gray-900">Create an account</h2>
+          <p class="mt-2 text-sm text-gray-600">
+            Already have an account?
+            <a routerLink="/login" class="font-medium text-primary hover:text-primary-700">Log in</a>
+          </p>
+        </div>
+
+        <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="space-y-5">
+          <!-- Error Alert -->
+          <div *ngIf="error()" class="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
+            {{ error() }}
+          </div>
+
+          <!-- Name -->
+          <div>
+            <label for="name" class="block text-sm font-medium text-gray-700">Full Name</label>
+            <div class="mt-1 relative">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <lucide-angular [img]="UserIcon" size="20" class="text-gray-400"></lucide-angular>
+              </div>
+              <input
+                id="name"
+                type="text"
+                formControlName="name"
+                class="appearance-none block w-full pl-10 pr-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+                placeholder="John Doe"
+              />
+            </div>
+            <p *ngIf="name?.invalid && name?.touched" class="mt-1 text-sm text-red-600">Name is required</p>
+          </div>
+
+          <!-- Email -->
+          <div>
+            <label for="email" class="block text-sm font-medium text-gray-700">Email Address</label>
+            <div class="mt-1 relative">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <lucide-angular [img]="MailIcon" size="20" class="text-gray-400"></lucide-angular>
+              </div>
+              <input
+                id="email"
+                type="email"
+                formControlName="email"
+                class="appearance-none block w-full pl-10 pr-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+                placeholder="you@example.com"
+              />
+            </div>
+            <p *ngIf="email?.invalid && email?.touched" class="mt-1 text-sm text-red-600">Valid email is required</p>
+          </div>
+
+          <!-- Mobile -->
+          <div>
+            <label for="mobile" class="block text-sm font-medium text-gray-700">Phone Number</label>
+            <div class="mt-1 relative">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <lucide-angular [img]="PhoneIcon" size="20" class="text-gray-400"></lucide-angular>
+              </div>
+              <input
+                id="mobile"
+                type="tel"
+                formControlName="mobile"
+                class="appearance-none block w-full pl-10 pr-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+                placeholder="+60 12 345 6789"
+              />
+            </div>
+            <p *ngIf="mobile?.invalid && mobile?.touched" class="mt-1 text-sm text-red-600">Phone number is required</p>
+          </div>
+
+          <!-- Password -->
+          <div>
+            <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+            <div class="mt-1 relative">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <lucide-angular [img]="LockIcon" size="20" class="text-gray-400"></lucide-angular>
+              </div>
+              <input
+                id="password"
+                [type]="showPassword() ? 'text' : 'password'"
+                formControlName="password"
+                class="appearance-none block w-full pl-10 pr-10 py-2 bg-white border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+                placeholder="••••••••"
+              />
+              <button
+                type="button"
+                (click)="togglePasswordVisibility()"
+                class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-500"
+              >
+                <lucide-angular [img]="showPassword() ? EyeOffIcon : EyeIcon" size="20"></lucide-angular>
+              </button>
+            </div>
+            <p *ngIf="password?.invalid && password?.touched" class="mt-1 text-sm text-red-600">Password must be at least 6 characters</p>
+          </div>
+
+          <!-- Submit -->
+          <button
+            type="submit"
+            [disabled]="loading() || registerForm.invalid"
+            class="w-full flex justify-center items-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            <lucide-angular *ngIf="loading()" [img]="LoaderIcon" size="20" class="animate-spin mr-2"></lucide-angular>
+            <span>{{ loading() ? 'Creating account...' : 'Create Account' }}</span>
+            <lucide-angular *ngIf="!loading()" [img]="ArrowRightIcon" size="20" class="ml-2"></lucide-angular>
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

@@ -283,16 +283,26 @@
       "status": {
         "not_enrolled": "Belum Didaftar",
         "enrolled": "Telah Didaftar",
-        "in_assessment": "Dalam Penilaian"
+        "in_assessment": "Dalam Penilaian",
+        "unknown": "Status belum ditetapkan"
       },
       "viewProfile": "Lihat Profil",
+      "bookSession": "Tempah Sesi",
+      "bookSessionTooltip": "Mulakan di sini untuk memilih sesi dalam talian atau di pusat.",
+      "noSessionsBooked": "Tiada sesi yang ditempah lagi.",
       "nextStepNotEnrolledNoBooking": "Langkah seterusnya: Tempah lawatan atau sesi konsultasi",
       "bookTour": "Tempah Lawatan",
       "upcoming": "Akan datang",
       "at": "pada",
       "bookingStatus": {
         "pending": "Menunggu Pengesahan",
-        "confirmed": "Disahkan"
+        "awaiting_payment": "Menunggu Pembayaran",
+        "awaiting_cash_payment": "Menunggu Pembayaran Tunai",
+        "awaiting_clinical_review": "Menunggu Semakan",
+        "confirmed": "Disahkan",
+        "cancelled": "Dibatalkan",
+        "completed": "Selesai",
+        "no_show": "Tidak Hadir"
       },
       "nextSessionLabel": "Sesi seterusnya:",
       "viewSchedule": "Lihat Jadual"

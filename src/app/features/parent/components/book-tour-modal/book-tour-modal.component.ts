@@ -74,7 +74,7 @@ export class BookTourModalComponent implements OnInit {
       child_id: formValue.child_id,
       booking_type: formValue.booking_type,
       mode: 'in_centre', // Default for now
-      start_at: startAt,
+      preferred_start_at: startAt,
       notes: formValue.notes
     };
 

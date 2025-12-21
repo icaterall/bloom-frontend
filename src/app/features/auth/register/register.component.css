@@ -1,0 +1,11 @@
+
+/* Scoped styles for register component */
+input {
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+/* Ensure icons are aligned properly */
+lucide-angular {
+  display: flex;
+  align-items: center;
+}

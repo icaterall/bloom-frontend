@@ -32,7 +32,8 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
       // Handle 403 Forbidden
       if (error.status === 403) {
-        console.error('Forbidden access');
+        console.error('[authInterceptor] 403 Forbidden - URL:', req.url);
+        console.error('[authInterceptor] Redirecting to dashboard...');
         // Redirect to appropriate dashboard based on role
         const user = authService.getCurrentUser();
         if (user) {

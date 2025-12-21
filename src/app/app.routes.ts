@@ -132,6 +132,22 @@ export const routes: Routes = [
             .then(m => m.SettingsComponent),
         title: 'Settings - Bloom Spectrum Centre'
       },
+      {
+        path: 'bookings/success',
+        // No guard needed - parent route already has authGuard + roleGuard
+        loadComponent: () =>
+          import('./features/parent/bookings/booking-success.component')
+            .then(m => m.BookingSuccessComponent),
+        title: 'Payment Successful - Bloom Spectrum Centre'
+      },
+      {
+        path: 'bookings/cancel',
+        // No guard needed - parent route already has authGuard + roleGuard
+        loadComponent: () =>
+          import('./features/parent/bookings/booking-cancel.component')
+            .then(m => m.BookingCancelComponent),
+        title: 'Payment Cancelled - Bloom Spectrum Centre'
+      },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
     ]
   },

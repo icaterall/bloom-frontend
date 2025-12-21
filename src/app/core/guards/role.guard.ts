@@ -6,14 +6,19 @@ export const roleGuard: CanActivateFn = (route, state) => {
   const authService = inject(AuthService);
   const router = inject(Router);
 
+  console.log('[roleGuard] Checking route:', state.url);
+
   // Get required roles from route data
   const requiredRoles = route.data['roles'] as string[];
+  console.log('[roleGuard] Required roles:', requiredRoles);
   
   if (!requiredRoles || requiredRoles.length === 0) {
+    console.log('[roleGuard] No role requirement, allowing access');
     return true; // No role requirement
   }
 
   const user = authService.getCurrentUser();
+  console.log('[roleGuard] Current user:', user?.email, 'role:', user?.role);
   
   if (!user) {
     console.warn('[roleGuard] No current user, redirecting to /login.');
@@ -23,6 +28,7 @@ export const roleGuard: CanActivateFn = (route, state) => {
 
   // Check if user has one of the required roles
   if (requiredRoles.includes(user.role)) {
+    console.log('[roleGuard] User has required role, allowing access');
     return true;
   }
 

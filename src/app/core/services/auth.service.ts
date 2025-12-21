@@ -27,6 +27,7 @@ export class AuthService {
     private router: Router
   ) {
     // Try to recover session on app init
+    console.log('[AuthService] Constructor called, initializing auth...');
     this.initializeAuth();
   }
 
@@ -34,14 +35,19 @@ export class AuthService {
    * Initialize authentication state
    */
   private async initializeAuth(): Promise<void> {
+    console.log('[AuthService] initializeAuth started');
     const token = this.getToken();
+    console.log('[AuthService] Token exists:', !!token);
     if (!token) {
+      console.log('[AuthService] No token, skipping initialization');
       return;
     }
 
     // 1) Try to restore user directly from localStorage (fast path)
     const storedUser = this.getStoredUser();
+    console.log('[AuthService] Stored user exists:', !!storedUser);
     if (storedUser) {
+      console.log('[AuthService] Restoring user from localStorage:', storedUser.email);
       this.setCurrentUser(storedUser);
       return;
     }

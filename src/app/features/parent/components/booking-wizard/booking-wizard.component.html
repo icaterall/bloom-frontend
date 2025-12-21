@@ -1,0 +1,760 @@
+<div class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+  <!-- Backdrop -->
+  <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+    <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" (click)="onClose()"></div>
+
+    <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+
+    <!-- Modal Panel -->
+    <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl w-full">
+      
+      <!-- Header -->
+      <div class="bg-white px-6 pt-6 pb-4 border-b border-gray-200">
+        <div class="flex justify-between items-start">
+          <div class="flex-1">
+            <h2 class="text-2xl font-bold text-gray-900" id="modal-title">
+              <span *ngIf="currentStep === 1">Book a Session for {{ child?.full_name }}</span>
+              <span *ngIf="currentStep === 2">Choose a preferred time</span>
+              <span *ngIf="currentStep === 3">Payment</span>
+              <span *ngIf="currentStep === 4">Booking Confirmed</span>
+            </h2>
+            <p class="mt-1 text-sm text-gray-600">
+              <span *ngIf="currentStep === 1">Choose the service and session type.</span>
+              <span *ngIf="currentStep === 2">We will confirm or suggest another time.</span>
+              <span *ngIf="currentStep === 3">Select your preferred payment method.</span>
+              <span *ngIf="currentStep === 4">Your booking has been reserved successfully.</span>
+            </p>
+          </div>
+          <button (click)="onClose()" class="text-gray-400 hover:text-gray-500 focus:outline-none ml-4">
+            <lucide-angular [img]="XIcon" size="24"></lucide-angular>
+          </button>
+        </div>
+
+        <!-- Step Indicator -->
+        <div class="mt-6">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center">
+              <div class="flex items-center">
+                <div [class.bg-blue-600]="currentStep >= 1" [class.text-white]="currentStep >= 1" 
+                     [class.bg-gray-200]="currentStep < 1" [class.text-gray-600]="currentStep < 1"
+                     class="flex items-center justify-center w-8 h-8 rounded-full text-sm font-semibold">
+                  1
+                </div>
+                <span [class.text-gray-900]="currentStep >= 1" [class.text-gray-500]="currentStep < 1" 
+                      class="ml-2 text-sm font-medium">Service</span>
+              </div>
+              <div class="mx-4 h-0.5 w-12" [class.bg-blue-600]="currentStep > 1" [class.bg-gray-300]="currentStep <= 1"></div>
+              <div class="flex items-center">
+                <div [class.bg-blue-600]="currentStep >= 2" [class.text-white]="currentStep >= 2" 
+                     [class.bg-gray-200]="currentStep < 2" [class.text-gray-600]="currentStep < 2"
+                     class="flex items-center justify-center w-8 h-8 rounded-full text-sm font-semibold">
+                  2
+                </div>
+                <span [class.text-gray-900]="currentStep >= 2" [class.text-gray-500]="currentStep < 2" 
+                      class="ml-2 text-sm font-medium">Time</span>
+              </div>
+              <div class="mx-4 h-0.5 w-12" [class.bg-blue-600]="currentStep > 2" [class.bg-gray-300]="currentStep <= 2"></div>
+              <div class="flex items-center">
+                <div [class.bg-blue-600]="currentStep >= 3" [class.text-white]="currentStep >= 3" 
+                     [class.bg-gray-200]="currentStep < 3" [class.text-gray-600]="currentStep < 3"
+                     class="flex items-center justify-center w-8 h-8 rounded-full text-sm font-semibold">
+                  3
+                </div>
+                <span [class.text-gray-900]="currentStep >= 3" [class.text-gray-500]="currentStep < 3" 
+                      class="ml-2 text-sm font-medium">Payment</span>
+              </div>
+              <div class="mx-4 h-0.5 w-12" [class.bg-blue-600]="currentStep > 3" [class.bg-gray-300]="currentStep <= 3"></div>
+              <div class="flex items-center">
+                <div [class.bg-blue-600]="currentStep >= 4" [class.text-white]="currentStep >= 4" 
+                     [class.bg-gray-200]="currentStep < 4" [class.text-gray-600]="currentStep < 4"
+                     class="flex items-center justify-center w-8 h-8 rounded-full text-sm font-semibold">
+                  4
+                </div>
+                <span [class.text-gray-900]="currentStep >= 4" [class.text-gray-500]="currentStep < 4" 
+                      class="ml-2 text-sm font-medium">Confirmation</span>
+              </div>
+            </div>
+          </div>
+          <p class="mt-2 text-xs text-gray-500 text-center">
+            Step {{ currentStep }} of {{ totalSteps }}: Service → Time → Payment → Confirmation
+          </p>
+        </div>
+      </div>
+
+      <!-- Content -->
+      <form [formGroup]="bookingForm" (ngSubmit)="onContinue()">
+        <div class="px-6 py-6">
+          
+          <!-- STEP 1: Service + Mode Selection -->
+          <div *ngIf="currentStep === 1" class="space-y-8">
+            
+            <!-- A) Choose Service -->
+            <div>
+              <h3 class="text-lg font-semibold text-gray-900 mb-4">A) Choose Service</h3>
+              
+              <div *ngIf="isLoadingTypes" class="flex justify-center py-8">
+                <div class="inline-flex items-center space-x-3">
+                  <span class="h-6 w-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></span>
+                  <span class="text-sm text-gray-600">Loading services...</span>
+                </div>
+              </div>
+
+              <div *ngIf="!isLoadingTypes" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div
+                  *ngFor="let type of bookingTypes"
+                  (click)="selectBookingType(type.code)"
+                  [class.border-blue-500]="bookingForm.get('booking_type')?.value === type.code"
+                  [class.bg-blue-50]="bookingForm.get('booking_type')?.value === type.code"
+                  [class.border-gray-200]="bookingForm.get('booking_type')?.value !== type.code"
+                  class="relative p-5 border-2 rounded-lg cursor-pointer hover:border-blue-300 hover:bg-blue-50/50 transition-all"
+                >
+                  <input 
+                    type="radio" 
+                    formControlName="booking_type" 
+                    [value]="type.code"
+                    class="sr-only"
+                  >
+                  <div class="text-center">
+                    <h4 class="text-base font-semibold text-gray-900 mb-2">{{ type.name }}</h4>
+                    <div class="flex items-center justify-center gap-1 text-sm text-gray-600 mb-3">
+                      <lucide-angular [img]="ClockIcon" size="16"></lucide-angular>
+                      <span>{{ type.default_duration_min }} min</span>
+                    </div>
+                    <div *ngIf="pricePreview && bookingForm.get('booking_type')?.value === type.code && bookingForm.get('mode')?.value" 
+                         class="text-sm font-medium text-blue-600">
+                      From {{ pricePreview.currency }} {{ pricePreview.price | number:'1.2-2' }}
+                    </div>
+                  </div>
+                  <!-- Selected indicator -->
+                  <div *ngIf="bookingForm.get('booking_type')?.value === type.code" 
+                       class="absolute top-2 right-2">
+                    <div class="w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center">
+                      <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <p *ngIf="bookingForm.get('booking_type')?.invalid && bookingForm.get('booking_type')?.touched" 
+                 class="mt-2 text-xs text-red-600">
+                Please select a service.
+              </p>
+            </div>
+
+            <!-- B) Choose Mode -->
+            <div>
+              <h3 class="text-lg font-semibold text-gray-900 mb-4">B) Choose Mode</h3>
+              
+              <div class="space-y-3">
+                <!-- In-centre Option -->
+                <label
+                  [class.opacity-50]="selectedBookingType && !isModeAllowed('in_centre')"
+                  [class.cursor-not-allowed]="selectedBookingType && !isModeAllowed('in_centre')"
+                  [class.cursor-pointer]="!selectedBookingType || isModeAllowed('in_centre')"
+                  class="flex items-center p-4 border-2 rounded-lg transition-all"
+                  [class.border-blue-500]="bookingForm.get('mode')?.value === 'in_centre' && isModeAllowed('in_centre')"
+                  [class.bg-blue-50]="bookingForm.get('mode')?.value === 'in_centre' && isModeAllowed('in_centre')"
+                  [class.border-gray-200]="bookingForm.get('mode')?.value !== 'in_centre' || !isModeAllowed('in_centre')"
+                  (click)="isModeAllowed('in_centre') && selectMode('in_centre')"
+                >
+                  <input 
+                    type="radio" 
+                    formControlName="mode" 
+                    value="in_centre"
+                    [disabled]="!!(selectedBookingType && !isModeAllowed('in_centre'))"
+                    class="sr-only"
+                  >
+                  <div class="flex items-center flex-1">
+                    <div class="flex-shrink-0">
+                      <lucide-angular [img]="MapPinIcon" size="20" class="text-gray-600"></lucide-angular>
+                    </div>
+                    <div class="ml-3 flex-1">
+                      <p class="text-sm font-medium text-gray-900">{{ getModeLabel('in_centre') }}</p>
+                    </div>
+                    <div *ngIf="bookingForm.get('mode')?.value === 'in_centre'" 
+                         class="flex-shrink-0 ml-3">
+                      <div class="w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center">
+                        <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                          <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+                </label>
+
+                <!-- Online Option -->
+                <label
+                  [class.opacity-50]="selectedBookingType && !isModeAllowed('online')"
+                  [class.cursor-not-allowed]="selectedBookingType && !isModeAllowed('online')"
+                  [class.cursor-pointer]="!selectedBookingType || isModeAllowed('online')"
+                  class="flex items-center p-4 border-2 rounded-lg transition-all"
+                  [class.border-blue-500]="bookingForm.get('mode')?.value === 'online' && isModeAllowed('online')"
+                  [class.bg-blue-50]="bookingForm.get('mode')?.value === 'online' && isModeAllowed('online')"
+                  [class.border-gray-200]="bookingForm.get('mode')?.value !== 'online' || !isModeAllowed('online')"
+                  (click)="isModeAllowed('online') && selectMode('online')"
+                >
+                  <input 
+                    type="radio" 
+                    formControlName="mode" 
+                    value="online"
+                    [disabled]="!!(selectedBookingType && !isModeAllowed('online'))"
+                    class="sr-only"
+                  >
+                  <div class="flex items-center flex-1">
+                    <div class="flex-shrink-0">
+                      <lucide-angular [img]="MonitorIcon" size="20" class="text-gray-600"></lucide-angular>
+                    </div>
+                    <div class="ml-3 flex-1">
+                      <p class="text-sm font-medium text-gray-900">{{ getModeLabel('online') }}</p>
+                    </div>
+                    <div *ngIf="bookingForm.get('mode')?.value === 'online'" 
+                         class="flex-shrink-0 ml-3">
+                      <div class="w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center">
+                        <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                          <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+                </label>
+              </div>
+
+              <p *ngIf="bookingForm.get('mode')?.invalid && bookingForm.get('mode')?.touched" 
+                 class="mt-2 text-xs text-red-600">
+                Please select a mode.
+              </p>
+            </div>
+          </div>
+
+          <!-- STEP 2: Time Selection -->
+          <div *ngIf="currentStep === 2" class="space-y-6">
+            
+            <!-- Error Message -->
+            <div *ngIf="errorMessage" class="p-3 bg-red-50 text-red-700 rounded-md text-sm">
+              {{ errorMessage }}
+            </div>
+
+            <!-- Calendar + Time Slots -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <!-- Left: Calendar -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-3">Select Date</label>
+                
+                <!-- Custom Calendar -->
+                <div class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+                  <!-- Calendar Header -->
+                  <div class="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-200">
+                    <button
+                      type="button"
+                      (click)="previousMonth()"
+                      class="p-1.5 rounded-md hover:bg-white hover:shadow-sm transition-all text-gray-600 hover:text-gray-900"
+                    >
+                      <lucide-angular [img]="ChevronLeftIcon" size="18"></lucide-angular>
+                    </button>
+                    <div class="text-center">
+                      <h3 class="text-base font-semibold text-gray-900">{{ getMonthName() }} {{ calendarYear }}</h3>
+                    </div>
+                    <button
+                      type="button"
+                      (click)="nextMonth()"
+                      class="p-1.5 rounded-md hover:bg-white hover:shadow-sm transition-all text-gray-600 hover:text-gray-900"
+                    >
+                      <lucide-angular [img]="ChevronRightIcon" size="18"></lucide-angular>
+                    </button>
+                  </div>
+
+                  <!-- Calendar Weekday Headers -->
+                  <div class="grid grid-cols-7 gap-0.5 bg-gray-50 px-2 pt-2">
+                    <div *ngFor="let dayName of getWeekdayNames()" 
+                         class="text-center py-2 text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      {{ dayName }}
+                    </div>
+                  </div>
+
+                  <!-- Calendar Days Grid -->
+                  <div class="grid grid-cols-7 gap-0.5 p-2 bg-gray-50">
+                    <button
+                      *ngFor="let date of calendarDays; let i = index"
+                      type="button"
+                      (click)="selectDate(date)"
+                      [disabled]="isDateDisabled(date)"
+                      [class.bg-blue-600]="isDateSelected(date)"
+                      [class.text-white]="isDateSelected(date)"
+                      [class.font-semibold]="isDateSelected(date)"
+                      [class.shadow-md]="isDateSelected(date)"
+                      [class.text-gray-400]="isDateDisabled(date)"
+                      [class.cursor-not-allowed]="isDateDisabled(date)"
+                      [class.cursor-pointer]="!isDateDisabled(date)"
+                      [class.ring-2]="isDateSelected(date)"
+                      [class.ring-blue-300]="isDateSelected(date)"
+                      [class.bg-white]="!isDateDisabled(date) && !isDateSelected(date) && !isToday(date)"
+                      [class.text-gray-900]="!isDateDisabled(date) && !isDateSelected(date)"
+                      [class.hover:bg-blue-50]="!isDateDisabled(date) && !isDateSelected(date)"
+                      [class.hover:border-blue-300]="!isDateDisabled(date) && !isDateSelected(date)"
+                      [class.border-2]="isToday(date) && !isDateSelected(date)"
+                      [class.border-blue-500]="isToday(date) && !isDateSelected(date)"
+                      [class.bg-blue-100]="isToday(date) && !isDateSelected(date)"
+                      class="aspect-square flex items-center justify-center text-sm rounded-md transition-all hover:scale-105 disabled:hover:scale-100 border border-transparent"
+                    >
+                      <span *ngIf="date">{{ date.getDate() }}</span>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Hidden input for form control -->
+                <input 
+                  type="date" 
+                  formControlName="date"
+                  [min]="minDate"
+                  class="hidden"
+                >
+                
+                <p *ngIf="bookingForm.get('date')?.invalid && bookingForm.get('date')?.touched" 
+                   class="mt-2 text-xs text-red-600">
+                  Please select a date.
+                </p>
+              </div>
+
+              <!-- Right: Time Slots -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Suggested Times</label>
+                <div class="grid grid-cols-3 gap-2 max-h-64 overflow-y-auto">
+                  <button
+                    *ngFor="let slot of availableTimeSlots"
+                    type="button"
+                    (click)="bookingForm.patchValue({ time: slot })"
+                    [class.bg-blue-600]="bookingForm.get('time')?.value === slot"
+                    [class.text-white]="bookingForm.get('time')?.value === slot"
+                    [class.bg-gray-100]="bookingForm.get('time')?.value !== slot"
+                    [class.text-gray-700]="bookingForm.get('time')?.value !== slot"
+                    class="px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-100 transition-colors"
+                  >
+                    {{ slot }}
+                  </button>
+                </div>
+                <input type="hidden" formControlName="time">
+                <p *ngIf="bookingForm.get('time')?.invalid && bookingForm.get('time')?.touched" 
+                   class="mt-1 text-xs text-red-600">
+                  Please select a time.
+                </p>
+              </div>
+            </div>
+
+            <!-- Location Display -->
+            <div class="flex items-start p-4 bg-blue-50 rounded-lg border border-blue-200">
+              <lucide-angular [img]="step1Data?.mode === 'in_centre' ? MapPinIcon : MonitorIcon" 
+                              class="h-5 w-5 text-blue-600 mt-0.5 mr-3 flex-shrink-0"></lucide-angular>
+              <div>
+                <p class="text-sm font-medium text-blue-900">Location</p>
+                <p class="text-sm text-blue-700 mt-1">{{ getLocation() }}</p>
+              </div>
+            </div>
+
+            <!-- Optional Fields -->
+            <div class="space-y-4">
+              <!-- Notes -->
+              <div>
+                <label for="notes" class="block text-sm font-medium text-gray-700 mb-2">
+                  Notes to centre (Optional)
+                </label>
+                <div class="relative">
+                  <div class="absolute top-3 left-3 pointer-events-none">
+                    <lucide-angular [img]="FileTextIcon" class="h-5 w-5 text-gray-400"></lucide-angular>
+                  </div>
+                  <textarea 
+                    id="notes"
+                    formControlName="notes"
+                    rows="3"
+                    class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    placeholder="Any specific concerns or requirements?"
+                  ></textarea>
+                </div>
+              </div>
+
+              <!-- Urgency -->
+              <div>
+                <label for="urgency" class="block text-sm font-medium text-gray-700 mb-2">
+                  Any urgency? (Optional)
+                </label>
+                <select 
+                  id="urgency"
+                  formControlName="urgency"
+                  class="block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                >
+                  <option value="">Select urgency level</option>
+                  <option value="low">Low - Flexible timing</option>
+                  <option value="medium">Medium - Prefer sooner</option>
+                  <option value="high">High - Urgent</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- STEP 3: Payment Method -->
+          <div *ngIf="currentStep === 3" class="space-y-6">
+            
+            <!-- Booking Summary Card -->
+            <div *ngIf="getBookingSummary() as summary" class="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-lg p-6">
+              <h3 class="text-lg font-semibold text-gray-900 mb-4">Booking Summary</h3>
+              <div class="space-y-3">
+                <div class="flex justify-between">
+                  <span class="text-sm text-gray-600">Child:</span>
+                  <span class="text-sm font-medium text-gray-900">{{ summary.childName }}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-sm text-gray-600">Service:</span>
+                  <span class="text-sm font-medium text-gray-900">{{ summary.service }}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-sm text-gray-600">Mode:</span>
+                  <span class="text-sm font-medium text-gray-900">{{ summary.mode }}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-sm text-gray-600">Preferred time:</span>
+                  <span class="text-sm font-medium text-gray-900">{{ summary.preferredTime }} ({{ summary.duration }} min)</span>
+                </div>
+                <div class="flex justify-between pt-3 border-t border-blue-200">
+                  <span class="text-base font-semibold text-gray-900">Price:</span>
+                  <span class="text-base font-bold text-blue-600">{{ summary.currency }} {{ summary.price | number:'1.2-2' }}</span>
+                </div>
+              </div>
+              <p class="mt-4 text-xs text-gray-600 italic">
+                Note: "We will confirm the exact time after payment."
+              </p>
+            </div>
+
+            <!-- Payment Method Selection -->
+            <div>
+              <h3 class="text-lg font-semibold text-gray-900 mb-4">How do you want to pay?</h3>
+              
+              <!-- Policy Checkbox -->
+              <div class="mb-6">
+                <label class="flex items-start">
+                  <input 
+                    type="checkbox" 
+                    formControlName="agree_to_policy"
+                    class="mt-1 mr-3 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  >
+                  <span class="text-sm text-gray-700">
+                    I agree to the 
+                    <a href="#" class="text-blue-600 hover:text-blue-800 underline">cancellation and refund policy</a>.
+                  </span>
+                </label>
+                <p *ngIf="bookingForm.get('agree_to_policy')?.invalid && bookingForm.get('agree_to_policy')?.touched" 
+                   class="mt-2 text-xs text-red-600">
+                  You must agree to the cancellation and refund policy to continue.
+                </p>
+              </div>
+              
+              <div class="space-y-4">
+                <!-- A) Card (Stripe) - Recommended -->
+                <div
+                  class="relative p-5 border-2 rounded-lg transition-all"
+                  [class.border-blue-500]="bookingForm.get('payment_method')?.value === 'card'"
+                  [class.bg-blue-50]="bookingForm.get('payment_method')?.value === 'card'"
+                  [class.border-gray-200]="bookingForm.get('payment_method')?.value !== 'card'"
+                  [class.hover:border-blue-300]="bookingForm.get('payment_method')?.value !== 'card'"
+                  [class.hover:bg-blue-50/50]="bookingForm.get('payment_method')?.value !== 'card'"
+                >
+                  <div class="flex items-start justify-between">
+                    <div class="flex items-start flex-1">
+                      <input 
+                        type="radio" 
+                        formControlName="payment_method" 
+                        value="card"
+                        class="mt-1 mr-3 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                      >
+                      <div class="flex-1">
+                        <div class="flex items-center gap-2">
+                          <h4 class="text-base font-semibold text-gray-900">Card (Stripe)</h4>
+                          <span class="px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">Recommended</span>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-1">Pay securely with Visa/Mastercard.</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="mt-4">
+                    <button
+                      type="button"
+                      (click)="bookingForm.patchValue({ payment_method: 'card' }); onContinue()"
+                      [disabled]="isLoadingPayment || !bookingForm.get('agree_to_policy')?.value"
+                      class="w-full sm:w-auto px-6 py-2.5 bg-[#2563EB] text-white text-sm font-semibold rounded-md hover:bg-[#1d4ed8] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                      Pay Now
+                    </button>
+                  </div>
+                </div>
+
+                <!-- B) Online Banking -->
+                <div
+                  class="relative p-5 border-2 rounded-lg transition-all"
+                  [class.border-blue-500]="bookingForm.get('payment_method')?.value === 'online_banking'"
+                  [class.bg-blue-50]="bookingForm.get('payment_method')?.value === 'online_banking'"
+                  [class.border-gray-200]="bookingForm.get('payment_method')?.value !== 'online_banking'"
+                  [class.hover:border-blue-300]="bookingForm.get('payment_method')?.value !== 'online_banking'"
+                  [class.hover:bg-blue-50/50]="bookingForm.get('payment_method')?.value !== 'online_banking'"
+                >
+                  <div class="flex items-start justify-between">
+                    <div class="flex items-start flex-1">
+                      <input 
+                        type="radio" 
+                        formControlName="payment_method" 
+                        value="online_banking"
+                        class="mt-1 mr-3 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                      >
+                      <div class="flex-1">
+                        <h4 class="text-base font-semibold text-gray-900">Online Banking</h4>
+                        <p class="text-sm text-gray-600 mt-1">Pay via FPX / bank transfer (online).</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="mt-4">
+                    <button
+                      type="button"
+                      (click)="bookingForm.patchValue({ payment_method: 'online_banking' }); onContinue()"
+                      [disabled]="isLoadingPayment || !bookingForm.get('agree_to_policy')?.value"
+                      class="w-full sm:w-auto px-6 py-2.5 bg-[#2563EB] text-white text-sm font-semibold rounded-md hover:bg-[#1d4ed8] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                      Pay via Online Banking
+                    </button>
+                  </div>
+                </div>
+
+                <!-- C) Cash at Centre -->
+                <div
+                  class="relative p-5 border-2 rounded-lg transition-all"
+                  [class.border-blue-500]="bookingForm.get('payment_method')?.value === 'cash'"
+                  [class.bg-blue-50]="bookingForm.get('payment_method')?.value === 'cash'"
+                  [class.border-gray-200]="bookingForm.get('payment_method')?.value !== 'cash'"
+                  [class.hover:border-blue-300]="bookingForm.get('payment_method')?.value !== 'cash'"
+                  [class.hover:bg-blue-50/50]="bookingForm.get('payment_method')?.value !== 'cash'"
+                >
+                  <div class="flex items-start justify-between">
+                    <div class="flex items-start flex-1">
+                      <input 
+                        type="radio" 
+                        formControlName="payment_method" 
+                        value="cash"
+                        class="mt-1 mr-3 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                      >
+                      <div class="flex-1">
+                        <h4 class="text-base font-semibold text-gray-900">Cash at Centre</h4>
+                        <p class="text-sm text-gray-600 mt-1">Pay at reception within 24 hours to confirm.</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="mt-4">
+                    <button
+                      type="button"
+                      (click)="bookingForm.patchValue({ payment_method: 'cash' }); onContinue()"
+                      [disabled]="isLoadingPayment || !bookingForm.get('agree_to_policy')?.value"
+                      class="w-full sm:w-auto px-6 py-2.5 bg-white border-2 border-[#2563EB] text-[#2563EB] text-sm font-semibold rounded-md hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                      Reserve & Pay Cash
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <p *ngIf="bookingForm.get('payment_method')?.invalid && bookingForm.get('payment_method')?.touched" 
+                 class="mt-4 text-xs text-red-600">
+                Please select a payment method.
+              </p>
+            </div>
+          </div>
+
+          <!-- STEP 4: Confirmation -->
+          <div *ngIf="currentStep === 4" class="space-y-6">
+            
+            <!-- Success Message -->
+            <div class="text-center py-6">
+              <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 mb-4">
+                <svg class="h-8 w-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+              </div>
+              <h3 class="text-2xl font-bold text-gray-900 mb-2">Booking Reserved!</h3>
+              <p *ngIf="paymentConfirmationMessage" class="text-base text-gray-600">
+                {{ paymentConfirmationMessage }}
+              </p>
+              <p *ngIf="!paymentConfirmationMessage" class="text-base text-gray-600">
+                Your booking has been successfully created.
+              </p>
+            </div>
+
+            <!-- Payment Status Badge -->
+            <div class="flex items-center justify-center">
+              <span class="inline-flex items-center gap-2 rounded-full bg-amber-100 px-5 py-2.5 text-sm font-bold text-amber-800 ring-2 ring-amber-300">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                Cash Payment Pending - Pay at Centre
+              </span>
+            </div>
+
+            <!-- Booking Details Summary -->
+            <div *ngIf="getBookingSummary() as summary" class="bg-gray-50 border border-gray-200 rounded-lg p-5">
+              <h4 class="text-lg font-semibold text-gray-900 mb-4">Booking Details</h4>
+              <div class="space-y-3">
+                <div class="flex justify-between">
+                  <span class="text-sm text-gray-600">Child:</span>
+                  <span class="text-sm font-medium text-gray-900">{{ summary.childName }}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-sm text-gray-600">Service:</span>
+                  <span class="text-sm font-medium text-gray-900">{{ summary.service }}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-sm text-gray-600">Mode:</span>
+                  <span class="text-sm font-medium text-gray-900">{{ summary.mode }}</span>
+                </div>
+                <div class="flex justify-between pt-3 border-t border-gray-300">
+                  <span class="text-base font-semibold text-gray-900">Amount Due:</span>
+                  <span class="text-base font-bold text-amber-600">{{ summary.currency }} {{ summary.price | number:'1.2-2' }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Schedule Confirmation Section -->
+            <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-5 border-2 border-blue-200">
+              <div class="flex items-center gap-2 mb-4">
+                <lucide-angular [img]="CalendarIcon" size="20" class="text-blue-600"></lucide-angular>
+                <h4 class="text-lg font-semibold text-gray-900">Schedule Confirmation</h4>
+              </div>
+              <div *ngIf="getBookingSummary() as summary" class="space-y-3">
+                <div class="flex items-start gap-3">
+                  <lucide-angular [img]="ClockIcon" size="18" class="text-blue-500 mt-0.5 flex-shrink-0"></lucide-angular>
+                  <div>
+                    <p class="text-sm font-medium text-gray-900">Preferred Time</p>
+                    <p class="text-sm text-gray-700">{{ summary.preferredTime }} ({{ summary.duration }} min)</p>
+                  </div>
+                </div>
+                <div class="flex items-start gap-3">
+                  <lucide-angular [img]="step1Data?.mode === 'online' ? MonitorIcon : MapPinIcon" size="18" class="text-blue-500 mt-0.5 flex-shrink-0"></lucide-angular>
+                  <div>
+                    <p class="text-sm font-medium text-gray-900">Location</p>
+                    <p class="text-sm text-gray-700">{{ getLocation() }}</p>
+                  </div>
+                </div>
+              </div>
+              <div class="mt-4 p-3 bg-white rounded-md border border-blue-100">
+                <p class="text-xs text-blue-800">
+                  <strong>Note:</strong> We will confirm the exact time within 24 hours after payment is received.
+                </p>
+              </div>
+            </div>
+
+            <!-- Online Session Information (only for online mode) -->
+            <div *ngIf="step1Data?.mode === 'online'" class="bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg p-5 border-2 border-purple-200">
+              <div class="flex items-center gap-2 mb-4">
+                <lucide-angular [img]="MonitorIcon" size="20" class="text-purple-600"></lucide-angular>
+                <h4 class="text-lg font-semibold text-gray-900">Online Session Details</h4>
+              </div>
+              <div class="space-y-3">
+                <div class="flex items-center gap-3 p-3 bg-white rounded-md border border-purple-100">
+                  <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0">
+                    <lucide-angular [img]="MonitorIcon" size="20" class="text-purple-600"></lucide-angular>
+                  </div>
+                  <div>
+                    <p class="text-sm font-semibold text-gray-900">Google Meet Session</p>
+                    <p class="text-xs text-gray-600">Video conference link will be sent via email after payment</p>
+                  </div>
+                </div>
+                <div class="flex items-start gap-3">
+                  <lucide-angular [img]="FileTextIcon" size="18" class="text-purple-500 mt-0.5 flex-shrink-0"></lucide-angular>
+                  <div>
+                    <p class="text-sm text-gray-700">
+                      After payment, you will receive an email with:
+                    </p>
+                    <ul class="mt-1 text-sm text-gray-600 list-disc list-inside space-y-1">
+                      <li>Google Meet link for your session</li>
+                      <li>Calendar invitation</li>
+                      <li>Preparation instructions</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- In-Centre Information (only for in_centre mode) -->
+            <div *ngIf="step1Data?.mode === 'in_centre'" class="bg-gradient-to-br from-amber-50 to-orange-50 rounded-lg p-5 border-2 border-amber-200">
+              <div class="flex items-center gap-2 mb-4">
+                <lucide-angular [img]="MapPinIcon" size="20" class="text-amber-600"></lucide-angular>
+                <h4 class="text-lg font-semibold text-gray-900">Visit Information</h4>
+              </div>
+              <div class="space-y-3">
+                <div class="flex items-start gap-3 p-3 bg-white rounded-md border border-amber-100">
+                  <div class="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0">
+                    <lucide-angular [img]="MapPinIcon" size="20" class="text-amber-600"></lucide-angular>
+                  </div>
+                  <div>
+                    <p class="text-sm font-semibold text-gray-900">Bloom Spectrum Centre</p>
+                    <p class="text-xs text-gray-600">No. A-1-08, Block A, Conezion Commercial</p>
+                    <p class="text-xs text-gray-600">Persiaran IRC 3, IOI Resort City, 62502 Putrajaya</p>
+                  </div>
+                </div>
+                <div class="p-3 bg-white rounded-md border border-amber-100">
+                  <p class="text-sm font-medium text-amber-800 mb-1">
+                    <strong>Pay at Reception</strong>
+                  </p>
+                  <p class="text-xs text-gray-600">
+                    Please pay {{ getBookingSummary()?.currency }} {{ getBookingSummary()?.price | number:'1.2-2' }} at the reception within 24 hours to confirm your booking.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Footer -->
+        <div *ngIf="currentStep !== 3 && currentStep !== 4" class="bg-gray-50 px-6 py-4 sm:flex sm:flex-row-reverse sm:justify-between">
+          <button 
+            type="submit" 
+            [disabled]="(currentStep === 1 && (bookingForm.get('booking_type')?.invalid || bookingForm.get('mode')?.invalid)) || (currentStep === 2 && (bookingForm.get('date')?.invalid || bookingForm.get('time')?.invalid)) || isLoadingBooking"
+            class="w-full inline-flex justify-center items-center rounded-md border border-transparent shadow-sm px-6 py-2.5 bg-[#2563EB] text-base font-medium text-white hover:bg-[#1d4ed8] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            <span *ngIf="isLoadingBooking" class="inline-flex items-center">
+              <span class="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></span>
+              Creating booking...
+            </span>
+            <span *ngIf="!isLoadingBooking">
+              <span *ngIf="currentStep === 1">Continue</span>
+              <span *ngIf="currentStep === 2">Continue to Payment</span>
+            </span>
+          </button>
+          <div class="flex gap-3">
+            <button 
+              *ngIf="currentStep > 1"
+              type="button" 
+              (click)="onBack()"
+              class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2.5 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:w-auto"
+            >
+              Back
+            </button>
+            <button 
+              type="button" 
+              (click)="onClose()"
+              class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2.5 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:w-auto"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+
+        <!-- Step 4 Footer -->
+        <div *ngIf="currentStep === 4" class="bg-gray-50 px-6 py-4 sm:flex sm:flex-row-reverse">
+          <button 
+            type="button" 
+            (click)="onClose()"
+            class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-6 py-2.5 bg-[#2563EB] text-base font-medium text-white hover:bg-[#1d4ed8] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:w-auto"
+          >
+            Done
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

@@ -1,1 +1,15 @@
 /* Parent Dashboard styles - using Tailwind classes in template */
+
+/* Glow/Pulse animation for Book Session button */
+@keyframes bookSessionPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(37, 99, 235, 0);
+  }
+}
+
+.book-session-pulse {
+  animation: bookSessionPulse 2s ease-in-out;
+}

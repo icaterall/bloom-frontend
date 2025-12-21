@@ -1,10 +1,11 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 import { ChildService } from '../../../../core/services/child.service';
 import { LucideAngularModule, X, AlertCircle, Calendar } from 'lucide-angular';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule, provideNativeDateAdapter } from '@angular/material/core';
+import { Child } from '../../../../shared/models/child.model';
 
 // Custom validator for minimum age (in months)
 export function minimumAgeValidator(minMonths: number): ValidatorFn {
@@ -35,9 +36,11 @@ export function minimumAgeValidator(minMonths: number): ValidatorFn {
   templateUrl: './add-child-modal.component.html',
   styleUrls: ['./add-child-modal.component.scss']
 })
-export class AddChildModalComponent {
+export class AddChildModalComponent implements OnChanges {
+  @Input() child: Child | null = null;
   @Output() close = new EventEmitter<void>();
   @Output() childAdded = new EventEmitter<void>();
+  @Output() childUpdated = new EventEmitter<void>();
 
   childForm: FormGroup;
   isLoading = false;
@@ -72,6 +75,18 @@ export class AddChildModalComponent {
       diagnosis_details: [''],
       main_concerns: ['']
     });
+
+    this.resetForm();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['child']) {
+      this.setFormValues(this.child);
+    }
+  }
+
+  get isEditMode(): boolean {
+    return !!this.child?.id;
   }
 
   onSubmit(): void {
@@ -83,31 +98,28 @@ export class AddChildModalComponent {
     this.isLoading = true;
     this.errorMessage = '';
 
-    // Convert date object to string if necessary (MatDatepicker returns Date object)
-    const formValue = { ...this.childForm.value };
-    if (formValue.date_of_birth instanceof Date) {
-      // Format to YYYY-MM-DD to match backend expectation
-      const d = formValue.date_of_birth;
-      const month = '' + (d.getMonth() + 1);
-      const day = '' + d.getDate();
-      const year = d.getFullYear();
+    const payload = this.preparePayload();
+    const request$ = this.isEditMode && this.child?.id
+      ? this.childService.updateChild(this.child.id, payload)
+      : this.childService.createChild(payload);
 
-      formValue.date_of_birth = [year, month.padStart(2, '0'), day.padStart(2, '0')].join('-');
-    }
-
-    this.childService.createChild(formValue).subscribe({
+    request$.subscribe({
       next: (response) => {
         if (response.success) {
-          this.childAdded.emit();
+          if (this.isEditMode) {
+            this.childUpdated.emit();
+          } else {
+            this.childAdded.emit();
+          }
           this.close.emit();
         } else {
-          this.errorMessage = response.message || 'Failed to add child';
+          this.errorMessage = response.message || (this.isEditMode ? 'Failed to update child' : 'Failed to add child');
         }
         this.isLoading = false;
       },
       error: (error) => {
-        console.error('Error adding child:', error);
-        this.errorMessage = error.error?.message || 'An error occurred while adding child';
+        console.error('Error saving child:', error);
+        this.errorMessage = error.error?.message || 'An error occurred while saving child information';
         this.isLoading = false;
       }
     });
@@ -120,5 +132,49 @@ export class AddChildModalComponent {
   hasError(controlName: string, errorType: string): boolean {
     const control = this.childForm.get(controlName);
     return !!(control && control.hasError(errorType) && (control.dirty || control.touched));
+  }
+
+  private preparePayload(): any {
+    const formValue = { ...this.childForm.value };
+
+    if (formValue.date_of_birth instanceof Date) {
+      const d = formValue.date_of_birth;
+      const month = '' + (d.getMonth() + 1);
+      const day = '' + d.getDate();
+      const year = d.getFullYear();
+
+      formValue.date_of_birth = [year, month.padStart(2, '0'), day.padStart(2, '0')].join('-');
+    }
+
+    return formValue;
+  }
+
+  private resetForm(): void {
+    this.childForm.reset({
+      full_name: '',
+      date_of_birth: '',
+      gender: '',
+      primary_language: '',
+      diagnosis_status: 'unknown',
+      diagnosis_details: '',
+      main_concerns: ''
+    });
+  }
+
+  private setFormValues(child: Child | null): void {
+    if (!child) {
+      this.resetForm();
+      return;
+    }
+
+    this.childForm.reset({
+      full_name: child.full_name || '',
+      date_of_birth: child.date_of_birth ? new Date(child.date_of_birth) : '',
+      gender: child.gender || '',
+      primary_language: child.primary_language || '',
+      diagnosis_status: child.diagnosis_status || 'unknown',
+      diagnosis_details: child.diagnosis_details || '',
+      main_concerns: child.main_concerns || ''
+    });
   }
 }

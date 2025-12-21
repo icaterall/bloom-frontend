@@ -4,10 +4,14 @@ export interface Booking {
   child_id: number;
   booking_type: 'tour' | 'consultation' | 'centre_session' | 'online_session';
   mode: 'in_centre' | 'online';
-  start_at: string; // ISO date string
+  start_at?: string; // ISO date string (legacy)
+  preferred_start_at?: string; // ISO date string
+  preferred_end_at?: string; // ISO date string
+  confirmed_start_at?: string; // ISO date string
+  confirmed_end_at?: string; // ISO date string
   end_at?: string;
   location?: string;
-  status?: 'pending' | 'confirmed' | 'cancelled' | 'completed' | 'no_show';
+  status?: 'pending' | 'awaiting_payment' | 'awaiting_cash_payment' | 'awaiting_clinical_review' | 'confirmed' | 'cancelled' | 'completed' | 'no_show';
   notes?: string;
   created_at?: string;
   
@@ -21,6 +25,8 @@ export interface CreateBookingRequest {
   child_id: number;
   booking_type: string;
   mode: string;
-  start_at: string;
-  notes?: string;
+  preferred_start_at: string;
+  preferred_end_at?: string;
+  payment_method?: string | null;
+  notes?: string | null;
 }
