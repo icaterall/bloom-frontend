@@ -1,0 +1,163 @@
+<div class="contact-parent-container">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div>
+        <h1 class="page-title">
+          <lucide-angular [img]="MailIcon" class="title-icon"></lucide-angular>
+          Contact Parent
+        </h1>
+        <p class="page-subtitle">Send a message or email to a parent</p>
+      </div>
+      <button class="btn-back" (click)="goBack()">
+        <lucide-angular [img]="XIcon" class="btn-icon"></lucide-angular>
+        Back
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading Parent Info -->
+  <div *ngIf="isLoadingParent" class="loading-container">
+    <div class="loading-spinner"></div>
+    <p class="loading-text">Loading parent information...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !isLoadingParent" class="error-alert">
+    <lucide-angular [img]="AlertCircleIcon" class="alert-icon"></lucide-angular>
+    <span>{{ error }}</span>
+  </div>
+
+  <!-- Success Message -->
+  <div *ngIf="showSuccess" class="success-alert">
+    <lucide-angular [img]="CheckCircleIcon" class="alert-icon"></lucide-angular>
+    <span>Message sent successfully!</span>
+  </div>
+
+  <!-- Parent Info Card -->
+  <div *ngIf="parentInfo && !isLoadingParent" class="parent-info-card">
+    <h3 class="card-title">Parent Information</h3>
+    <div class="info-grid">
+      <div class="info-item">
+        <lucide-angular [img]="UserIcon" class="info-icon"></lucide-angular>
+        <div class="info-content">
+          <span class="info-label">Name</span>
+          <span class="info-value">{{ parentInfo.name }}</span>
+        </div>
+      </div>
+      <div class="info-item">
+        <lucide-angular [img]="MailIcon" class="info-icon"></lucide-angular>
+        <div class="info-content">
+          <span class="info-label">Email</span>
+          <span class="info-value">{{ parentInfo.email }}</span>
+        </div>
+      </div>
+      <div class="info-item" *ngIf="parentInfo.mobile">
+        <lucide-angular [img]="PhoneIcon" class="info-icon"></lucide-angular>
+        <div class="info-content">
+          <span class="info-label">Mobile</span>
+          <span class="info-value">{{ parentInfo.mobile }}</span>
+        </div>
+      </div>
+      <div class="info-item">
+        <div class="info-content">
+          <span class="info-label">Children</span>
+          <span class="info-value">{{ parentInfo.children_count || 0 }} registered</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Contact Form -->
+  <div *ngIf="parentInfo && !isLoadingParent" class="contact-form-card">
+    <h3 class="card-title">Compose Message</h3>
+    
+    <form (ngSubmit)="onSubmit()" #contactForm="ngForm">
+      <!-- Subject -->
+      <div class="form-group">
+        <label for="subject" class="form-label">
+          Subject <span class="required">*</span>
+        </label>
+        <input
+          type="text"
+          id="subject"
+          name="subject"
+          [(ngModel)]="subject"
+          class="form-input"
+          placeholder="Enter message subject"
+          maxlength="255"
+          required
+          [disabled]="isSending"
+        />
+        <div class="form-hint">Maximum 255 characters</div>
+      </div>
+
+      <!-- Message -->
+      <div class="form-group">
+        <label for="message" class="form-label">
+          Message <span class="required">*</span>
+        </label>
+        <textarea
+          id="message"
+          name="message"
+          [(ngModel)]="message"
+          class="form-textarea"
+          placeholder="Enter your message to the parent..."
+          rows="8"
+          maxlength="5000"
+          required
+          [disabled]="isSending"
+        ></textarea>
+        <div class="form-hint">
+          {{ getCharacterCount() }} / {{ getMaxCharacterCount() }} characters
+        </div>
+      </div>
+
+      <!-- Options -->
+      <div class="form-group">
+        <div class="checkbox-group">
+          <label class="checkbox-label">
+            <input
+              type="checkbox"
+              [(ngModel)]="sendEmail"
+              name="sendEmail"
+              [disabled]="isSending"
+            />
+            <span>Send via email</span>
+          </label>
+          <label class="checkbox-label">
+            <input
+              type="checkbox"
+              [(ngModel)]="sendNotification"
+              name="sendNotification"
+              [disabled]="isSending"
+            />
+            <span>Send in-app notification</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Submit Button -->
+      <div class="form-actions">
+        <button
+          type="button"
+          class="btn-cancel"
+          (click)="goBack()"
+          [disabled]="isSending"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          class="btn-send"
+          [disabled]="isSending || !subject.trim() || !message.trim()"
+        >
+          <lucide-angular [img]="SendIcon" class="btn-icon" *ngIf="!isSending"></lucide-angular>
+          <span *ngIf="isSending">Sending...</span>
+          <span *ngIf="!isSending">Send Message</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+

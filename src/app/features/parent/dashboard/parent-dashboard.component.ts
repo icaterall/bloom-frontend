@@ -4,14 +4,14 @@ import { RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { ChildService } from '../../../core/services/child.service';
 import { BookingService } from '../../../core/services/booking.service';
+import { ChildCaseService, ChildCaseUpdate } from '../../../core/services/child-case.service';
 import { User } from '../../../shared/models/user.model';
 import { Child } from '../../../shared/models/child.model';
 import { Booking } from '../../../shared/models/booking.model';
-import { LucideAngularModule, Pencil } from 'lucide-angular';
+import { LucideAngularModule, Pencil, TrendingUp, Calendar, FileText, Image, Video, File } from 'lucide-angular';
 import { AddChildModalComponent } from '../components/add-child-modal/add-child-modal.component';
 import { BookTourModalComponent } from '../components/book-tour-modal/book-tour-modal.component';
 import { BookingWizardComponent } from '../components/booking-wizard/booking-wizard.component';
-import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 
 @Component({
   selector: 'app-parent-dashboard',
@@ -19,7 +19,6 @@ import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
   imports: [
     CommonModule, 
     RouterModule, 
-    TranslatePipe,
     LucideAngularModule,
     AddChildModalComponent,
     BookTourModalComponent,
@@ -42,6 +41,18 @@ export class ParentDashboardComponent implements OnInit {
   selectedChildForWizard: Child | null = null;
   hasAnimatedBookButton: { [key: number]: boolean } = {};
   readonly PencilIcon = Pencil;
+  readonly TrendingUpIcon = TrendingUp;
+  readonly CalendarIcon = Calendar;
+  readonly FileTextIcon = FileText;
+  readonly ImageIcon = Image;
+  readonly VideoIcon = Video;
+  readonly FileIcon = File;
+
+  // Child case updates
+  childCaseUpdates: { [childId: number]: ChildCaseUpdate[] } = {};
+  isLoadingCaseUpdates: { [childId: number]: boolean } = {};
+  selectedChildForTimeline: Child | null = null;
+  showTimelineModal = false;
 
   get isLoading(): boolean {
     return this.isChildrenLoading || this.isBookingsLoading;
@@ -63,7 +74,8 @@ export class ParentDashboardComponent implements OnInit {
   constructor(
     private authService: AuthService,
     private childService: ChildService,
-    private bookingService: BookingService
+    private bookingService: BookingService,
+    private childCaseService: ChildCaseService
   ) {}
 
   ngOnInit(): void {
@@ -72,12 +84,101 @@ export class ParentDashboardComponent implements OnInit {
     this.loadBookings();
   }
 
+  loadCaseUpdates(childId: number): void {
+    if (this.isLoadingCaseUpdates[childId]) return;
+    
+    this.isLoadingCaseUpdates[childId] = true;
+    this.childCaseService.getCaseUpdatesForParent(childId).subscribe({
+      next: (response) => {
+        if (response.success && Array.isArray(response.data)) {
+          this.childCaseUpdates[childId] = response.data;
+        }
+        this.isLoadingCaseUpdates[childId] = false;
+      },
+      error: (error) => {
+        console.error('Error loading case updates:', error);
+        this.isLoadingCaseUpdates[childId] = false;
+        // If endpoint doesn't exist yet, just set empty array
+        this.childCaseUpdates[childId] = [];
+      }
+    });
+  }
+
+  getCaseUpdatesForChild(childId: number | undefined): ChildCaseUpdate[] {
+    if (!childId) return [];
+    return this.childCaseUpdates[childId] || [];
+  }
+
+  getLatestCaseUpdate(childId: number | undefined): ChildCaseUpdate | null {
+    const updates = this.getCaseUpdatesForChild(childId);
+    return updates.length > 0 ? updates[0] : null;
+  }
+
+  openTimelineModal(child: Child): void {
+    this.selectedChildForTimeline = child;
+    this.showTimelineModal = true;
+    if (child.id) {
+      this.loadCaseUpdates(child.id);
+    }
+  }
+
+  closeTimelineModal(): void {
+    this.showTimelineModal = false;
+    this.selectedChildForTimeline = null;
+  }
+
+  getStatusColor(status: string | undefined): string {
+    if (!status) return 'bg-gray-100 text-gray-800';
+    const statusMap: { [key: string]: string } = {
+      'progressing': 'bg-blue-100 text-blue-800',
+      'stable': 'bg-green-100 text-green-800',
+      'improving': 'bg-emerald-100 text-emerald-800',
+      'needs_attention': 'bg-amber-100 text-amber-800',
+      'excellent': 'bg-purple-100 text-purple-800'
+    };
+    return statusMap[status.toLowerCase()] || 'bg-gray-100 text-gray-800';
+  }
+
+  formatDate(dateString: string | undefined): string {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { 
+      month: 'short', 
+      day: 'numeric', 
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  }
+
+  getRelativeTime(dateString: string | undefined): string {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+
+    if (diffMins < 1) return 'Just now';
+    if (diffMins < 60) return `${diffMins} minute${diffMins > 1 ? 's' : ''} ago`;
+    if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+    if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+    return this.formatDate(dateString);
+  }
+
   loadChildren(): void {
     this.isChildrenLoading = true;
     this.childService.getChildren().subscribe({
       next: (response) => {
         if (response.success && Array.isArray(response.data)) {
           this.children = response.data;
+          // Load case updates for all children
+          this.children.forEach(child => {
+            if (child.id) {
+              this.loadCaseUpdates(child.id);
+            }
+          });
         }
         this.isChildrenLoading = false;
       },
@@ -182,6 +283,46 @@ export class ParentDashboardComponent implements OnInit {
     return !!booking && booking.payment_method === 'cash' && booking.status === 'awaiting_cash_payment';
   }
 
+  canRetryPayment(booking?: Booking | undefined): boolean {
+    if (!booking) return false;
+    // Allow retry if payment failed or is pending
+    return booking.payment_status === 'failed' || booking.payment_status === 'pending';
+  }
+
+  isRetryingPayment: { [key: number]: boolean } = {};
+
+  retryPayment(booking: Booking, paymentMethod: 'card' | 'online_banking'): void {
+    if (!booking.id) return;
+    
+    const bookingId = booking.id;
+    this.isRetryingPayment[bookingId] = true;
+    
+    this.bookingService.payBooking(bookingId, paymentMethod).subscribe({
+      next: (response) => {
+        if (bookingId) {
+          this.isRetryingPayment[bookingId] = false;
+        }
+        console.log('[ParentDashboard] Payment retry response:', response);
+        
+        if (response.checkout_url) {
+          // Redirect to Stripe checkout
+          window.location.href = response.checkout_url;
+        } else if (response.message) {
+          // Show success message for cash payment
+          alert(response.message);
+          this.loadBookings();
+        }
+      },
+      error: (error) => {
+        if (bookingId) {
+          this.isRetryingPayment[bookingId] = false;
+        }
+        console.error('[ParentDashboard] Payment retry error:', error);
+        alert(error.error?.message || 'Failed to retry payment. Please try again.');
+      }
+    });
+  }
+
   getCashPayBy(booking?: Booking | undefined): Date | null {
     if (!booking || !booking.created_at) return null;
     const created = new Date(booking.created_at);
@@ -225,6 +366,10 @@ export class ParentDashboardComponent implements OnInit {
       }
       // For card/online_banking, user is redirected to Stripe, so no refresh needed
     }
+  }
+
+  isArray(value: any): boolean {
+    return Array.isArray(value);
   }
 }
 

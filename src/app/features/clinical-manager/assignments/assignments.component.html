@@ -1,0 +1,274 @@
+<div class="assignments-container">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div>
+        <h1 class="page-title">
+          <lucide-angular [img]="UserPlusIcon" class="title-icon"></lucide-angular>
+          Assign Cases
+        </h1>
+        <p class="page-subtitle">Assign bookings to therapists based on availability</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="loading-spinner"></div>
+    <p class="loading-text">Loading pending assignments...</p>
+  </div>
+
+  <!-- Bookings List -->
+  <div *ngIf="!isLoading" class="bookings-list">
+    <div *ngFor="let booking of bookings" class="booking-card">
+      <!-- Booking Header -->
+      <div class="booking-header">
+        <div class="booking-id">
+          <span class="id-label">Booking ID:</span>
+          <span class="id-value">#{{ booking.id }}</span>
+        </div>
+        <div class="booking-status">
+          <span class="status-badge" [ngClass]="getStatusBadgeClass(booking.status)">
+            {{ getStatusLabel(booking.status) }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Booking Details -->
+      <div class="booking-details">
+        <div class="detail-row">
+          <div class="detail-item">
+            <lucide-angular [img]="UserIcon" class="detail-icon"></lucide-angular>
+            <div class="detail-content">
+              <span class="detail-label">Child</span>
+              <span class="detail-value">{{ booking.child_name || 'N/A' }}</span>
+            </div>
+          </div>
+          <div class="detail-item">
+            <lucide-angular [img]="UserIcon" class="detail-icon"></lucide-angular>
+            <div class="detail-content">
+              <span class="detail-label">Parent</span>
+              <span class="detail-value">{{ booking.parent_name || 'N/A' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-row">
+          <div class="detail-item">
+            <lucide-angular [img]="CalendarIcon" class="detail-icon"></lucide-angular>
+            <div class="detail-content">
+              <span class="detail-label">Booking Type</span>
+              <span class="detail-value">{{ booking.booking_type_name || booking.booking_type || 'N/A' }}</span>
+            </div>
+          </div>
+          <div class="detail-item">
+            <lucide-angular [img]="MapPinIcon" class="detail-icon"></lucide-angular>
+            <div class="detail-content">
+              <span class="detail-label">Mode</span>
+              <span class="detail-value">{{ booking.mode === 'in_centre' ? 'In Centre' : 'Online' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-row">
+          <div class="detail-item">
+            <lucide-angular [img]="ClockIcon" class="detail-icon"></lucide-angular>
+            <div class="detail-content">
+              <span class="detail-label">Preferred Time</span>
+              <span class="detail-value">{{ formatDate(booking.preferred_start_at) }}</span>
+            </div>
+          </div>
+          <div class="detail-item" *ngIf="booking.therapist_name">
+            <lucide-angular [img]="UserIcon" class="detail-icon"></lucide-angular>
+            <div class="detail-content">
+              <span class="detail-label">Assigned Therapist</span>
+              <span class="detail-value">{{ booking.therapist_name }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-row">
+          <div class="detail-item">
+            <lucide-angular [img]="DollarSignIcon" class="detail-icon"></lucide-angular>
+            <div class="detail-content">
+              <span class="detail-label">Amount</span>
+              <span class="detail-value">{{ formatCurrency(booking.price, booking.currency) }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Booking Footer -->
+      <div class="booking-footer">
+        <button
+          class="btn-assign"
+          (click)="openAssignModal(booking)"
+        >
+          <lucide-angular [img]="UserPlusIcon" class="btn-icon"></lucide-angular>
+          {{ booking.therapist_id ? 'Reassign' : 'Assign' }} Therapist
+        </button>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="bookings.length === 0" class="empty-state">
+      <div class="empty-icon-wrapper">
+        <lucide-angular [img]="CheckCircleIcon" class="empty-icon"></lucide-angular>
+      </div>
+      <h3 class="empty-title">No Pending Assignments</h3>
+      <p class="empty-message">All bookings have been assigned or are awaiting payment.</p>
+    </div>
+  </div>
+
+  <!-- Assign Modal -->
+  <div *ngIf="showAssignModal && selectedBooking" class="modal-overlay" (click)="closeAssignModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2 class="modal-title">Assign Therapist</h2>
+        <button class="modal-close" (click)="closeAssignModal()">
+          <lucide-angular [img]="XCircleIcon" class="close-icon"></lucide-angular>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Booking Info -->
+        <div class="booking-info-card">
+          <h3 class="card-title">Booking Information</h3>
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="info-label">Child:</span>
+              <span class="info-value">{{ selectedBooking.child_name }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Parent:</span>
+              <span class="info-value">{{ selectedBooking.parent_name }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Type:</span>
+              <span class="info-value">{{ selectedBooking.booking_type_name || selectedBooking.booking_type }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Mode:</span>
+              <span class="info-value">{{ selectedBooking.mode === 'in_centre' ? 'In Centre' : 'Online' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Time Selection -->
+        <div class="form-group">
+          <label class="form-label">
+            Confirmed Start Time <span class="required">*</span>
+          </label>
+          <input
+            type="datetime-local"
+            [(ngModel)]="confirmedStartAt"
+            (change)="onTimeChange()"
+            class="form-input"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Confirmed End Time</label>
+          <input
+            type="datetime-local"
+            [(ngModel)]="confirmedEndAt"
+            (change)="onTimeChange()"
+            class="form-input"
+          />
+        </div>
+
+        <!-- Available Therapists -->
+        <div class="form-group">
+          <label class="form-label">
+            Select Therapist <span class="required">*</span>
+          </label>
+          
+          <div *ngIf="isLoadingTherapists" class="loading-therapists">
+            <div class="loading-spinner-small"></div>
+            <span>Checking availability...</span>
+          </div>
+
+          <div *ngIf="!isLoadingTherapists" class="therapists-list">
+            <div
+              *ngFor="let therapist of availableTherapists"
+              class="therapist-item"
+              [class.available]="therapist.isAvailable"
+              [class.unavailable]="!therapist.isAvailable"
+              (click)="selectedTherapistId = therapist.isAvailable ? therapist.id : selectedTherapistId"
+            >
+              <div class="therapist-header">
+                <input
+                  type="radio"
+                  [id]="'therapist-' + therapist.id"
+                  [value]="therapist.id"
+                  [(ngModel)]="selectedTherapistId"
+                  [disabled]="!therapist.isAvailable"
+                  name="therapist"
+                />
+                <label [for]="'therapist-' + therapist.id" class="therapist-name">
+                  {{ therapist.name }}
+                </label>
+                <span class="availability-badge" [ngClass]="therapist.isAvailable ? 'available' : 'unavailable'">
+                  {{ therapist.isAvailable ? 'Available' : 'Unavailable' }}
+                </span>
+              </div>
+              <div class="therapist-details">
+                <span class="therapist-email">{{ therapist.email }}</span>
+                <span class="therapist-stats">
+                  {{ therapist.todayBookingsCount }} booking{{ therapist.todayBookingsCount !== 1 ? 's' : '' }} today
+                  <span *ngIf="therapist.conflicts > 0" class="conflicts">
+                    • {{ therapist.conflicts }} conflict{{ therapist.conflicts !== 1 ? 's' : '' }}
+                  </span>
+                </span>
+              </div>
+            </div>
+
+            <div *ngIf="availableTherapists.length === 0" class="no-therapists">
+              <lucide-angular [img]="AlertCircleIcon" class="alert-icon"></lucide-angular>
+              <p>No therapists found. Please check your time selection.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Notes -->
+        <div class="form-group">
+          <label class="form-label">Notes (Optional)</label>
+          <textarea
+            [(ngModel)]="assignmentNotes"
+            class="form-textarea"
+            rows="3"
+            placeholder="Add any notes about this assignment..."
+          ></textarea>
+        </div>
+
+        <!-- Error Message -->
+        <div *ngIf="assignError" class="error-alert">
+          <lucide-angular [img]="AlertCircleIcon" class="alert-icon"></lucide-angular>
+          <span>{{ assignError }}</span>
+        </div>
+
+        <!-- Success Message -->
+        <div *ngIf="assignSuccess" class="success-alert">
+          <lucide-angular [img]="CheckCircleIcon" class="alert-icon"></lucide-angular>
+          <span>Booking assigned successfully!</span>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-cancel" (click)="closeAssignModal()" [disabled]="isAssigning">
+          Cancel
+        </button>
+        <button
+          class="btn-assign"
+          (click)="assignBooking()"
+          [disabled]="isAssigning || !selectedTherapistId"
+        >
+          <span *ngIf="isAssigning">Assigning...</span>
+          <span *ngIf="!isAssigning">Assign Booking</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+

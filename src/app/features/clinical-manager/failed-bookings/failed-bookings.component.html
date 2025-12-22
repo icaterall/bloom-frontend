@@ -1,0 +1,237 @@
+<div class="failed-bookings-container">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div>
+        <h1 class="page-title">
+          <lucide-angular [img]="XCircleIcon" class="title-icon"></lucide-angular>
+          Failed Bookings
+        </h1>
+        <p class="page-subtitle">View all bookings with failed payments</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Search Bar -->
+  <div class="search-section">
+    <div class="search-container">
+      <div class="search-icon-wrapper">
+        <lucide-angular [img]="SearchIcon" class="search-icon"></lucide-angular>
+      </div>
+      <input
+        type="text"
+        [(ngModel)]="searchTerm"
+        (keyup.enter)="onSearch()"
+        placeholder="Search by parent name, email, child name, or booking ID..."
+        class="search-input"
+      />
+      <div class="search-actions">
+        <button
+          *ngIf="searchTerm"
+          (click)="onSearchClear()"
+          class="btn-clear"
+          type="button"
+        >
+          Clear
+        </button>
+        <button
+          (click)="onSearch()"
+          class="btn-search"
+          type="button"
+          [disabled]="isLoading"
+        >
+          Search
+        </button>
+      </div>
+    </div>
+    <div class="search-results-info" *ngIf="!isLoading">
+      <span class="results-count">{{ total }} failed booking{{ total !== 1 ? 's' : '' }} found</span>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="loading-spinner"></div>
+    <p class="loading-text">Loading failed bookings...</p>
+  </div>
+
+  <!-- Failed Bookings List -->
+  <div *ngIf="!isLoading" class="bookings-list">
+    <div *ngFor="let booking of bookings" class="booking-card failed">
+      <!-- Booking Header -->
+      <div class="booking-header">
+        <div class="booking-id">
+          <span class="id-label">Booking ID:</span>
+          <span class="id-value">#{{ booking.id }}</span>
+        </div>
+        <div class="booking-status">
+          <span class="status-badge failed-badge">
+            <lucide-angular [img]="XCircleIcon" class="badge-icon"></lucide-angular>
+            Payment Failed
+          </span>
+        </div>
+      </div>
+
+      <!-- Booking Details -->
+      <div class="booking-details">
+        <div class="detail-row">
+          <div class="detail-item">
+            <lucide-angular [img]="UserIcon" class="detail-icon"></lucide-angular>
+            <div class="detail-content">
+              <span class="detail-label">Parent</span>
+              <span class="detail-value">{{ booking.parent_name || 'N/A' }}</span>
+            </div>
+          </div>
+          <div class="detail-item">
+            <lucide-angular [img]="UserIcon" class="detail-icon"></lucide-angular>
+            <div class="detail-content">
+              <span class="detail-label">Child</span>
+              <span class="detail-value">{{ booking.child_name || 'N/A' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-row">
+          <div class="detail-item">
+            <lucide-angular [img]="MailIcon" class="detail-icon"></lucide-angular>
+            <div class="detail-content">
+              <span class="detail-label">Email</span>
+              <span class="detail-value">{{ booking.parent_email || 'N/A' }}</span>
+            </div>
+          </div>
+          <div class="detail-item" *ngIf="booking.parent_mobile">
+            <lucide-angular [img]="PhoneIcon" class="detail-icon"></lucide-angular>
+            <div class="detail-content">
+              <span class="detail-label">Mobile</span>
+              <span class="detail-value">{{ booking.parent_mobile }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-row">
+          <div class="detail-item">
+            <lucide-angular [img]="CalendarIcon" class="detail-icon"></lucide-angular>
+            <div class="detail-content">
+              <span class="detail-label">Booking Type</span>
+              <span class="detail-value">{{ booking.booking_type_name || booking.booking_type || 'N/A' }}</span>
+            </div>
+          </div>
+          <div class="detail-item">
+            <lucide-angular [img]="CalendarIcon" class="detail-icon"></lucide-angular>
+            <div class="detail-content">
+              <span class="detail-label">Mode</span>
+              <span class="detail-value">{{ booking.mode === 'in_centre' ? 'In Centre' : 'Online' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-row">
+          <div class="detail-item">
+            <lucide-angular [img]="CalendarIcon" class="detail-icon"></lucide-angular>
+            <div class="detail-content">
+              <span class="detail-label">Preferred Date</span>
+              <span class="detail-value">{{ formatDate(booking.preferred_start_at) }}</span>
+            </div>
+          </div>
+          <div class="detail-item">
+            <lucide-angular [img]="DollarSignIcon" class="detail-icon"></lucide-angular>
+            <div class="detail-content">
+              <span class="detail-label">Amount</span>
+              <span class="detail-value amount">{{ formatCurrency(booking.price, booking.currency) }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-row">
+          <div class="detail-item">
+            <lucide-angular [img]="RefreshCwIcon" class="detail-icon"></lucide-angular>
+            <div class="detail-content">
+              <span class="detail-label">Payment Method</span>
+              <span class="detail-value">{{ getPaymentMethodLabel(booking.payment_method) }}</span>
+            </div>
+          </div>
+          <div class="detail-item">
+            <lucide-angular [img]="CalendarIcon" class="detail-icon"></lucide-angular>
+            <div class="detail-content">
+              <span class="detail-label">Failed At</span>
+              <span class="detail-value">{{ formatDate(booking.payment_updated_at || booking.created_at) }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-row" *ngIf="booking.provider_payment_id || booking.provider_order_id">
+          <div class="detail-item full-width">
+            <div class="detail-content">
+              <span class="detail-label">Payment Provider Info</span>
+              <div class="provider-info">
+                <span *ngIf="booking.provider_payment_id" class="provider-item">
+                  Payment ID: {{ booking.provider_payment_id }}
+                </span>
+                <span *ngIf="booking.provider_order_id" class="provider-item">
+                  Order ID: {{ booking.provider_order_id }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Booking Footer -->
+      <div class="booking-footer">
+        <div class="footer-info">
+          <span class="footer-text">Created: {{ formatDate(booking.created_at) }}</span>
+        </div>
+        <button
+          class="btn-view"
+          (click)="viewBookingDetails(booking.id)"
+        >
+          <lucide-angular [img]="EyeIcon" class="btn-icon"></lucide-angular>
+          View Details
+        </button>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="bookings.length === 0" class="empty-state">
+      <div class="empty-icon-wrapper">
+        <lucide-angular [img]="AlertCircleIcon" class="empty-icon"></lucide-angular>
+      </div>
+      <h3 class="empty-title">No Failed Bookings</h3>
+      <p class="empty-message">
+        <span *ngIf="searchTerm">No failed bookings match your search criteria.</span>
+        <span *ngIf="!searchTerm">Great! There are no failed bookings at the moment.</span>
+      </p>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <div *ngIf="!isLoading && totalPages > 1" class="pagination">
+    <button
+      class="pagination-btn"
+      [disabled]="currentPage === 1"
+      (click)="goToPage(currentPage - 1)"
+    >
+      Previous
+    </button>
+    
+    <div class="pagination-numbers">
+      <button
+        *ngFor="let page of getPageNumbers()"
+        class="pagination-number"
+        [class.active]="page === currentPage"
+        (click)="goToPage(page)"
+      >
+        {{ page }}
+      </button>
+    </div>
+    
+    <button
+      class="pagination-btn"
+      [disabled]="currentPage === totalPages"
+      (click)="goToPage(currentPage + 1)"
+    >
+      Next
+    </button>
+  </div>
+</div>
+

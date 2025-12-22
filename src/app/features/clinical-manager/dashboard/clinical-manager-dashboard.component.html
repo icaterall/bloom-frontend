@@ -1,194 +1,284 @@
-<div class="space-y-6">
-  <!-- Header -->
-  <div class="pb-4">
-    <h2 class="text-2xl font-bold text-gray-900">{{ 'clinicalManager.dashboardTitle' | translate }}</h2>
-    <p class="mt-1 text-gray-600">{{ 'clinicalManager.dashboardSubtitle' | translate }} - {{ todayDate | date:'fullDate' }}</p>
-  </div>
-
-  <!-- KPI Cards -->
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-    <!-- New Paid Bookings -->
-    <div class="bg-white border border-blue-100 rounded p-4 shadow-sm hover:shadow-md transition-shadow cursor-pointer" routerLink="/clinical-manager/bookings">
-      <div class="flex items-center justify-between">
-        <div>
-          <p class="text-sm text-gray-600">{{ 'clinicalManager.kpi.newPaidBookings.title' | translate }}</p>
-          <p class="text-3xl font-bold text-blue-600 mt-1">{{ dashboardMetrics.newPaidBookings }}</p>
-          <p class="text-xs text-gray-500 mt-1">{{ 'clinicalManager.kpi.newPaidBookings.subtitle' | translate }}</p>
-        </div>
-        <div class="text-3xl">🔔</div>
-      </div>
-    </div>
-
-    <!-- Sessions Today -->
-    <div class="bg-white border border-orange-100 rounded p-4 shadow-sm hover:shadow-md transition-shadow">
-      <div class="flex items-center justify-between">
-        <div>
-          <p class="text-sm text-gray-600">{{ 'clinicalManager.kpi.sessionsToday.title' | translate }}</p>
-          <p class="text-3xl font-bold text-orange-600 mt-1">{{ dashboardMetrics.sessionsToday }}</p>
-          <p class="text-xs text-gray-500 mt-1">{{ 'clinicalManager.kpi.sessionsToday.subtitle' | translate }}</p>
-        </div>
-        <div class="text-3xl">📅</div>
-      </div>
-    </div>
-
-    <!-- Waiting for Assessment -->
-    <div class="bg-white border border-green-100 rounded p-4 shadow-sm hover:shadow-md transition-shadow cursor-pointer">
-      <div class="flex items-center justify-between">
-        <div>
-          <p class="text-sm text-gray-600">{{ 'clinicalManager.kpi.waitingAssessment.title' | translate }}</p>
-          <p class="text-3xl font-bold text-green-600 mt-1">{{ dashboardMetrics.waitingForAssessment }}</p>
-          <p class="text-xs text-gray-500 mt-1">{{ 'clinicalManager.kpi.waitingAssessment.subtitle' | translate }}</p>
-        </div>
-        <div class="text-3xl">⏳</div>
-      </div>
-    </div>
-
-    <!-- No-shows This Week -->
-    <div class="bg-white border border-red-100 rounded p-4 shadow-sm hover:shadow-md transition-shadow">
-      <div class="flex items-center justify-between">
-        <div>
-          <p class="text-sm text-gray-600">{{ 'clinicalManager.kpi.noShows.title' | translate }}</p>
-          <p class="text-3xl font-bold text-red-600 mt-1">{{ dashboardMetrics.noShowsThisWeek }}</p>
-          <p class="text-xs text-gray-500 mt-1">{{ 'clinicalManager.kpi.noShows.subtitle' | translate }}</p>
-        </div>
-        <div class="text-3xl">❌</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Main Content Grid -->
-  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+<div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
     
-    <!-- Left Column: Pending Bookings (2/3 width) -->
-    <div class="lg:col-span-2">
-      <div class="bg-white border border-gray-100 rounded shadow-sm">
-        <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-          <h3 class="text-lg font-semibold text-gray-900">{{ 'clinicalManager.pendingBookings.title' | translate }}</h3>
-          <button routerLink="/clinical-manager/bookings" class="text-sm text-blue-600 hover:underline">
-            {{ 'clinicalManager.viewAll' | translate }}
+    <!-- Header Section -->
+    <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 p-6 md:p-8">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <h1 class="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+            Clinical Manager Dashboard
+          </h1>
+          <p class="mt-2 text-slate-600 text-lg">{{ todayDate | date:'fullDate' }}</p>
+        </div>
+        <div class="flex gap-3">
+          <button 
+            (click)="loadDashboardData()"
+            class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200"
+          >
+            <lucide-angular [img]="TrendingUpIcon" size="20"></lucide-angular>
+            <span>Refresh</span>
+          </button>
+          <button 
+            routerLink="/clinical-manager/assignments"
+            class="inline-flex items-center gap-2 px-6 py-3 bg-white text-blue-600 font-semibold rounded-xl border-2 border-blue-600 hover:bg-blue-50 transition-all duration-200"
+          >
+            <span>View Assignments</span>
           </button>
         </div>
-        <div class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
-              <tr>
-                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ 'clinicalManager.pendingBookings.child' | translate }}</th>
-                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ 'clinicalManager.pendingBookings.parent' | translate }}</th>
-                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ 'clinicalManager.pendingBookings.sessionType' | translate }}</th>
-                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ 'clinicalManager.pendingBookings.mode' | translate }}</th>
-                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ 'clinicalManager.pendingBookings.preferredTime' | translate }}</th>
-                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ 'clinicalManager.pendingBookings.actions' | translate }}</th>
-              </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-              <tr *ngFor="let booking of pendingBookings" class="hover:bg-gray-50">
-                <td class="px-4 py-3 whitespace-nowrap">
-                  <div class="text-sm font-medium text-gray-900">{{ booking.childName }}</div>
-                  <div class="text-xs text-gray-500">{{ booking.childAge }} years old</div>
-                </td>
-                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">{{ booking.parentName }}</td>
-                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-700">{{ booking.sessionType }}</td>
-                <td class="px-4 py-3 whitespace-nowrap">
-                  <span class="px-2 py-1 text-xs rounded-full" [ngClass]="booking.mode === 'Online' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800'">
-                    {{ booking.mode }}
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="flex items-center justify-center py-16">
+      <div class="text-center">
+        <div class="inline-block w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-4"></div>
+        <p class="text-slate-600">Loading dashboard...</p>
+      </div>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="error && !isLoading" class="bg-red-50 border border-red-200 rounded-xl p-6">
+      <div class="flex items-center gap-3">
+        <lucide-angular [img]="AlertCircleIcon" size="24" class="text-red-600"></lucide-angular>
+        <div>
+          <h3 class="font-semibold text-red-900">Error Loading Dashboard</h3>
+          <p class="text-sm text-red-700">{{ error }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dashboard Content -->
+    <ng-container *ngIf="!isLoading && !error && analytics">
+
+      <!-- KPI Cards Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <!-- New Paid Bookings -->
+        <div class="bg-white rounded-xl shadow-lg border border-blue-200 p-6 hover:shadow-xl transition-all duration-200 cursor-pointer" routerLink="/clinical-manager/assignments">
+          <div class="flex items-center justify-between mb-4">
+            <div class="p-3 bg-blue-100 rounded-lg">
+              <lucide-angular [img]="AlertCircleIcon" size="24" class="text-blue-600"></lucide-angular>
+            </div>
+            <span *ngIf="dashboardMetrics.newPaidBookings > 0" class="px-3 py-1 bg-blue-600 text-white rounded-full text-sm font-semibold">
+              {{ dashboardMetrics.newPaidBookings }}
+            </span>
+          </div>
+          <h3 class="text-sm font-medium text-slate-600 mb-1">New Paid Bookings</h3>
+          <p class="text-3xl font-bold text-slate-900">{{ dashboardMetrics.newPaidBookings }}</p>
+          <p class="text-xs text-slate-500 mt-2">Awaiting assignment</p>
+        </div>
+
+        <!-- Sessions Today -->
+        <div class="bg-white rounded-xl shadow-lg border border-orange-200 p-6 hover:shadow-xl transition-all duration-200">
+          <div class="flex items-center justify-between mb-4">
+            <div class="p-3 bg-orange-100 rounded-lg">
+              <lucide-angular [img]="ClockIcon" size="24" class="text-orange-600"></lucide-angular>
+            </div>
+          </div>
+          <h3 class="text-sm font-medium text-slate-600 mb-1">Sessions Today</h3>
+          <p class="text-3xl font-bold text-slate-900">{{ dashboardMetrics.sessionsToday }}</p>
+          <p class="text-xs text-slate-500 mt-2">Confirmed sessions</p>
+        </div>
+
+        <!-- Waiting for Assessment -->
+        <div class="bg-white rounded-xl shadow-lg border border-amber-200 p-6 hover:shadow-xl transition-all duration-200">
+          <div class="flex items-center justify-between mb-4">
+            <div class="p-3 bg-amber-100 rounded-lg">
+              <lucide-angular [img]="ClockIcon" size="24" class="text-amber-600"></lucide-angular>
+            </div>
+            <span *ngIf="dashboardMetrics.waitingForAssessment > 0" class="px-3 py-1 bg-amber-600 text-white rounded-full text-sm font-semibold">
+              {{ dashboardMetrics.waitingForAssessment }}
+            </span>
+          </div>
+          <h3 class="text-sm font-medium text-slate-600 mb-1">Waiting for Assessment</h3>
+          <p class="text-3xl font-bold text-slate-900">{{ dashboardMetrics.waitingForAssessment }}</p>
+          <p class="text-xs text-slate-500 mt-2">Over 7 days</p>
+        </div>
+
+        <!-- No-shows This Week -->
+        <div class="bg-white rounded-xl shadow-lg border border-red-200 p-6 hover:shadow-xl transition-all duration-200">
+          <div class="flex items-center justify-between mb-4">
+            <div class="p-3 bg-red-100 rounded-lg">
+              <lucide-angular [img]="XCircleIcon" size="24" class="text-red-600"></lucide-angular>
+            </div>
+          </div>
+          <h3 class="text-sm font-medium text-slate-600 mb-1">No-shows This Week</h3>
+          <p class="text-3xl font-bold text-slate-900">{{ dashboardMetrics.noShowsThisWeek }}</p>
+          <p class="text-xs text-slate-500 mt-2">Requires follow-up</p>
+        </div>
+      </div>
+
+      <!-- Main Content Grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Pending Bookings (2 columns) -->
+        <div class="lg:col-span-2 bg-white rounded-2xl shadow-xl border border-slate-200 p-6">
+          <div class="flex items-center justify-between mb-6">
+            <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+              <lucide-angular [img]="AlertCircleIcon" size="24" class="text-blue-600"></lucide-angular>
+              Pending Bookings
+            </h2>
+            <div class="flex items-center gap-3">
+              <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-semibold">
+                {{ pendingBookings.length }}
+              </span>
+              <button 
+                routerLink="/clinical-manager/assignments"
+                class="text-sm text-blue-600 hover:text-blue-800 font-medium"
+              >
+                View All →
+              </button>
+            </div>
+          </div>
+          
+          <div class="space-y-4 max-h-96 overflow-y-auto">
+            <div *ngFor="let booking of pendingBookings" class="border border-slate-200 rounded-lg p-4 hover:bg-slate-50 transition-colors">
+              <div class="flex items-start justify-between mb-3">
+                <div>
+                  <p class="font-semibold text-slate-900">{{ booking.child_name }}</p>
+                  <p class="text-sm text-slate-600">{{ booking.parent_name }}</p>
+                  <p *ngIf="booking.child_age" class="text-xs text-slate-500">{{ booking.child_age }} years old</p>
+                </div>
+                <span class="px-2 py-1 bg-green-100 text-green-800 rounded text-xs font-semibold">
+                  {{ formatCurrency(booking.amount || booking.price, booking.currency || 'MYR') }}
+                </span>
+              </div>
+              <div class="grid grid-cols-2 gap-2 text-xs text-slate-600 mb-3">
+                <div>
+                  <span class="font-medium">Type:</span> {{ booking.booking_type_name || booking.booking_type }}
+                </div>
+                <div>
+                  <span class="font-medium">Mode:</span> 
+                  <span [ngClass]="booking.mode === 'online' ? 'text-purple-600' : 'text-blue-600'" class="font-semibold">
+                    {{ booking.mode === 'online' ? 'Online' : 'In Centre' }}
                   </span>
-                </td>
-                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-700">{{ booking.preferredTime | date:'short' }}</td>
-                <td class="px-4 py-3 whitespace-nowrap text-sm space-x-2">
-                  <button (click)="approveBooking(booking.id)" class="text-green-600 hover:text-green-900 font-medium">
-                    {{ 'clinicalManager.pendingBookings.approve' | translate }}
-                  </button>
-                  <button (click)="viewBookingDetails(booking.id)" class="text-blue-600 hover:text-blue-900 font-medium">
-                    {{ 'clinicalManager.pendingBookings.view' | translate }}
-                  </button>
-                </td>
-              </tr>
-              <tr *ngIf="pendingBookings.length === 0">
-                <td colspan="6" class="px-4 py-8 text-center text-gray-500 text-sm">
-                  {{ 'clinicalManager.pendingBookings.empty' | translate }}
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <!-- Right Column: Today's Sessions & Therapist Workload -->
-    <div class="space-y-6">
-      
-      <!-- Today's Sessions -->
-      <div class="bg-white border border-gray-100 rounded shadow-sm">
-        <div class="px-6 py-4 border-b border-gray-200">
-          <h3 class="text-lg font-semibold text-gray-900">{{ 'clinicalManager.todaySessions.title' | translate }}</h3>
-        </div>
-        <div class="px-6 py-4 space-y-3 max-h-96 overflow-y-auto">
-          <div *ngFor="let session of todaySessions" class="border-l-4 pl-3 py-2" [ngClass]="session.status === 'In progress' ? 'border-green-500 bg-green-50' : 'border-blue-500'">
-            <div class="flex justify-between items-start">
-              <div>
-                <p class="text-sm font-medium text-gray-900">{{ session.time }}</p>
-                <p class="text-sm text-gray-700">{{ session.childName }}</p>
-                <p class="text-xs text-gray-500">{{ session.therapist }} • {{ session.mode }}</p>
+                </div>
+                <div class="col-span-2">
+                  <span class="font-medium">Preferred Time:</span> {{ formatDate(booking.preferred_start_at) }}
+                </div>
               </div>
-              <span class="px-2 py-1 text-xs rounded-full" [ngClass]="getStatusClass(session.status)">
-                {{ session.status }}
-              </span>
+              <div class="flex gap-2">
+                <button
+                  routerLink="/clinical-manager/assignments"
+                  class="flex-1 px-3 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
+                >
+                  Assign Therapist
+                </button>
+              </div>
             </div>
-          </div>
-          <div *ngIf="todaySessions.length === 0" class="text-center text-gray-500 text-sm py-4">
-            {{ 'clinicalManager.todaySessions.empty' | translate }}
-          </div>
-        </div>
-      </div>
-
-      <!-- Therapist Workload -->
-      <div class="bg-white border border-gray-100 rounded shadow-sm">
-        <div class="px-6 py-4 border-b border-gray-200">
-          <h3 class="text-lg font-semibold text-gray-900">{{ 'clinicalManager.therapistWorkload.title' | translate }}</h3>
-        </div>
-        <div class="px-6 py-4 space-y-3">
-          <div *ngFor="let therapist of therapistWorkload" class="border border-gray-100 rounded p-3">
-            <div class="flex justify-between items-start mb-2">
-              <p class="text-sm font-medium text-gray-900">{{ therapist.name }}</p>
-              <span class="px-2 py-1 text-xs rounded-full font-medium" [ngClass]="getLoadClass(therapist.load)">
-                {{ therapist.load }}
-              </span>
-            </div>
-            <div class="grid grid-cols-3 gap-2 text-xs text-gray-600">
-              <div>
-                <p class="text-gray-500">{{ 'clinicalManager.therapistWorkload.today' | translate }}</p>
-                <p class="font-semibold text-gray-900">{{ therapist.todaySessions }}</p>
-              </div>
-              <div>
-                <p class="text-gray-500">{{ 'clinicalManager.therapistWorkload.thisWeek' | translate }}</p>
-                <p class="font-semibold text-gray-900">{{ therapist.thisWeek }}</p>
-              </div>
-              <div>
-                <p class="text-gray-500">{{ 'clinicalManager.therapistWorkload.newChildren' | translate }}</p>
-                <p class="font-semibold text-gray-900">{{ therapist.newChildren }}</p>
-              </div>
+            <div *ngIf="pendingBookings.length === 0" class="text-center py-8 text-slate-500">
+              <lucide-angular [img]="CheckCircleIcon" size="48" class="mx-auto mb-2 text-green-500"></lucide-angular>
+              <p>No pending bookings</p>
             </div>
           </div>
         </div>
-      </div>
-    </div>
-  </div>
 
-  <!-- Alerts & Follow-up -->
-  <div class="bg-white border border-gray-100 rounded shadow-sm">
-    <div class="px-6 py-4 border-b border-gray-200">
-      <h3 class="text-lg font-semibold text-gray-900">{{ 'clinicalManager.alerts.title' | translate }}</h3>
-    </div>
-    <div class="px-6 py-4 space-y-3">
-      <div *ngFor="let alert of alerts" class="border rounded p-3" [ngClass]="getAlertClass(alert.type)">
-        <div class="flex justify-between items-start">
-          <p class="text-sm flex-1">{{ alert.message }}</p>
-          <button class="text-sm font-medium hover:underline ml-4">{{ alert.action }}</button>
+        <!-- Right Column: Today's Sessions & Therapist Workload -->
+        <div class="space-y-6">
+          <!-- Today's Sessions -->
+          <div class="bg-white rounded-2xl shadow-xl border border-slate-200 p-6">
+            <h2 class="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
+              <lucide-angular [img]="ClockIcon" size="24" class="text-orange-600"></lucide-angular>
+              Today's Sessions
+            </h2>
+            <div class="space-y-3 max-h-80 overflow-y-auto">
+              <div *ngFor="let session of todaySessions" class="border border-slate-200 rounded-lg p-4 hover:bg-slate-50 transition-colors">
+                <div class="flex items-start justify-between mb-2">
+                  <div>
+                    <p class="font-semibold text-slate-900">{{ session.child_name }}</p>
+                    <p class="text-sm text-slate-600">{{ session.therapist_name || 'Unassigned' }}</p>
+                  </div>
+                  <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs font-semibold">
+                    {{ formatTime(session.start_time, session.end_time) }}
+                  </span>
+                </div>
+                <div class="flex items-center gap-2 text-xs text-slate-600">
+                  <span [ngClass]="session.mode === 'online' ? 'text-purple-600' : 'text-blue-600'" class="font-semibold">
+                    {{ session.mode === 'online' ? 'Online' : 'In Centre' }}
+                  </span>
+                  <span>•</span>
+                  <span>{{ session.booking_type_name || session.booking_type }}</span>
+                </div>
+              </div>
+              <div *ngIf="todaySessions.length === 0" class="text-center py-8 text-slate-500">
+                <lucide-angular [img]="CheckCircleIcon" size="48" class="mx-auto mb-2 text-green-500"></lucide-angular>
+                <p>No sessions scheduled for today</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Therapist Workload -->
+          <div class="bg-white rounded-2xl shadow-xl border border-slate-200 p-6">
+            <h2 class="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
+              <lucide-angular [img]="TrendingUpIcon" size="24" class="text-indigo-600"></lucide-angular>
+              Therapist Workload
+            </h2>
+            <div class="space-y-4 max-h-80 overflow-y-auto">
+              <div *ngFor="let therapist of therapistWorkload" class="border border-slate-200 rounded-lg p-4 hover:bg-slate-50 transition-colors">
+                <div class="flex items-center justify-between mb-3">
+                  <div>
+                    <p class="font-semibold text-slate-900">{{ therapist.name }}</p>
+                    <p class="text-xs text-slate-500">{{ therapist.role | titlecase }}</p>
+                  </div>
+                  <span [ngClass]="getLoadClass(therapist.load)" class="px-2 py-1 rounded text-xs font-semibold">
+                    {{ therapist.load }}
+                  </span>
+                </div>
+                <div class="grid grid-cols-3 gap-2 text-xs">
+                  <div class="text-center">
+                    <p class="font-semibold text-slate-900">{{ therapist.today_sessions || 0 }}</p>
+                    <p class="text-slate-500">Today</p>
+                  </div>
+                  <div class="text-center">
+                    <p class="font-semibold text-slate-900">{{ therapist.this_week || 0 }}</p>
+                    <p class="text-slate-500">This Week</p>
+                  </div>
+                  <div class="text-center">
+                    <p class="font-semibold text-slate-900">{{ therapist.new_children || 0 }}</p>
+                    <p class="text-slate-500">New</p>
+                  </div>
+                </div>
+              </div>
+              <div *ngIf="therapistWorkload.length === 0" class="text-center py-8 text-slate-500">
+                <p>No therapist data available</p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-      <div *ngIf="alerts.length === 0" class="text-center text-gray-500 text-sm py-4">
-        {{ 'clinicalManager.alerts.empty' | translate }}
+
+      <!-- Recent Updates -->
+      <div class="bg-white rounded-2xl shadow-xl border border-slate-200 p-6">
+        <h2 class="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
+          <lucide-angular [img]="TrendingUpIcon" size="24" class="text-blue-600"></lucide-angular>
+          Recent Updates
+        </h2>
+        <div class="space-y-3 max-h-64 overflow-y-auto">
+          <div *ngFor="let update of recentUpdates" class="flex gap-4 p-4 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">
+            <div class="flex-shrink-0">
+              <div [ngClass]="getUpdateColor(update.type)" class="p-2 rounded-lg">
+                <lucide-angular [img]="getUpdateIcon(update.type)" size="20"></lucide-angular>
+              </div>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 mb-1">
+                <span [ngClass]="getUpdateColor(update.type)" class="px-2 py-0.5 rounded text-xs font-semibold">
+                  {{ update.type | titlecase }}
+                </span>
+                <span class="text-xs text-slate-500">{{ formatDate(update.created_at) }}</span>
+              </div>
+              <p class="text-sm font-medium text-slate-900">{{ update.child_name }}</p>
+              <p class="text-xs text-slate-600">{{ update.parent_name }}</p>
+              <p *ngIf="update.status" class="text-xs text-slate-500 mt-1">Status: {{ update.status }}</p>
+              <p *ngIf="update.amount" class="text-xs font-semibold text-green-600 mt-1">
+                {{ formatCurrency(update.amount, update.currency || 'MYR') }}
+              </p>
+            </div>
+          </div>
+          <div *ngIf="recentUpdates.length === 0" class="text-center py-8 text-slate-500">
+            <p>No recent updates</p>
+          </div>
+        </div>
       </div>
-    </div>
+
+    </ng-container>
   </div>
 </div>

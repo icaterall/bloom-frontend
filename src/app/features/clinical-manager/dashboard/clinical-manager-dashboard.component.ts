@@ -2,125 +2,35 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
+import { ClinicalManagerAnalyticsService, ClinicalManagerAnalytics } from '../../../core/services/clinical-manager-analytics.service';
 import { User } from '../../../shared/models/user.model';
-import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
+import { LucideAngularModule, TrendingUp, Clock, AlertCircle, CheckCircle, XCircle } from 'lucide-angular';
 
 @Component({
   selector: 'app-clinical-manager-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule, TranslatePipe],
+  imports: [CommonModule, RouterModule, LucideAngularModule],
   templateUrl: './clinical-manager-dashboard.component.html',
   styleUrls: ['./clinical-manager-dashboard.component.css']
 })
 export class ClinicalManagerDashboardComponent implements OnInit {
   currentUser: User | null = null;
   isLoading = false;
+  error: string | null = null;
   todayDate = new Date();
+  analytics: ClinicalManagerAnalytics | null = null;
 
-  // KPI Data
-  dashboardMetrics = {
-    newPaidBookings: 5,
-    sessionsToday: 12,
-    waitingForAssessment: 3,
-    noShowsThisWeek: 2
-  };
+  // Icons
+  readonly TrendingUpIcon = TrendingUp;
+  readonly ClockIcon = Clock;
+  readonly AlertCircleIcon = AlertCircle;
+  readonly CheckCircleIcon = CheckCircle;
+  readonly XCircleIcon = XCircle;
 
-  // Pending Bookings
-  pendingBookings = [
-    {
-      id: 1,
-      childName: 'Ahmad bin Ali',
-      childAge: 5,
-      parentName: 'Puan Siti',
-      sessionType: 'Initial Assessment',
-      mode: 'In-centre',
-      preferredTime: '2024-12-10 10:00',
-      paidAmount: 150,
-      status: 'Paid, awaiting review'
-    },
-    {
-      id: 2,
-      childName: 'Sarah Lee',
-      childAge: 4,
-      parentName: 'Mrs. Lee',
-      sessionType: 'Initial Assessment',
-      mode: 'Online',
-      preferredTime: '2024-12-11 14:00',
-      paidAmount: 150,
-      status: 'Paid, awaiting review'
-    }
-  ];
-
-  // Today's Sessions
-  todaySessions = [
-    {
-      time: '09:00-10:00',
-      childName: 'Ali Rahman',
-      therapist: 'Dr. Sarah',
-      mode: 'In-centre',
-      status: 'Scheduled'
-    },
-    {
-      time: '10:00-11:00',
-      childName: 'Emma Wong',
-      therapist: 'Ms. Fatimah',
-      mode: 'Online',
-      status: 'In progress'
-    },
-    {
-      time: '11:00-12:00',
-      childName: 'Zain Ismail',
-      therapist: 'Dr. Sarah',
-      mode: 'In-centre',
-      status: 'Scheduled'
-    }
-  ];
-
-  // Therapist Workload
-  therapistWorkload = [
-    {
-      name: 'Dr. Sarah Johnson',
-      todaySessions: 5,
-      thisWeek: 18,
-      newChildren: 3,
-      load: 'High'
-    },
-    {
-      name: 'Ms. Fatimah Ahmad',
-      todaySessions: 4,
-      thisWeek: 15,
-      newChildren: 2,
-      load: 'Normal'
-    },
-    {
-      name: 'Mr. John Tan',
-      todaySessions: 3,
-      thisWeek: 12,
-      newChildren: 1,
-      load: 'Light'
-    }
-  ];
-
-  // Alerts
-  alerts = [
-    {
-      type: 'warning',
-      message: 'Child "Ahmad bin Ali" has been waiting for initial assessment for 16 days',
-      action: 'View child'
-    },
-    {
-      type: 'danger',
-      message: 'Child "Sarah Lee" had 3 no-shows in the last month',
-      action: 'View child'
-    },
-    {
-      type: 'info',
-      message: 'Session completed but notes missing after 24 hours - Dr. Sarah',
-      action: 'View session'
-    }
-  ];
-
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    private analyticsService: ClinicalManagerAnalyticsService
+  ) {}
 
   ngOnInit(): void {
     this.currentUser = this.authService.getCurrentUser();
@@ -129,11 +39,91 @@ export class ClinicalManagerDashboardComponent implements OnInit {
 
   loadDashboardData(): void {
     this.isLoading = true;
-    // TODO: Call API to get real dashboard data
-    // For now using mock data
-    setTimeout(() => {
-      this.isLoading = false;
-    }, 500);
+    this.error = null;
+    
+    this.analyticsService.getAnalytics().subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.analytics = response.data;
+        } else {
+          this.error = 'Failed to load dashboard data';
+        }
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Error loading dashboard data:', error);
+        this.error = error.error?.message || 'Failed to load dashboard data';
+        this.isLoading = false;
+      }
+    });
+  }
+
+  get dashboardMetrics() {
+    return this.analytics?.metrics || {
+      newPaidBookings: 0,
+      sessionsToday: 0,
+      waitingForAssessment: 0,
+      noShowsThisWeek: 0
+    };
+  }
+
+  get pendingBookings() {
+    return this.analytics?.pendingBookings || [];
+  }
+
+  get todaySessions() {
+    return this.analytics?.todaySessions || [];
+  }
+
+  get therapistWorkload() {
+    return this.analytics?.therapistWorkload || [];
+  }
+
+  get recentUpdates() {
+    return this.analytics?.recentUpdates || [];
+  }
+
+  formatTime(startTime: string | undefined, endTime: string | undefined): string {
+    if (!startTime) return 'N/A';
+    return endTime ? `${startTime}-${endTime}` : startTime;
+  }
+
+  formatDate(dateString: string | undefined): string {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { 
+      month: 'short', 
+      day: 'numeric', 
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  }
+
+  formatCurrency(amount: number | undefined, currency: string = 'MYR'): string {
+    if (!amount) return 'N/A';
+    return new Intl.NumberFormat('en-MY', {
+      style: 'currency',
+      currency: currency
+    }).format(amount);
+  }
+
+  getUpdateIcon(type: string): any {
+    switch (type) {
+      case 'case_update': return TrendingUp;
+      case 'booking': return Clock;
+      case 'payment': return CheckCircle;
+      default: return CheckCircle;
+    }
+  }
+
+  getUpdateColor(type: string): string {
+    switch (type) {
+      case 'case_update': return 'bg-blue-100 text-blue-800';
+      case 'booking': return 'bg-purple-100 text-purple-800';
+      case 'payment': return 'bg-green-100 text-green-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
   }
 
   getLoadClass(load: string): string {
@@ -164,18 +154,4 @@ export class ClinicalManagerDashboardComponent implements OnInit {
     }
   }
 
-  approveBooking(bookingId: number): void {
-    console.log('Approve booking:', bookingId);
-    // TODO: Open modal to assign therapist
-  }
-
-  rejectBooking(bookingId: number): void {
-    console.log('Reject booking:', bookingId);
-    // TODO: Open modal to provide reason
-  }
-
-  viewBookingDetails(bookingId: number): void {
-    console.log('View booking details:', bookingId);
-    // TODO: Navigate to booking details or open modal
-  }
 }

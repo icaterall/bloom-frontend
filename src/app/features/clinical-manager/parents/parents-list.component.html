@@ -1,0 +1,180 @@
+<div class="parents-list-container">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div>
+        <h1 class="page-title">Parents & Children</h1>
+        <p class="page-subtitle">View all registered parents and their children</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Search Bar -->
+  <div class="search-section">
+    <div class="search-container">
+      <div class="search-icon-wrapper">
+        <lucide-angular [img]="SearchIcon" class="search-icon"></lucide-angular>
+      </div>
+      <input
+        type="text"
+        [(ngModel)]="searchTerm"
+        (keyup.enter)="onSearch()"
+        placeholder="Search by parent name, email, or child name..."
+        class="search-input"
+      />
+      <div class="search-actions">
+        <button
+          *ngIf="searchTerm"
+          (click)="onSearchClear()"
+          class="btn-clear"
+          type="button"
+        >
+          Clear
+        </button>
+        <button
+          (click)="onSearch()"
+          class="btn-search"
+          type="button"
+          [disabled]="isLoading"
+        >
+          Search
+        </button>
+      </div>
+    </div>
+    <div class="search-results-info" *ngIf="!isLoading">
+      <span class="results-count">{{ total }} parent{{ total !== 1 ? 's' : '' }} found</span>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="loading-spinner"></div>
+    <p class="loading-text">Loading parents...</p>
+  </div>
+
+  <!-- Parents List -->
+  <div *ngIf="!isLoading" class="parents-grid">
+    <div *ngFor="let parent of parents" class="parent-card">
+      <!-- Parent Header -->
+      <div class="parent-header">
+        <div class="parent-avatar">
+          <lucide-angular [img]="UserIcon" class="avatar-icon"></lucide-angular>
+        </div>
+        <div class="parent-info">
+          <h3 class="parent-name">{{ parent.parent_name }}</h3>
+          <div class="parent-meta">
+            <span class="meta-item">
+              <lucide-angular [img]="MailIcon" class="meta-icon"></lucide-angular>
+              {{ parent.parent_email }}
+            </span>
+            <span class="meta-item" *ngIf="parent.parent_mobile">
+              <lucide-angular [img]="PhoneIcon" class="meta-icon"></lucide-angular>
+              {{ parent.parent_mobile }}
+            </span>
+          </div>
+        </div>
+        <div class="parent-badge">
+          <lucide-angular [img]="UsersIcon" class="badge-icon"></lucide-angular>
+          <span>{{ parent.children_count }} child{{ parent.children_count !== 1 ? 'ren' : '' }}</span>
+        </div>
+      </div>
+
+      <!-- Children List -->
+      <div class="children-section" *ngIf="parent.children && parent.children.length > 0">
+        <h4 class="children-title">Children</h4>
+        <div class="children-list">
+          <div *ngFor="let child of parent.children" class="child-item">
+            <div class="child-info">
+              <div class="child-name">{{ child.full_name }}</div>
+              <div class="child-details">
+                <span class="child-detail-item">
+                  <lucide-angular [img]="CalendarIcon" class="detail-icon"></lucide-angular>
+                  Age: {{ calculateAge(child.date_of_birth) }} years
+                </span>
+                <span class="child-detail-item" *ngIf="child.gender">
+                  • {{ child.gender }}
+                </span>
+                <span class="child-detail-item" *ngIf="child.diagnosis_status">
+                  • {{ child.diagnosis_status }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="children-section empty" *ngIf="!parent.children || parent.children.length === 0">
+        <p class="no-children">No children registered</p>
+      </div>
+
+      <!-- Parent Footer -->
+      <div class="parent-footer">
+        <div class="footer-info">
+          <span class="footer-text">Registered: {{ formatDate(parent.parent_created_at) }}</span>
+          <span class="footer-text" *ngIf="parent.parent_last_login">
+            Last login: {{ formatDate(parent.parent_last_login) }}
+          </span>
+        </div>
+        <div class="footer-actions">
+          <button
+            class="btn-view"
+            (click)="viewParentDetails(parent.parent_id)"
+          >
+            <lucide-angular [img]="EyeIcon" class="btn-icon"></lucide-angular>
+            View Details
+          </button>
+          <button
+            class="btn-contact"
+            [routerLink]="['/clinical-manager/contact/parent', parent.parent_id]"
+          >
+            <lucide-angular [img]="MailIcon" class="btn-icon"></lucide-angular>
+            Contact
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="parents.length === 0" class="empty-state">
+      <div class="empty-icon-wrapper">
+        <lucide-angular [img]="UsersIcon" class="empty-icon"></lucide-angular>
+      </div>
+      <h3 class="empty-title">No parents found</h3>
+      <p class="empty-message">
+        <span *ngIf="searchTerm">No parents match your search criteria.</span>
+        <span *ngIf="!searchTerm">No parents have registered yet.</span>
+      </p>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <div *ngIf="!isLoading && totalPages > 1" class="pagination">
+    <button
+      class="pagination-btn"
+      [disabled]="currentPage === 1"
+      (click)="goToPage(currentPage - 1)"
+    >
+      Previous
+    </button>
+    
+    <div class="pagination-numbers">
+      <button
+        *ngFor="let page of getPageNumbers()"
+        class="pagination-number"
+        [class.active]="page === currentPage"
+        (click)="goToPage(page)"
+      >
+        {{ page }}
+      </button>
+    </div>
+    
+    <button
+      class="pagination-btn"
+      [disabled]="currentPage === totalPages"
+      (click)="goToPage(currentPage + 1)"
+    >
+      Next
+    </button>
+  </div>
+</div>
+

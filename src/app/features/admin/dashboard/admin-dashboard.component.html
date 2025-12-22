@@ -1,138 +1,297 @@
-<!-- Welcome Section -->
-<div class="pb-4 flex justify-between items-start">
-  <div>
-    <h2 class="text-2xl font-bold text-gray-900">Welcome back, {{ currentUser?.name }}!</h2>
-    <p class="mt-1 text-gray-600">Here's what's happening at the centre today.</p>
-  </div>
-</div>
+<div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    
+    <!-- Welcome Header -->
+    <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 p-6 md:p-8">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <h1 class="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+            Welcome back, {{ currentUser?.name }}! 👋
+          </h1>
+          <p class="mt-2 text-slate-600 text-lg">Analytics & Insights Dashboard</p>
+        </div>
+        <button 
+          (click)="loadAnalytics()"
+          class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200"
+        >
+          <lucide-angular [img]="TrendingUpIcon" size="20"></lucide-angular>
+          <span>Refresh</span>
+        </button>
+      </div>
+    </div>
 
-<!-- Stats Grid -->
-<div>
-  <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-    <!-- Today's Tours -->
-    <div class="bg-white overflow-hidden shadow rounded">
-      <div class="p-5">
-        <div class="flex items-center">
-          <div class="flex-shrink-0">
-            <div class="p-3 bg-blue-100 rounded">
-              <span class="text-2xl" aria-hidden="true">📅</span>
-            </div>
-          </div>
-          <div class="ml-5 w-0 flex-1">
-            <dl>
-              <dt class="text-sm font-medium text-gray-500 truncate">Today's Tours</dt>
-              <dd class="text-2xl font-bold text-gray-900">{{ dashboardStats.todayTours }}</dd>
-            </dl>
-          </div>
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="flex items-center justify-center py-16">
+      <div class="text-center">
+        <div class="inline-block w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-4"></div>
+        <p class="text-slate-600">Loading analytics...</p>
+      </div>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="error && !isLoading" class="bg-red-50 border border-red-200 rounded-xl p-6">
+      <div class="flex items-center gap-3">
+        <lucide-angular [img]="AlertCircleIcon" size="24" class="text-red-600"></lucide-angular>
+        <div>
+          <h3 class="font-semibold text-red-900">Error Loading Analytics</h3>
+          <p class="text-sm text-red-700">{{ error }}</p>
         </div>
       </div>
     </div>
 
-    <!-- New Leads -->
-    <div class="bg-white overflow-hidden shadow rounded">
-      <div class="p-5">
-        <div class="flex items-center">
-          <div class="flex-shrink-0">
-            <div class="p-3 bg-green-100 rounded">
-              <span class="text-2xl" aria-hidden="true">👥</span>
+    <!-- Analytics Content -->
+    <ng-container *ngIf="!isLoading && !error && analytics">
+      
+      <!-- Overview Stats -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+        <!-- Total Children -->
+        <div class="bg-white rounded-xl shadow-lg border border-slate-200 p-6 hover:shadow-xl transition-all duration-200">
+          <div class="flex items-center justify-between mb-4">
+            <div class="p-3 bg-blue-100 rounded-lg">
+              <lucide-angular [img]="BabyIcon" size="24" class="text-blue-600"></lucide-angular>
             </div>
           </div>
-          <div class="ml-5 w-0 flex-1">
-            <dl>
-              <dt class="text-sm font-medium text-gray-500 truncate">New Leads</dt>
-              <dd class="text-2xl font-bold text-gray-900">{{ dashboardStats.newLeads }}</dd>
-            </dl>
+          <h3 class="text-sm font-medium text-slate-600 mb-1">Total Children</h3>
+          <p class="text-3xl font-bold text-slate-900">{{ analytics.overview.totalChildren }}</p>
+        </div>
+
+        <!-- Total Parents -->
+        <div class="bg-white rounded-xl shadow-lg border border-slate-200 p-6 hover:shadow-xl transition-all duration-200">
+          <div class="flex items-center justify-between mb-4">
+            <div class="p-3 bg-purple-100 rounded-lg">
+              <lucide-angular [img]="UsersIcon" size="24" class="text-purple-600"></lucide-angular>
+            </div>
+          </div>
+          <h3 class="text-sm font-medium text-slate-600 mb-1">Total Parents</h3>
+          <p class="text-3xl font-bold text-slate-900">{{ analytics.overview.totalParents }}</p>
+        </div>
+
+        <!-- Total Staff -->
+        <div class="bg-white rounded-xl shadow-lg border border-slate-200 p-6 hover:shadow-xl transition-all duration-200">
+          <div class="flex items-center justify-between mb-4">
+            <div class="p-3 bg-indigo-100 rounded-lg">
+              <lucide-angular [img]="UsersIcon" size="24" class="text-indigo-600"></lucide-angular>
+            </div>
+          </div>
+          <h3 class="text-sm font-medium text-slate-600 mb-1">Active Staff</h3>
+          <p class="text-3xl font-bold text-slate-900">{{ analytics.overview.totalStaff }}</p>
+        </div>
+
+        <!-- Active Bookings -->
+        <div class="bg-white rounded-xl shadow-lg border border-slate-200 p-6 hover:shadow-xl transition-all duration-200">
+          <div class="flex items-center justify-between mb-4">
+            <div class="p-3 bg-green-100 rounded-lg">
+              <lucide-angular [img]="CheckCircleIcon" size="24" class="text-green-600"></lucide-angular>
+            </div>
+          </div>
+          <h3 class="text-sm font-medium text-slate-600 mb-1">Active Bookings</h3>
+          <p class="text-3xl font-bold text-slate-900">{{ analytics.overview.activeBookings }}</p>
+        </div>
+
+        <!-- Completed Sessions -->
+        <div class="bg-white rounded-xl shadow-lg border border-slate-200 p-6 hover:shadow-xl transition-all duration-200">
+          <div class="flex items-center justify-between mb-4">
+            <div class="p-3 bg-emerald-100 rounded-lg">
+              <lucide-angular [img]="TrendingUpIcon" size="24" class="text-emerald-600"></lucide-angular>
+            </div>
+          </div>
+          <h3 class="text-sm font-medium text-slate-600 mb-1">Completed (Month)</h3>
+          <p class="text-3xl font-bold text-slate-900">{{ analytics.overview.completedSessionsThisMonth }}</p>
+        </div>
+      </div>
+
+      <!-- Revenue Section -->
+      <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl shadow-xl border border-green-200 p-6 md:p-8">
+        <h2 class="text-2xl font-bold text-slate-900 mb-6 flex items-center gap-3">
+          <lucide-angular [img]="DollarSignIcon" size="28" class="text-green-600"></lucide-angular>
+          Revenue Analytics
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <!-- Total Revenue -->
+          <div class="bg-white rounded-xl p-6 shadow-lg">
+            <h3 class="text-sm font-medium text-slate-600 mb-2">Total Revenue</h3>
+            <p class="text-3xl font-bold text-green-600 mb-1">{{ formatCurrency(analytics.revenue.total) }}</p>
+            <p class="text-xs text-slate-500">{{ analytics.revenue.totalCount }} payments</p>
+          </div>
+
+          <!-- Today's Revenue -->
+          <div class="bg-white rounded-xl p-6 shadow-lg">
+            <h3 class="text-sm font-medium text-slate-600 mb-2">Today's Revenue</h3>
+            <p class="text-3xl font-bold text-blue-600 mb-1">{{ formatCurrency(analytics.revenue.today) }}</p>
+            <p class="text-xs text-slate-500">{{ analytics.revenue.todayCount }} payments</p>
+          </div>
+
+          <!-- This Month's Revenue -->
+          <div class="bg-white rounded-xl p-6 shadow-lg">
+            <h3 class="text-sm font-medium text-slate-600 mb-2">This Month</h3>
+            <p class="text-3xl font-bold text-indigo-600 mb-1">{{ formatCurrency(analytics.revenue.thisMonth) }}</p>
+            <p class="text-xs text-slate-500">{{ analytics.revenue.thisMonthCount }} payments</p>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- Active Children -->
-    <div class="bg-white overflow-hidden shadow rounded">
-      <div class="p-5">
-        <div class="flex items-center">
-          <div class="flex-shrink-0">
-            <div class="p-3 bg-purple-100 rounded">
-              <span class="text-2xl" aria-hidden="true">👶</span>
+      <!-- Cash Payments & Failed Payments -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Cash Payments Pending -->
+        <div class="bg-white rounded-2xl shadow-xl border border-amber-200 p-6">
+          <div class="flex items-center justify-between mb-6">
+            <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+              <lucide-angular [img]="ClockIcon" size="24" class="text-amber-600"></lucide-angular>
+              Cash Payments Pending
+            </h2>
+            <span class="px-3 py-1 bg-amber-100 text-amber-800 rounded-full text-sm font-semibold">
+              {{ analytics.cashPaymentsPending.length }}
+            </span>
+          </div>
+          
+          <div class="space-y-4 max-h-96 overflow-y-auto">
+            <div *ngFor="let payment of analytics.cashPaymentsPending" class="border border-amber-200 rounded-lg p-4 hover:bg-amber-50 transition-colors">
+              <div class="flex items-start justify-between mb-3">
+                <div>
+                  <p class="font-semibold text-slate-900">{{ payment.child_name }}</p>
+                  <p class="text-sm text-slate-600">{{ payment.parent_name }}</p>
+                </div>
+                <span class="px-2 py-1 bg-amber-100 text-amber-800 rounded text-xs font-semibold">
+                  {{ formatCurrency(payment.amount || payment.price, payment.currency || 'MYR') }}
+                </span>
+              </div>
+              <div class="text-xs text-slate-500 mb-3 space-y-1">
+                <p>Booking: #{{ payment.id }}</p>
+                <p>Type: {{ payment.booking_type_name || payment.booking_type }}</p>
+                <p *ngIf="payment.pay_by_date">Pay by: {{ formatDate(payment.pay_by_date) }}</p>
+              </div>
+              <div class="flex gap-2">
+                <button
+                  (click)="markCashPaid(payment.id)"
+                  [disabled]="markingPaidBookingId === payment.id"
+                  class="flex-1 px-3 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                  <lucide-angular [img]="CheckCircleIcon" size="16"></lucide-angular>
+                  <span>{{ markingPaidBookingId === payment.id ? 'Processing...' : 'Mark Paid' }}</span>
+                </button>
+                <button
+                  (click)="notifyParent(payment.id)"
+                  [disabled]="notifyingBookingId === payment.id"
+                  class="px-3 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                  <lucide-angular [img]="BellIcon" size="16"></lucide-angular>
+                </button>
+              </div>
+            </div>
+            <div *ngIf="analytics.cashPaymentsPending.length === 0" class="text-center py-8 text-slate-500">
+              <lucide-angular [img]="CheckCircleIcon" size="48" class="mx-auto mb-2 text-green-500"></lucide-angular>
+              <p>No pending cash payments</p>
             </div>
           </div>
-          <div class="ml-5 w-0 flex-1">
-            <dl>
-              <dt class="text-sm font-medium text-gray-500 truncate">Active Children</dt>
-              <dd class="text-2xl font-bold text-gray-900">{{ dashboardStats.activeChildren }}</dd>
-            </dl>
+        </div>
+
+        <!-- Failed Payments -->
+        <div class="bg-white rounded-2xl shadow-xl border border-red-200 p-6">
+          <div class="flex items-center justify-between mb-6">
+            <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+              <lucide-angular [img]="XCircleIcon" size="24" class="text-red-600"></lucide-angular>
+              Failed Payments
+            </h2>
+            <span class="px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm font-semibold">
+              {{ analytics.failedPayments.length }}
+            </span>
+          </div>
+          
+          <div class="space-y-4 max-h-96 overflow-y-auto">
+            <div *ngFor="let payment of analytics.failedPayments" class="border border-red-200 rounded-lg p-4 hover:bg-red-50 transition-colors">
+              <div class="flex items-start justify-between mb-3">
+                <div>
+                  <p class="font-semibold text-slate-900">{{ payment.child_name }}</p>
+                  <p class="text-sm text-slate-600">{{ payment.parent_name }}</p>
+                </div>
+                <span class="px-2 py-1 bg-red-100 text-red-800 rounded text-xs font-semibold">
+                  {{ formatCurrency(payment.amount, payment.currency || 'MYR') }}
+                </span>
+              </div>
+              <div class="text-xs text-slate-500 space-y-1">
+                <p>Booking: #{{ payment.booking_id }}</p>
+                <p>Type: {{ payment.booking_type_name || 'N/A' }}</p>
+                <p>Failed: {{ getRelativeTime(payment.created_at) }}</p>
+                <p class="text-red-600 font-medium">Contact: {{ payment.parent_email }}</p>
+              </div>
+            </div>
+            <div *ngIf="analytics.failedPayments.length === 0" class="text-center py-8 text-slate-500">
+              <lucide-angular [img]="CheckCircleIcon" size="48" class="mx-auto mb-2 text-green-500"></lucide-angular>
+              <p>No failed payments</p>
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- Pending Enrollments -->
-    <div class="bg-white overflow-hidden shadow rounded">
-      <div class="p-5">
-        <div class="flex items-center">
-          <div class="flex-shrink-0">
-            <div class="p-3 bg-orange-100 rounded">
-              <span class="text-2xl" aria-hidden="true">📈</span>
+      <!-- Staff Workload & Recent Updates -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Staff Workload -->
+        <div class="bg-white rounded-2xl shadow-xl border border-slate-200 p-6">
+          <h2 class="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
+            <lucide-angular [img]="UsersIcon" size="24" class="text-indigo-600"></lucide-angular>
+            Staff Workload
+          </h2>
+          <div class="space-y-4 max-h-96 overflow-y-auto">
+            <div *ngFor="let staff of analytics.staffWorkload" class="border border-slate-200 rounded-lg p-4 hover:bg-slate-50 transition-colors">
+              <div class="flex items-center justify-between mb-2">
+                <div>
+                  <p class="font-semibold text-slate-900">{{ staff.name }}</p>
+                  <p class="text-xs text-slate-500">{{ staff.role | titlecase }}</p>
+                </div>
+                <span class="px-2 py-1 bg-indigo-100 text-indigo-800 rounded text-xs font-semibold">
+                  {{ staff.active_bookings }} bookings
+                </span>
+              </div>
+              <div class="grid grid-cols-2 gap-2 text-xs text-slate-600">
+                <div>
+                  <span class="font-medium">Today:</span> {{ staff.today_sessions }} sessions
+                </div>
+                <div>
+                  <span class="font-medium">Updates:</span> {{ staff.case_updates_count }}
+                </div>
+              </div>
+            </div>
+            <div *ngIf="analytics.staffWorkload.length === 0" class="text-center py-8 text-slate-500">
+              <p>No staff data available</p>
             </div>
           </div>
-          <div class="ml-5 w-0 flex-1">
-            <dl>
-              <dt class="text-sm font-medium text-gray-500 truncate">Pending Enrollments</dt>
-              <dd class="text-2xl font-bold text-gray-900">{{ dashboardStats.pendingEnrollments }}</dd>
-            </dl>
-          </div>
         </div>
-      </div>
-    </div>
-  </div>
-</div>
 
-<!-- Recent Activity and Quick Actions -->
-<div class="mt-6">
-  <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
-    <!-- Recent Activity -->
-    <div class="bg-white shadow rounded">
-      <div class="px-6 py-4 border-b">
-        <h3 class="text-lg font-medium text-gray-900">Recent Activity</h3>
-      </div>
-      <div class="px-6 py-4">
-        <div class="space-y-4">
-          @for (activity of recentActivities; track activity) {
-            <div class="flex items-start space-x-3">
+        <!-- Recent Updates -->
+        <div class="bg-white rounded-2xl shadow-xl border border-slate-200 p-6">
+          <h2 class="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
+            <lucide-angular [img]="TrendingUpIcon" size="24" class="text-blue-600"></lucide-angular>
+            Recent Updates
+          </h2>
+          <div class="space-y-4 max-h-96 overflow-y-auto">
+            <div *ngFor="let update of analytics.recentUpdates" class="flex gap-4 p-4 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">
               <div class="flex-shrink-0">
-                <div class="w-2 h-2 bg-blue-600 rounded-full mt-2"></div>
+                <div [ngClass]="getUpdateColor(update.type)" class="p-2 rounded-lg">
+                  <lucide-angular [img]="getUpdateIcon(update.type)" size="20"></lucide-angular>
+                </div>
               </div>
               <div class="flex-1 min-w-0">
-                <p class="text-sm text-gray-900">{{ activity.message }}</p>
-                <p class="text-xs text-gray-500">{{ activity.time }}</p>
+                <div class="flex items-center gap-2 mb-1">
+                  <span [ngClass]="getUpdateColor(update.type)" class="px-2 py-0.5 rounded text-xs font-semibold">
+                    {{ update.type | titlecase }}
+                  </span>
+                  <span class="text-xs text-slate-500">{{ getRelativeTime(update.created_at) }}</span>
+                </div>
+                <p class="text-sm font-medium text-slate-900">{{ update.child_name }}</p>
+                <p class="text-xs text-slate-600">{{ update.parent_name }}</p>
+                <p *ngIf="update.status" class="text-xs text-slate-500 mt-1">Status: {{ update.status }}</p>
+                <p *ngIf="update.amount" class="text-xs font-semibold text-green-600 mt-1">
+                  {{ formatCurrency(update.amount, update.currency || 'MYR') }}
+                </p>
               </div>
             </div>
-          }
+            <div *ngIf="analytics.recentUpdates.length === 0" class="text-center py-8 text-slate-500">
+              <p>No recent updates</p>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- Quick Actions -->
-    <div class="bg-white shadow rounded">
-      <div class="px-6 py-4 border-b">
-        <h3 class="text-lg font-medium text-gray-900">Quick Actions</h3>
-      </div>
-      <div class="px-6 py-4">
-        <div class="grid grid-cols-2 gap-4">
-          <button class="px-4 py-3 bg-blue-50 text-blue-700 rounded hover:bg-blue-100 text-sm font-medium">
-            Manage Tours
-          </button>
-          <button class="px-4 py-3 bg-green-50 text-green-700 rounded hover:bg-green-100 text-sm font-medium">
-            View Leads
-          </button>
-          <button routerLink="/admin/staff" class="px-4 py-3 bg-purple-50 text-purple-700 rounded hover:bg-purple-100 text-sm font-medium">
-            Staff
-          </button>
-          <button class="px-4 py-3 bg-orange-50 text-orange-700 rounded hover:bg-orange-100 text-sm font-medium">
-            Reports
-          </button>
-        </div>
-      </div>
-    </div>
+    </ng-container>
   </div>
 </div>

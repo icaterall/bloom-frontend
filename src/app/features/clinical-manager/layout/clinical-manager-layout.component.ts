@@ -33,10 +33,28 @@ export class ClinicalManagerLayoutComponent implements OnInit {
       icon: '🔔'
     },
     { 
+      labelEn: 'Failed Bookings', 
+      labelMy: 'Tempahan Gagal', 
+      route: '/clinical-manager/bookings/failed',
+      icon: '❌'
+    },
+    { 
+      labelEn: 'Assign Cases', 
+      labelMy: 'Tugaskan Kes', 
+      route: '/clinical-manager/assignments',
+      icon: '👤'
+    },
+    { 
       labelEn: 'Sessions Calendar', 
       labelMy: 'Kalendar Sesi', 
       route: '/clinical-manager/calendar',
       icon: '📅'
+    },
+    { 
+      labelEn: 'Parents & Children', 
+      labelMy: 'Ibu Bapa & Kanak-kanak', 
+      route: '/clinical-manager/parents',
+      icon: '👨‍👩‍👧‍👦'
     },
     { 
       labelEn: 'Children', 

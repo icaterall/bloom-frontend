@@ -48,4 +48,40 @@ export class BookingService {
       `${environment.apiUrl}/parent/bookings/by-session/${sessionId}`
     );
   }
+
+  /**
+   * Get failed bookings (for clinical managers)
+   * @param search Search term
+   * @param page Page number
+   * @param limit Items per page
+   */
+  getFailedBookings(search?: string, page: number = 1, limit: number = 20): Observable<{
+    success: boolean;
+    data: any[];
+    pagination: {
+      page: number;
+      limit: number;
+      total: number;
+      totalPages: number;
+    };
+  }> {
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('limit', limit.toString());
+
+    if (search && search.trim()) {
+      params = params.set('search', search.trim());
+    }
+
+    return this.http.get<{
+      success: boolean;
+      data: any[];
+      pagination: {
+        page: number;
+        limit: number;
+        total: number;
+        totalPages: number;
+      };
+    }>(`${environment.apiUrl}/clinical-manager/bookings/failed`, { params });
+  }
 }

@@ -97,6 +97,34 @@ export const routes: Routes = [
             .then(m => m.ClinicalManagerDashboardComponent),
         title: 'Clinical Manager Dashboard - Bloom Spectrum Centre'
       },
+      {
+        path: 'parents',
+        loadComponent: () =>
+          import('./features/clinical-manager/parents/parents-list.component')
+            .then(m => m.ParentsListComponent),
+        title: 'Parents & Children - Bloom Spectrum Centre'
+      },
+      {
+        path: 'bookings/failed',
+        loadComponent: () =>
+          import('./features/clinical-manager/failed-bookings/failed-bookings.component')
+            .then(m => m.FailedBookingsComponent),
+        title: 'Failed Bookings - Bloom Spectrum Centre'
+      },
+      {
+        path: 'contact/parent/:id',
+        loadComponent: () =>
+          import('./features/clinical-manager/contact-parent/contact-parent.component')
+            .then(m => m.ContactParentComponent),
+        title: 'Contact Parent - Bloom Spectrum Centre'
+      },
+      {
+        path: 'assignments',
+        loadComponent: () =>
+          import('./features/clinical-manager/assignments/assignments.component')
+            .then(m => m.AssignmentsComponent),
+        title: 'Assign Cases - Bloom Spectrum Centre'
+      },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
     ]
   },

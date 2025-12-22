@@ -1,10 +1,11 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, inject, Injector } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, BehaviorSubject, of } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
 import { User, LoginRequest, LoginResponse, AuthResponse, UpdateProfileRequest } from '../../shared/models/user.model';
 import { environment } from '../../../environments/environment';
+import { SocketService } from './socket.service';
 
 @Injectable({
   providedIn: 'root'
@@ -22,6 +23,8 @@ export class AuthService {
   public userRole = signal<string | null>(null);
   public profileComplete = signal<boolean>(true); // Default to true to avoid premature redirects
 
+  private injector = inject(Injector);
+
   constructor(
     private http: HttpClient,
     private router: Router
@@ -29,6 +32,17 @@ export class AuthService {
     // Try to recover session on app init
     console.log('[AuthService] Constructor called, initializing auth...');
     this.initializeAuth();
+  }
+
+  /**
+   * Get SocketService lazily to avoid circular dependency
+   */
+  private getSocketService(): SocketService | null {
+    try {
+      return this.injector.get(SocketService, null);
+    } catch {
+      return null;
+    }
   }
 
   /**
@@ -85,6 +99,12 @@ export class AuthService {
             
             // Update user state
             this.setCurrentUser(response.data.user);
+            
+            // Reconnect socket with new token (lazy injection to avoid circular dependency)
+            const socketServiceInstance = this.getSocketService();
+            if (socketServiceInstance) {
+              socketServiceInstance.reconnect();
+            }
             
             // Navigate based on role and profile completeness
             console.log('7. Frontend - Navigating to role-based dashboard:', response.data.user.role);
