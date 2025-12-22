@@ -7,7 +7,7 @@ export const environment = {
   apiUploadUrl:"https://pickpickgo.s3.ap-southeast-1.amazonaws.com",
   apiSocketUrl:"http://127.0.0.1:3200/",
   recaptchaSiteKey: '6Le_ytYrAAAAAPtWAIltkJkF4ijMK3jpGVQUEtQ-',
-  googleClientId: '524061599462-5ft652kfahvputtng3vr70e43tn741qg.apps.googleusercontent.com', // Replace with your actual Google Client ID
+  googleClientId: '602786985054-iejo6vdag2egjug18uiidjmglc250ccg.apps.googleusercontent.com', // Replace with your actual Google Client ID
   enableServiceWorker: false,
   enableAnalytics: false,
     cacheTimeout: 300000, // 5 minutes in milliseconds

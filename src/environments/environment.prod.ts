@@ -7,7 +7,7 @@ export const environment = {
   apiDirectUrl:"https://backend.bloomspectrum.my/",
   apiUploadUrl:"https://anataleb.s3.ap-southeast-1.amazonaws.com/",
   recaptchaSiteKey: '6Le_ytYrAAAAAPtWAIltkJkF4ijMK3jpGVQUEtQ-',
-  googleClientId: '524061599462-5ft652kfahvputtng3vr70e43tn741qg.apps.googleusercontent.com', // Replace with your actual Google Client ID
+  googleClientId: '602786985054-iejo6vdag2egjug18uiidjmglc250ccg.apps.googleusercontent.com', // Replace with your actual Google Client ID
   enableServiceWorker: false,
   enableAnalytics: false,
     cacheTimeout: 300000, // 5 minutes in milliseconds
