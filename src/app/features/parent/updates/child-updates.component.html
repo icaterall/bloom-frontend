@@ -1,0 +1,147 @@
+<div class="max-w-7xl mx-auto space-y-6">
+  <!-- Header -->
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-3xl font-bold text-gray-900">{{ 'navigation.childUpdates' | translate }}</h1>
+      <p class="mt-1 text-sm text-gray-600">{{ 'parentUpdates.subtitle' | translate }}</p>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="flex justify-center py-12">
+    <div class="inline-flex items-center space-x-3">
+      <span class="h-6 w-6 border-2 border-[#2563EB] border-t-transparent rounded-full animate-spin"></span>
+      <span class="text-sm text-gray-600">{{ 'common.loading' | translate }}</span>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading && children.length === 0" class="text-center py-12 bg-white rounded-lg shadow-sm border border-gray-200">
+    <lucide-angular [img]="FileTextIcon" size="48" class="mx-auto text-gray-400 mb-4"></lucide-angular>
+    <h3 class="text-lg font-semibold text-gray-900">{{ 'parentUpdates.noChildren' | translate }}</h3>
+    <p class="mt-2 text-sm text-gray-600">{{ 'parentUpdates.noChildrenDesc' | translate }}</p>
+  </div>
+
+  <!-- Content -->
+  <div *ngIf="!isLoading && children.length > 0" class="space-y-6">
+    <!-- Filter by Child -->
+    <div class="bg-white rounded-lg border border-gray-200 p-4">
+      <div class="flex flex-wrap gap-2">
+        <button
+          (click)="filterByChild(null)"
+          [class.bg-blue-600]="selectedChildId === null"
+          [class.text-white]="selectedChildId === null"
+          [class.bg-gray-100]="selectedChildId !== null"
+          [class.text-gray-700]="selectedChildId !== null"
+          class="px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+        >
+          {{ 'parentUpdates.allChildren' | translate }}
+        </button>
+        <button
+          *ngFor="let child of children"
+          (click)="filterByChild(child.id!)"
+          [class.bg-blue-600]="selectedChildId === child.id"
+          [class.text-white]="selectedChildId === child.id"
+          [class.bg-gray-100]="selectedChildId !== child.id"
+          [class.text-gray-700]="selectedChildId !== child.id"
+          class="px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+        >
+          {{ child.full_name }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Updates List -->
+    <div *ngIf="filteredUpdates.length === 0" class="text-center py-12 bg-white rounded-lg shadow-sm border border-gray-200">
+      <lucide-angular [img]="FileTextIcon" size="48" class="mx-auto text-gray-400 mb-4"></lucide-angular>
+      <h3 class="text-lg font-semibold text-gray-900">{{ 'parentUpdates.noUpdates' | translate }}</h3>
+      <p class="mt-2 text-sm text-gray-600">{{ 'parentUpdates.noUpdatesDesc' | translate }}</p>
+    </div>
+
+    <div *ngIf="filteredUpdates.length > 0" class="space-y-4">
+      <div *ngFor="let update of filteredUpdates" class="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+        <!-- Update Header -->
+        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-4 border-b border-gray-200">
+          <div class="flex items-start justify-between">
+            <div class="flex-1">
+              <div class="flex items-center gap-3 mb-2">
+                <div class="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white font-semibold">
+                  {{ update.child_name?.charAt(0) || 'C' }}
+                </div>
+                <div>
+                  <h3 class="text-lg font-semibold text-gray-900">{{ update.child_name }}</h3>
+                  <p *ngIf="update.therapist_name" class="text-sm text-gray-600">
+                    {{ 'parentUpdates.byTherapist' | translate }} {{ update.therapist_name }}
+                  </p>
+                </div>
+              </div>
+              <div class="flex items-center gap-4 text-sm text-gray-600 mt-2">
+                <div class="flex items-center gap-1">
+                  <lucide-angular [img]="CalendarIcon" size="16"></lucide-angular>
+                  <span>{{ update.created_at | date:'fullDate' }}</span>
+                </div>
+                <div class="flex items-center gap-1">
+                  <lucide-angular [img]="ClockIcon" size="16"></lucide-angular>
+                  <span>{{ update.created_at | date:'shortTime' }}</span>
+                </div>
+                <span *ngIf="update.booking_type_name" class="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-medium">
+                  {{ update.booking_type_name }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Update Content -->
+        <div class="p-6 space-y-4">
+          <!-- Progress Summary -->
+          <div *ngIf="update.progress_summary">
+            <h4 class="text-sm font-semibold text-gray-900 mb-2">{{ 'parentUpdates.progressSummary' | translate }}</h4>
+            <p class="text-sm text-gray-700 whitespace-pre-wrap">{{ update.progress_summary }}</p>
+          </div>
+
+          <!-- Case Notes -->
+          <div *ngIf="update.case_notes">
+            <h4 class="text-sm font-semibold text-gray-900 mb-2">{{ 'parentUpdates.caseNotes' | translate }}</h4>
+            <p class="text-sm text-gray-700 whitespace-pre-wrap">{{ update.case_notes }}</p>
+          </div>
+
+          <!-- Goals -->
+          <div *ngIf="getGoalsArray(update.goals).length > 0">
+            <h4 class="text-sm font-semibold text-gray-900 mb-2">{{ 'parentUpdates.goals' | translate }}</h4>
+            <ul class="space-y-1">
+              <li *ngFor="let goal of getGoalsArray(update.goals)" class="flex items-start gap-2 text-sm text-gray-700">
+                <span class="text-blue-600 mt-1">•</span>
+                <span>{{ goal }}</span>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Next Steps -->
+          <div *ngIf="update.next_steps">
+            <h4 class="text-sm font-semibold text-gray-900 mb-2">{{ 'parentUpdates.nextSteps' | translate }}</h4>
+            <p class="text-sm text-gray-700 whitespace-pre-wrap">{{ update.next_steps }}</p>
+          </div>
+
+          <!-- Attachments -->
+          <div *ngIf="update.attachments && update.attachments.length > 0">
+            <h4 class="text-sm font-semibold text-gray-900 mb-2">{{ 'parentUpdates.attachments' | translate }}</h4>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <a
+                *ngFor="let attachment of update.attachments"
+                [href]="attachment.url"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="flex flex-col items-center gap-2 p-3 border border-gray-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 transition-colors"
+              >
+                <lucide-angular [img]="getAttachmentIcon(attachment.type)" size="24" class="text-gray-600"></lucide-angular>
+                <span class="text-xs text-gray-700 text-center truncate w-full">{{ attachment.filename }}</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+

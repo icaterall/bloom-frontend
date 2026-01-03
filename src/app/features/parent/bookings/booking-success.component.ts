@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BookingService } from '../../../core/services/booking.service';
 import { LucideAngularModule, CheckCircle, ArrowRight, Calendar, Clock, MapPin, Video, Mail, AlertCircle, Info, X } from 'lucide-angular';
+import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 
 @Component({
   selector: 'app-booking-success',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule],
+  imports: [CommonModule, LucideAngularModule, TranslatePipe],
   template: `
     <div class="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center px-4 py-12 relative">
       <!-- Toast Notification -->
@@ -48,8 +49,8 @@ import { LucideAngularModule, CheckCircle, ArrowRight, Calendar, Clock, MapPin, 
             <div class="mx-auto w-16 h-16 bg-white rounded-full flex items-center justify-center mb-4 shadow-lg">
               <lucide-angular [img]="CheckCircleIcon" size="40" class="text-green-500"></lucide-angular>
             </div>
-            <h1 class="text-2xl font-bold text-white mb-2">Payment Successful!</h1>
-            <p class="text-green-50">Your booking has been confirmed and paid</p>
+            <h1 class="text-2xl font-bold text-white mb-2">✅</h1>
+            <p class="text-green-50">{{ 'bookingWizard.step4.paymentReceived' | translate }}</p>
           </div>
 
           <!-- Content -->
@@ -101,8 +102,8 @@ import { LucideAngularModule, CheckCircle, ArrowRight, Calendar, Clock, MapPin, 
               <!-- Payment Success Badge - Always show success since Stripe redirected here -->
               <div class="flex items-center justify-center">
                 <span class="inline-flex items-center gap-2 rounded-full bg-green-100 px-5 py-2.5 text-sm font-bold text-green-800 ring-2 ring-green-300">
-                  <lucide-angular [img]="CheckCircleIcon" size="18" class="text-green-600"></lucide-angular>
-                  Payment Successful - {{ booking.currency || 'MYR' }} {{ booking.price | number:'1.2-2' }}
+                  <span class="text-lg">✅</span>
+                  <span>{{ 'bookingWizard.step4.paymentReceivedDesc' | translate }}</span>
                 </span>
               </div>
 
@@ -506,12 +507,12 @@ export class BookingSuccessComponent implements OnInit {
   }
 
   goToDashboard(): void {
-    this.router.navigate(['/parent/dashboard']);
+    this.router.navigate(['/parent/home']);
   }
 
   viewBookings(): void {
     // Navigate to bookings list if it exists, otherwise dashboard
-    this.router.navigate(['/parent/dashboard']);
+    this.router.navigate(['/parent/home']);
   }
 }
 

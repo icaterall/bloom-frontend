@@ -4,11 +4,12 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { AuthService } from '../../../core/services/auth.service';
 import { Router } from '@angular/router';
 import { LucideAngularModule, Save, User, Mail, Phone, Globe } from 'lucide-angular';
+import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 
 @Component({
   selector: 'app-settings',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, LucideAngularModule],
+  imports: [CommonModule, ReactiveFormsModule, LucideAngularModule, TranslatePipe],
   templateUrl: './settings.component.html'
 })
 export class SettingsComponent implements OnInit {
@@ -69,13 +70,13 @@ export class SettingsComponent implements OnInit {
       next: (response) => {
         this.isLoading = false;
         if (response.success) {
-          this.successMessage = 'Profile updated successfully';
+          this.successMessage = 'settings.profileUpdated';
           setTimeout(() => this.successMessage = '', 3000);
         }
       },
       error: (error) => {
         this.isLoading = false;
-        this.errorMessage = error.error?.message || 'Failed to update profile';
+        this.errorMessage = error.error?.message || 'settings.updateFailed';
       }
     });
   }

@@ -139,109 +139,26 @@ export class SocketService implements OnDestroy {
   }
 
   /**
-   * Show browser notification (push notification)
+   * Show browser notification
    */
   private async showBrowserNotification(notification: Notification): Promise<void> {
-    if (!isPlatformBrowser(this.platformId)) {
-      return;
-    }
-
-    if (!('Notification' in window)) {
-      console.log('[SocketService] Browser does not support notifications');
-      return;
-    }
-
-    // Request permission if not already granted or denied
-    if (Notification.permission === 'default') {
-      try {
-        const permission = await Notification.requestPermission();
-        if (permission !== 'granted') {
-          console.log('[SocketService] Notification permission denied');
-          return;
+    if ('Notification' in window && Notification.permission === 'granted') {
+      const title = this.getNotificationTitle(notification.type);
+      const body = this.getNotificationBody(notification);
+      
+      new Notification(title, {
+        body,
+        icon: '/favicon.ico',
+        badge: '/favicon.ico'
+      });
+    } else if ('Notification' in window && Notification.permission !== 'denied') {
+      // Request permission
+      Notification.requestPermission().then(permission => {
+        if (permission === 'granted') {
+          this.showBrowserNotification(notification);
         }
-      } catch (error) {
-        console.error('[SocketService] Error requesting notification permission:', error);
-        return;
-      }
+      });
     }
-
-    if (Notification.permission === 'granted') {
-      try {
-        const title = this.getNotificationTitle(notification.type);
-        const body = this.getNotificationBody(notification);
-        
-        const notificationOptions: NotificationOptions = {
-          body,
-          icon: '/favicon.ico',
-          badge: '/favicon.ico',
-          tag: notification.id, // Prevent duplicate notifications
-          requireInteraction: notification.type === 'booking_assigned_to_you', // Keep important notifications visible
-          data: {
-            notificationId: notification.id,
-            type: notification.type,
-            ...notification.data
-          }
-        };
-
-        const browserNotification = new Notification(title, notificationOptions);
-        
-        // Auto-close after 5 seconds (except for important ones)
-        if (!notificationOptions.requireInteraction) {
-          setTimeout(() => {
-            browserNotification.close();
-          }, 5000);
-        }
-
-        // Handle click on notification
-        browserNotification.onclick = () => {
-          window.focus();
-          browserNotification.close();
-          // You can add navigation logic here based on notification type
-        };
-
-        console.log('[SocketService] Browser notification shown:', title);
-      } catch (error) {
-        console.error('[SocketService] Error showing browser notification:', error);
-      }
-    } else {
-      console.log('[SocketService] Notification permission not granted');
-    }
-  }
-
-  /**
-   * Request notification permission (can be called from UI)
-   */
-  async requestNotificationPermission(): Promise<boolean> {
-    if (!isPlatformBrowser(this.platformId) || !('Notification' in window)) {
-      return false;
-    }
-
-    if (Notification.permission === 'granted') {
-      return true;
-    }
-
-    if (Notification.permission === 'denied') {
-      console.warn('[SocketService] Notification permission was previously denied');
-      return false;
-    }
-
-    try {
-      const permission = await Notification.requestPermission();
-      return permission === 'granted';
-    } catch (error) {
-      console.error('[SocketService] Error requesting notification permission:', error);
-      return false;
-    }
-  }
-
-  /**
-   * Check if notifications are supported and enabled
-   */
-  isNotificationSupported(): boolean {
-    if (!isPlatformBrowser(this.platformId)) {
-      return false;
-    }
-    return 'Notification' in window && Notification.permission === 'granted';
   }
 
   /**
@@ -252,15 +169,7 @@ export class SocketService implements OnDestroy {
       'booking_created': 'New Booking Created',
       'payment_succeeded': 'Payment Successful',
       'payment_failed': 'Payment Failed',
-      'booking_status_updated': 'Booking Status Updated',
-      'booking_assigned': 'Booking Assigned',
-      'booking_assigned_to_you': 'New Booking Assigned to You',
-      'booking_accepted_by_therapist': 'Session Accepted by Therapist',
-      'clinical_manager_message': 'Message from Clinical Manager',
-      'payment_succeeded_clinical_manager': 'New Payment Received',
-      'child_case_updated': 'Child Case Update',
-      'cash_payment_confirmed': 'Cash Payment Confirmed',
-      'cash_payment_reminder': 'Cash Payment Reminder'
+      'booking_status_updated': 'Booking Status Updated'
     };
     return titles[type] || 'New Notification';
   }
@@ -275,32 +184,11 @@ export class SocketService implements OnDestroy {
       case 'booking_created':
         return `Booking #${data.bookingId} has been created successfully.`;
       case 'payment_succeeded':
-        return `Payment of ${data.currency || 'MYR'} ${data.amount || 'N/A'} for booking #${data.bookingId} was successful.`;
+        return `Payment of ${data.currency} ${data.amount} for booking #${data.bookingId} was successful.`;
       case 'payment_failed':
         return `Payment for booking #${data.bookingId} failed. Please try again.`;
       case 'booking_status_updated':
         return `Booking #${data.bookingId} status has been updated.`;
-      case 'booking_assigned':
-        return `Booking #${data.bookingId} has been assigned to ${data.therapistName || 'a therapist'}.`;
-      case 'booking_assigned_to_you':
-        const startTime = data.confirmedStartAt ? new Date(data.confirmedStartAt).toLocaleString() : 'scheduled time';
-        return `You have been assigned to booking #${data.bookingId} for ${data.childName || 'a child'}. Session: ${startTime}`;
-      case 'booking_accepted_by_therapist':
-        const sessionTime = data.confirmedStartAt ? new Date(data.confirmedStartAt).toLocaleString() : 'scheduled time';
-        return `Your booking #${data.bookingId} has been accepted. Session confirmed for ${sessionTime}${data.googleMeetLink ? '. Google Meet link available.' : ''}`;
-      case 'clinical_manager_message':
-        return data.subject || 'You have a new message from Clinical Manager.';
-      case 'payment_succeeded_clinical_manager':
-        return `New payment received for booking #${data.bookingId}. Please review and assign.`;
-      case 'child_case_updated':
-        const updateType = data.updateType === 'created' ? 'created' : 'updated';
-        const hasAttachments = data.hasAttachments ? ` (${data.attachmentsCount} ${data.attachmentsCount === 1 ? 'file' : 'files'})` : '';
-        return `Your therapist has ${updateType} a case update for ${data.childName || 'your child'}${hasAttachments}.`;
-      case 'cash_payment_confirmed':
-        return `Your cash payment of ${data.currency || 'MYR'} ${data.amount || 'N/A'} for booking #${data.bookingId} has been confirmed.`;
-      case 'cash_payment_reminder':
-        const payBy = data.payByDate ? new Date(data.payByDate).toLocaleDateString() : 'soon';
-        return `Reminder: Please pay ${data.currency || 'MYR'} ${data.amount || 'N/A'} for booking #${data.bookingId} by ${payBy}.`;
       default:
         return 'You have a new notification.';
     }

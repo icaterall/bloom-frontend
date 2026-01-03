@@ -92,10 +92,13 @@
                   Age: {{ calculateAge(child.date_of_birth) }} years
                 </span>
                 <span class="child-detail-item" *ngIf="child.gender">
-                  • {{ child.gender }}
+                  • {{ child.gender | titlecase }}
                 </span>
                 <span class="child-detail-item" *ngIf="child.diagnosis_status">
-                  • {{ child.diagnosis_status }}
+                  • {{ child.diagnosis_status | titlecase }}
+                </span>
+                <span class="child-detail-item" *ngIf="child.child_status">
+                  • Status: {{ child.child_status | titlecase }}
                 </span>
               </div>
             </div>
@@ -175,6 +178,125 @@
     >
       Next
     </button>
+  </div>
+
+  <!-- Parent Details Modal -->
+  <div *ngIf="showParentModal" class="modal-overlay" (click)="closeParentModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2 class="modal-title">Parent Details</h2>
+        <button class="modal-close" (click)="closeParentModal()">
+          <lucide-angular [img]="XIcon" class="close-icon"></lucide-angular>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Loading State -->
+        <div *ngIf="isLoadingParentDetails" class="loading-container">
+          <div class="loading-spinner"></div>
+          <p class="loading-text">Loading parent details...</p>
+        </div>
+
+        <!-- Parent Details -->
+        <div *ngIf="!isLoadingParentDetails && selectedParent" class="space-y-6">
+          <!-- Parent Information -->
+          <div class="parent-info-card">
+            <h3 class="card-title">Parent Information</h3>
+            <div class="info-grid">
+              <div class="info-item">
+                <span class="info-label">Name:</span>
+                <span class="info-value">{{ selectedParent.parent_name }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Email:</span>
+                <span class="info-value">{{ selectedParent.parent_email }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Mobile:</span>
+                <span class="info-value">{{ selectedParent.parent_mobile || 'N/A' }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Registered:</span>
+                <span class="info-value">{{ formatDate(selectedParent.parent_created_at) }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Last Login:</span>
+                <span class="info-value">{{ selectedParent.parent_last_login ? formatDate(selectedParent.parent_last_login) : 'Never' }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Children Count:</span>
+                <span class="info-value">{{ selectedParent.children_count || 0 }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Children List -->
+          <div *ngIf="selectedParent.children && selectedParent.children.length > 0" class="children-details-card">
+            <h3 class="card-title">Children ({{ selectedParent.children.length }})</h3>
+            <div class="children-details-list">
+              <div *ngFor="let child of selectedParent.children" class="child-detail-card">
+                <div class="child-detail-header">
+                  <h4 class="child-detail-name">{{ child.full_name }}</h4>
+                  <span *ngIf="child.child_status" class="child-status-badge" [ngClass]="{
+                    'status-not-enrolled': child.child_status === 'not_enrolled',
+                    'status-in-assessment': child.child_status === 'in_assessment',
+                    'status-enrolled': child.child_status === 'enrolled',
+                    'status-waitlist': child.child_status === 'on_waitlist'
+                  }">
+                    {{ child.child_status.replace('_', ' ') | titlecase }}
+                  </span>
+                </div>
+                <div class="child-detail-info">
+                  <div class="detail-row">
+                    <span class="detail-label">Age:</span>
+                    <span class="detail-value">{{ calculateAge(child.date_of_birth) }} years</span>
+                  </div>
+                  <div class="detail-row" *ngIf="child.gender">
+                    <span class="detail-label">Gender:</span>
+                    <span class="detail-value">{{ child.gender | titlecase }}</span>
+                  </div>
+                  <div class="detail-row" *ngIf="child.date_of_birth">
+                    <span class="detail-label">Date of Birth:</span>
+                    <span class="detail-value">{{ formatDate(child.date_of_birth) }}</span>
+                  </div>
+                  <div class="detail-row" *ngIf="child.diagnosis_status">
+                    <span class="detail-label">Diagnosis:</span>
+                    <span class="detail-value">{{ child.diagnosis_status | titlecase }}</span>
+                  </div>
+                  <div class="detail-row" *ngIf="child.primary_language">
+                    <span class="detail-label">Primary Language:</span>
+                    <span class="detail-value">{{ child.primary_language }}</span>
+                  </div>
+                  <div class="detail-row" *ngIf="child.main_concerns">
+                    <span class="detail-label">Main Concerns:</span>
+                    <span class="detail-value">{{ child.main_concerns }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div *ngIf="!selectedParent.children || selectedParent.children.length === 0" class="no-children-card">
+            <p class="no-children-text">No children registered for this parent</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-cancel" (click)="closeParentModal()">
+          Close
+        </button>
+        <button
+          *ngIf="selectedParent"
+          class="btn-contact"
+          [routerLink]="['/clinical-manager/contact/parent', selectedParent.parent_id]"
+          (click)="closeParentModal()"
+        >
+          <lucide-angular [img]="MailIcon" class="btn-icon"></lucide-angular>
+          Contact Parent
+        </button>
+      </div>
+    </div>
   </div>
 </div>
 

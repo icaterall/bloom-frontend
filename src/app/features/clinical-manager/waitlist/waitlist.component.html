@@ -1,0 +1,395 @@
+<div class="waitlist-container">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div>
+        <h1 class="page-title">Waitlist</h1>
+        <p class="page-subtitle">View children waiting for enrollment and manage their status</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Search Bar -->
+  <div class="search-section">
+    <div class="search-container">
+      <div class="search-icon-wrapper">
+        <lucide-angular [img]="SearchIcon" class="search-icon"></lucide-angular>
+      </div>
+      <input
+        type="text"
+        [(ngModel)]="searchTerm"
+        (keyup.enter)="onSearch()"
+        placeholder="Search by child name, parent name, or parent email..."
+        class="search-input"
+      />
+      <div class="search-actions">
+        <button
+          *ngIf="searchTerm"
+          (click)="onSearchClear()"
+          class="btn-clear"
+          type="button"
+        >
+          Clear
+        </button>
+        <button
+          (click)="onSearch()"
+          class="btn-search"
+          type="button"
+          [disabled]="isLoading"
+        >
+          Search
+        </button>
+      </div>
+    </div>
+    <div class="search-results-info" *ngIf="!isLoading">
+      <span class="results-count">{{ total }} child{{ total !== 1 ? 'ren' : '' }} on waitlist</span>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="loading-spinner"></div>
+    <p class="loading-text">Loading waitlist...</p>
+  </div>
+
+  <!-- Waitlist -->
+  <div *ngIf="!isLoading" class="waitlist-grid">
+    <div *ngFor="let child of waitlist" class="waitlist-card">
+      <!-- Child Header -->
+      <div class="child-header">
+        <div class="child-avatar">
+          <lucide-angular [img]="BabyIcon" class="avatar-icon"></lucide-angular>
+        </div>
+        <div class="child-info">
+          <h3 class="child-name">{{ child.full_name }}</h3>
+          <div class="child-meta">
+            <span class="meta-item">
+              <lucide-angular [img]="CalendarIcon" class="meta-icon"></lucide-angular>
+              Age: {{ calculateAge(child.date_of_birth) }} years
+            </span>
+            <span class="meta-item" *ngIf="child.gender">
+              • {{ child.gender | titlecase }}
+            </span>
+            <span class="meta-item" *ngIf="child.diagnosis_status">
+              • {{ child.diagnosis_status | titlecase }}
+            </span>
+          </div>
+        </div>
+        <div class="waitlist-badge">
+          <lucide-angular [img]="ClockIcon" class="badge-icon"></lucide-angular>
+          <span [ngClass]="getDaysOnWaitlistClass(child.days_on_waitlist)">
+            {{ child.days_on_waitlist }} day{{ child.days_on_waitlist !== 1 ? 's' : '' }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Parent Information -->
+      <div class="parent-section">
+        <h4 class="parent-title">Parent Information</h4>
+        <div class="parent-info">
+          <div class="parent-detail">
+            <lucide-angular [img]="UserIcon" class="parent-icon"></lucide-angular>
+            <span class="parent-text">{{ child.parent_name }}</span>
+          </div>
+          <div class="parent-detail">
+            <lucide-angular [img]="MailIcon" class="parent-icon"></lucide-angular>
+            <span class="parent-text">{{ child.parent_email }}</span>
+          </div>
+          <div class="parent-detail" *ngIf="child.parent_mobile">
+            <lucide-angular [img]="PhoneIcon" class="parent-icon"></lucide-angular>
+            <span class="parent-text">{{ child.parent_mobile }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Latest Booking Info -->
+      <div class="booking-section" *ngIf="child.latest_booking">
+        <h4 class="booking-title">Latest Booking</h4>
+        <div class="booking-info">
+          <span class="booking-status" [ngClass]="'status-' + child.latest_booking.status">
+            {{ child.latest_booking.status | titlecase }}
+          </span>
+          <span class="booking-date" *ngIf="child.latest_booking?.preferred_start_at">
+            {{ formatDate(child.latest_booking.preferred_start_at) }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Child Footer -->
+      <div class="child-footer">
+        <div class="footer-info">
+          <span class="footer-text">Added: {{ formatDate(child.created_at) }}</span>
+        </div>
+        <div class="footer-actions">
+          <button
+            class="btn-view"
+            (click)="viewChildDetails(child.id!)"
+          >
+            <lucide-angular [img]="EyeIcon" class="btn-icon"></lucide-angular>
+            View Details
+          </button>
+          <button
+            class="btn-contact"
+            [routerLink]="['/clinical-manager/contact/parent', child.parent_id]"
+          >
+            <lucide-angular [img]="MailIcon" class="btn-icon"></lucide-angular>
+            Contact
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="waitlist.length === 0" class="empty-state">
+      <div class="empty-icon-wrapper">
+        <lucide-angular [img]="ClockIcon" class="empty-icon"></lucide-angular>
+      </div>
+      <h3 class="empty-title">No children on waitlist</h3>
+      <p class="empty-message">
+        <span *ngIf="searchTerm">No children match your search criteria.</span>
+        <span *ngIf="!searchTerm">The waitlist is currently empty.</span>
+      </p>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <div *ngIf="!isLoading && totalPages > 1" class="pagination">
+    <button
+      class="pagination-btn"
+      [disabled]="currentPage === 1"
+      (click)="goToPage(currentPage - 1)"
+    >
+      Previous
+    </button>
+    
+    <div class="pagination-numbers">
+      <button
+        *ngFor="let page of getPageNumbers()"
+        class="pagination-number"
+        [class.active]="page === currentPage"
+        (click)="goToPage(page)"
+      >
+        {{ page }}
+      </button>
+    </div>
+    
+    <button
+      class="pagination-btn"
+      [disabled]="currentPage === totalPages"
+      (click)="goToPage(currentPage + 1)"
+    >
+      Next
+    </button>
+  </div>
+
+  <!-- Child Details Modal -->
+  <div *ngIf="showChildModal" class="modal-overlay" (click)="closeChildModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2 class="modal-title">Waitlist Child Details</h2>
+        <button class="modal-close" (click)="closeChildModal()">
+          <lucide-angular [img]="XIcon" class="close-icon"></lucide-angular>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Loading State -->
+        <div *ngIf="isLoadingChildDetails" class="loading-container">
+          <div class="loading-spinner"></div>
+          <p class="loading-text">Loading child details...</p>
+        </div>
+
+        <!-- Child Details -->
+        <div *ngIf="!isLoadingChildDetails && selectedChild" class="space-y-6">
+          <!-- Waitlist Info -->
+          <div class="waitlist-info-card">
+            <div class="waitlist-info-header">
+              <lucide-angular [img]="ClockIcon" class="waitlist-icon"></lucide-angular>
+              <div>
+                <h3 class="card-title">Waitlist Information</h3>
+                <p class="waitlist-days" [ngClass]="getDaysOnWaitlistClass(selectedChild.days_on_waitlist)">
+                  On waitlist for {{ selectedChild.days_on_waitlist }} day{{ selectedChild.days_on_waitlist !== 1 ? 's' : '' }}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Child Information -->
+          <div class="child-info-card">
+            <h3 class="card-title">Child Information</h3>
+            <div class="info-grid">
+              <div class="info-item">
+                <span class="info-label">Name:</span>
+                <span class="info-value">{{ selectedChild.full_name }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Date of Birth:</span>
+                <span class="info-value">{{ formatDate(selectedChild.date_of_birth) }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Age:</span>
+                <span class="info-value">{{ calculateAge(selectedChild.date_of_birth) }} years</span>
+              </div>
+              <div class="info-item" *ngIf="selectedChild.gender">
+                <span class="info-label">Gender:</span>
+                <span class="info-value">{{ selectedChild.gender | titlecase }}</span>
+              </div>
+              <div class="info-item" *ngIf="selectedChild.diagnosis_status">
+                <span class="info-label">Diagnosis:</span>
+                <span class="info-value">{{ selectedChild.diagnosis_status | titlecase }}</span>
+              </div>
+              <div class="info-item" *ngIf="selectedChild.primary_language">
+                <span class="info-label">Primary Language:</span>
+                <span class="info-value">{{ selectedChild.primary_language }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Diagnosis Details -->
+          <div *ngIf="selectedChild.diagnosis_details" class="details-card">
+            <h3 class="card-title">Diagnosis Details</h3>
+            <p class="details-text">{{ selectedChild.diagnosis_details }}</p>
+          </div>
+
+          <!-- Main Concerns -->
+          <div *ngIf="selectedChild.main_concerns" class="details-card">
+            <h3 class="card-title">Main Concerns</h3>
+            <p class="details-text">{{ selectedChild.main_concerns }}</p>
+          </div>
+
+          <!-- Parent Information -->
+          <div class="parent-info-card">
+            <h3 class="card-title">Parent Information</h3>
+            <div class="info-grid">
+              <div class="info-item">
+                <span class="info-label">Name:</span>
+                <span class="info-value">{{ selectedChild.parent_name }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Email:</span>
+                <span class="info-value">{{ selectedChild.parent_email }}</span>
+              </div>
+              <div class="info-item" *ngIf="selectedChild.parent_mobile">
+                <span class="info-label">Mobile:</span>
+                <span class="info-value">{{ selectedChild.parent_mobile }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bookings History -->
+          <div *ngIf="selectedChild.bookings && selectedChild.bookings.length > 0" class="bookings-card">
+            <h3 class="card-title">Booking History</h3>
+            <div class="bookings-list">
+              <div *ngFor="let booking of selectedChild.bookings" class="booking-item">
+                <div class="booking-header">
+                  <div class="booking-type">{{ booking.booking_type || 'N/A' }}</div>
+                  <span class="booking-status" [ngClass]="'status-' + booking.status">
+                    {{ booking.status | titlecase }}
+                  </span>
+                </div>
+                <div class="booking-details">
+                  <div class="booking-detail" *ngIf="booking.preferred_start_at">
+                    <lucide-angular [img]="CalendarIcon" class="booking-icon"></lucide-angular>
+                    <span>Preferred: {{ formatDateTime(booking.preferred_start_at) }}</span>
+                  </div>
+                  <div class="booking-detail" *ngIf="booking.confirmed_start_at">
+                    <lucide-angular [img]="CheckCircleIcon" class="booking-icon"></lucide-angular>
+                    <span>Confirmed: {{ formatDateTime(booking.confirmed_start_at) }}</span>
+                  </div>
+                  <div class="booking-detail">
+                    <span class="mode-badge" [ngClass]="booking.mode === 'online' ? 'mode-online' : 'mode-in-centre'">
+                      {{ booking.mode === 'online' ? 'Online' : 'In Centre' }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-cancel" (click)="closeChildModal()">
+          Close
+        </button>
+        <button
+          *ngIf="selectedChild"
+          class="btn-update-status"
+          (click)="openStatusUpdateModal()"
+        >
+          <lucide-angular [img]="CheckCircleIcon" class="btn-icon"></lucide-angular>
+          Update Status
+        </button>
+        <button
+          *ngIf="selectedChild"
+          class="btn-contact"
+          [routerLink]="['/clinical-manager/contact/parent', selectedChild.parent_id]"
+          (click)="closeChildModal()"
+        >
+          <lucide-angular [img]="MailIcon" class="btn-icon"></lucide-angular>
+          Contact Parent
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Status Update Modal -->
+  <div *ngIf="showStatusUpdateModal" class="modal-overlay" (click)="closeStatusUpdateModal()">
+    <div class="modal-content-small" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2 class="modal-title">Update Child Status</h2>
+        <button class="modal-close" (click)="closeStatusUpdateModal()">
+          <lucide-angular [img]="XIcon" class="close-icon"></lucide-angular>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <p class="update-status-text">Select new status for {{ selectedChild?.full_name }}:</p>
+        <div class="status-options">
+          <label class="status-option">
+            <input
+              type="radio"
+              name="newStatus"
+              value="not_enrolled"
+              [(ngModel)]="newStatus"
+            />
+            <span>Not Enrolled</span>
+          </label>
+          <label class="status-option">
+            <input
+              type="radio"
+              name="newStatus"
+              value="in_assessment"
+              [(ngModel)]="newStatus"
+            />
+            <span>In Assessment</span>
+          </label>
+          <label class="status-option">
+            <input
+              type="radio"
+              name="newStatus"
+              value="enrolled"
+              [(ngModel)]="newStatus"
+            />
+            <span>Enrolled</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-cancel" (click)="closeStatusUpdateModal()" [disabled]="isUpdatingStatus">
+          Cancel
+        </button>
+        <button
+          class="btn-update"
+          (click)="updateChildStatus()"
+          [disabled]="!newStatus || isUpdatingStatus"
+        >
+          <span *ngIf="!isUpdatingStatus">Update Status</span>
+          <span *ngIf="isUpdatingStatus">Updating...</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+

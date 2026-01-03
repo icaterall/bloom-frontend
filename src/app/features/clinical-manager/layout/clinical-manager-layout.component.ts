@@ -79,12 +79,6 @@ export class ClinicalManagerLayoutComponent implements OnInit {
       labelMy: 'Laporan', 
       route: '/clinical-manager/reports',
       icon: '📄'
-    },
-    { 
-      labelEn: 'Messages', 
-      labelMy: 'Mesej', 
-      route: '/clinical-manager/messages',
-      icon: '💬'
     }
   ];
 

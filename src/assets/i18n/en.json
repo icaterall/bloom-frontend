@@ -191,12 +191,19 @@
       "timeRequired": "Time is required"
     }
   },
+
   "common": {
     "loading": "Loading...",
     "error": "Error",
     "success": "Success",
     "cancel": "Cancel",
     "save": "Save",
+
+    "details": "Details",
+    "gender": "Gender",
+    "diagnosis": "Diagnosis",
+    "dateOfBirth": "Date of Birth",
+    "primaryLanguage": "Primary Language",
     "delete": "Delete",
     "edit": "Edit",
     "view": "View",
@@ -263,11 +270,174 @@
       "empty": "No alerts at this time"
     }
   },
+  "bookingWizard": {
+    "title": "Book a Session for",
+    "step": "Step",
+    "of": "of",
+    "step1": {
+      "subtitle": "Choose the service and session type",
+      "chooseService": "Choose Service",
+      "chooseMode": "Choose Mode",
+      "services": {
+        "consultation": "Consultation",
+        "centreSession": "Centre Session",
+        "onlineSession": "Online Session"
+      },
+      "modes": {
+        "inCentre": "In-centre",
+        "online": "Online",
+        "modeRestricted": "This service is only available",
+        "modeLockedNote": "Mode locked for this service"
+      },
+      "duration": "min",
+      "loadingServices": "Loading services..."
+    },
+    "step2": {
+      "title": "Choose your preferred time",
+      "subtitle": "Choose your preferred time. We will confirm it.",
+      "selectDate": "Select Date",
+      "selectTime": "Suggested Times",
+      "location": "Location",
+      "notes": "Notes (optional)",
+      "notesPlaceholder": "Any special requests or notes for the centre...",
+      "urgency": "Any urgency?",
+      "continue": "Continue"
+    },
+    "step3": {
+      "title": "Review & Payment",
+      "subtitle": "How do you want to pay?",
+      "summary": "Booking Summary",
+      "child": "Child",
+      "service": "Service",
+      "mode": "Mode",
+      "time": "Time",
+      "duration": "Duration",
+      "location": "Location",
+      "price": "Price",
+      "paymentMethod": "Payment Method",
+      "card": "Card (Stripe)",
+      "cardDesc": "Pay securely with credit or debit card",
+      "onlineBanking": "Online Banking",
+      "onlineBankingDesc": "Pay via FPX bank transfer",
+      "cash": "Cash at Centre",
+      "cashDesc": "Pay within 24 hours at reception",
+      "recommended": "Recommended",
+      "policyAgree": "I agree to cancellation & refund policy.",
+      "policyRequired": "You must agree to the cancellation and refund policy to continue.",
+      "payNow": "Pay Now",
+      "reserveBooking": "Reserve & Pay Cash"
+    },
+    "step4": {
+      "redirecting": "Redirecting to secure payment...",
+      "redirectingDesc": "Please wait while we connect you to our payment provider.",
+      "paymentReceived": "Payment received.",
+      "paymentReceivedDesc": "Payment received. Awaiting confirmation.",
+      "cashReserved": "Booking Reserved!",
+      "cashReservedDesc": "Reserved. Please pay at the centre within 24 hours.",
+      "amountDue": "Amount Due",
+      "bookingConfirmed": "Booking Confirmed!",
+      "amountDue": "Amount Due",
+      "payBy": "Pay by",
+      "viewBooking": "View Booking",
+      "backToDashboard": "Back to Dashboard"
+    },
+    "calendar": {
+      "months": {
+        "january": "January",
+        "february": "February",
+        "march": "March",
+        "april": "April",
+        "may": "May",
+        "june": "June",
+        "july": "July",
+        "august": "August",
+        "september": "September",
+        "october": "October",
+        "november": "November",
+        "december": "December"
+      },
+      "weekdays": {
+        "sun": "Sun",
+        "mon": "Mon",
+        "tue": "Tue",
+        "wed": "Wed",
+        "thu": "Thu",
+        "fri": "Fri",
+        "sat": "Sat"
+      }
+    }
+  },
+  "childCard": {
+    "status": {
+      "paid": "Paid",
+      "awaitingConfirmation": "Awaiting confirmation",
+      "awaitingCashPayment": "Awaiting cash payment",
+      "confirmed": "Confirmed",
+      "completed": "Completed"
+    },
+    "actions": {
+      "viewBooking": "View Booking",
+      "viewInstructions": "View Instructions",
+      "cancel": "Cancel",
+      "joinSession": "Join Session",
+      "viewDetails": "View Details",
+      "messageCentre": "Message Centre",
+      "addToCalendar": "Add to Calendar",
+      "directions": "Directions",
+      "viewNotes": "View Notes",
+      "documents": "Documents",
+      "bookNextSession": "Book Next Session",
+      "retryPayment": "Retry Payment",
+      "switchToOnline": "Switch to Online Payment",
+      "latestUpdate": "Latest Update",
+      "mediaFiles": "media file(s)",
+      "viewAllUpdates": "View All Updates"
+    },
+    "nextSession": "Next session",
+    "therapist": "Therapist",
+    "confirmedTime": "Confirmed time",
+    "preferredTime": "Preferred time",
+    "upcomingReminder": "Upcoming session",
+    "awaitingTherapist": "Awaiting therapist confirmation",
+    "onlineLink": "Online session link",
+    "centreAddress": "Centre address",
+    "therapistNotes": "Notes from therapist"
+  },
+  "navigation": {
+    "home": "Home",
+    "child": "Child",
+    "schedule": "Schedule",
+    "messages": "Messages",
+    "documents": "Documents",
+    "payments": "Payments",
+    "resources": "Resources",
+    "settings": "Settings",
+    "comingSoon": "Coming soon",
+
+    "childUpdates": "Child Updates",
+    "sessions": "Sessions",
+
+    "role": "Parent",
+    "logout": "Logout",
+    "portalTitle": "Parent Portal",
+    "switchToEnglish": "Switch to English",
+    "switchToMalay": "Tukar ke Bahasa Melayu"
+  },
+  "upcomingBanner": {
+    "title": "Upcoming session",
+    "addToCalendar": "Add to Calendar",
+    "directions": "Directions",
+    "reminder": "Your session is coming up soon!"
+  },
   "parentDashboard": {
     "welcomeBack": "Welcome back,",
     "noChildrenSubtitle": "Let's set up your child's profile so we can recommend the right programme.",
     "hasChildrenSubtitle": "Here's an overview of your child's progress and schedule.",
     "gettingStartedChecklist": "Getting Started Checklist",
+    "successToast": {
+      "childSaved": "Child profile saved. Next: book a session.",
+      "nextAction": ""
+    },
     "steps": {
       "addChildTitle": "Add your child's profile",
       "addChildDescription": "Tell us about your child so we can understand their needs.",
@@ -278,8 +448,18 @@
       "bookTourDescription": "Visit us to see our facilities and meet the team.",
       "bookTourButton": "Book Now"
     },
+    "myChild": "My Child",
+    "myChildren": "My Children",
+    "addAnotherChildSmall": "Add another",
+    "upcomingSession": {
+      "title": "Upcoming Session",
+      "reminder": "You have a session scheduled for",
+      "addToCalendar": "Add to Calendar",
+      "directions": "Directions"
+    },
     "childCard": {
       "yearsOld": "years old",
+      "noUpcomingSession": "No upcoming session",
       "status": {
         "not_enrolled": "Not Enrolled Yet",
         "enrolled": "Enrolled",
@@ -299,13 +479,28 @@
         "awaiting_payment": "Awaiting Payment",
         "awaiting_cash_payment": "Awaiting Cash Payment",
         "awaiting_clinical_review": "Awaiting Review",
+        "awaitingConfirmation": "Awaiting confirmation",
+        "paid": "Paid",
         "confirmed": "Confirmed",
         "cancelled": "Cancelled",
         "completed": "Completed",
         "no_show": "No Show"
       },
+      "viewBooking": "View Booking",
+      "viewInstructions": "View Instructions",
+      "viewDetails": "View Details",
+      "joinSession": "Join Session",
+      "messageCentre": "Message Centre",
+      "cancel": "Cancel",
       "nextSessionLabel": "Next session:",
-      "viewSchedule": "View Schedule"
+      "therapist": "Therapist",
+      "confirmedTime": "Confirmed time",
+      "location": "Location",
+      "viewSchedule": "View Schedule",
+      "sessionCompletedDesc": "Your session has been completed. View notes and documents below.",
+      "viewNotes": "View Notes",
+      "documents": "Documents",
+      "bookNextSession": "Book Next Session"
     },
     "addAnotherChild": "Add Another Child",
     "quickActions": {
@@ -320,6 +515,414 @@
       "bookConsultation": "Book Consultation",
       "resourceLibrary": "Resource Library",
       "parentGuide": "Parent Guide"
+    }
+  },
+  "payments": {
+    "noPayments": "No payment history found"
+  },
+  "settings": {
+    "title": "Profile Settings",
+    "subtitle": "Manage your personal information and preferences",
+    "fullName": "Full Name",
+    "fullNamePlaceholder": "Your full name",
+    "nameRequired": "Name is required and must be at least 2 characters.",
+    "email": "Email Address",
+    "emailCannotChange": "Email address cannot be changed.",
+    "phoneNumber": "Phone Number",
+    "phonePlaceholder": "+60 12 345 6789",
+    "preferredLanguage": "Preferred Language",
+    "languageEnglish": "English",
+    "languageMalay": "Malay",
+    "saveChanges": "Save Changes",
+    "saving": "Saving...",
+    "profileUpdated": "Profile updated successfully",
+    "updateFailed": "Failed to update profile"
+  },
+  "parentUpdates": {
+    "subtitle": "View updates and progress reports from the centre",
+    "noChildren": "No children registered",
+    "noChildrenDesc": "Add a child to start receiving updates from the centre.",
+    "allChildren": "All Children",
+    "noUpdates": "No updates available",
+    "noUpdatesDesc": "Updates from therapists will appear here once sessions begin.",
+    "byTherapist": "By",
+    "progressSummary": "Progress Summary",
+    "caseNotes": "Case Notes",
+    "goals": "Treatment Goals",
+    "nextSteps": "Next Steps",
+    "attachments": "Attachments"
+  },
+  "schedule": {
+    "title": "Schedule",
+    "subtitle": "View all your child's sessions in calendar format",
+    "filterByChild": "Filter by Child",
+    "allChildren": "All Children",
+    "today": "Today",
+    "more": "more",
+    "noBookings": "No sessions scheduled",
+    "noBookingsDesc": "Book a session to see it appear on your calendar.",
+    "error": {
+      "title": "Error Loading Calendar"
+    },
+    "child": "Child",
+    "service": "Service",
+    "dateTime": "Date & Time",
+    "preferred": "Preferred",
+    "mode": "Mode",
+    "location": "Location",
+    "onlineLink": "Online Link",
+    "joinSession": "Join Session",
+    "viewDetails": "View Details",
+    "bookingDetails": "Booking Details",
+    "statusLabel": "Status",
+    "status": {
+      "confirmed": "Confirmed",
+      "awaitingPayment": "Awaiting Payment",
+      "awaitingCashPayment": "Awaiting Cash Payment",
+      "awaitingReview": "Awaiting Review",
+      "completed": "Completed",
+      "cancelled": "Cancelled",
+      "pending": "Pending"
+    }
+  },
+  "sessions": {
+    "title": "Sessions",
+    "subtitle": "View all your child's sessions and their outcomes",
+    "filterByChild": "Filter by Child",
+    "filterByStatus": "Filter by Status",
+    "allChildren": "All Children",
+    "search": "Search",
+    "searchPlaceholder": "Search by child, service, therapist, or date...",
+    "viewDetails": "View Details",
+    "noSessions": "No sessions found",
+    "noSessionsDesc": "No sessions match your current filters.",
+    "status": {
+      "all": "All Statuses",
+      "completed": "Completed",
+      "confirmed": "Confirmed",
+      "awaitingPayment": "Awaiting Payment",
+      "awaitingCashPayment": "Awaiting Cash Payment",
+      "awaitingReview": "Awaiting Review",
+      "cancelled": "Cancelled",
+      "noShow": "No Show",
+      "pending": "Pending"
+    },
+    "table": {
+      "date": "Date & Time",
+      "child": "Child",
+      "service": "Service",
+      "mode": "Mode",
+      "therapist": "Therapist",
+      "status": "Status",
+      "actions": "Actions",
+      "notAssigned": "Not Assigned"
+    },
+    "details": {
+      "title": "Session Details",
+      "sessionInfo": "Session Information",
+      "outcomes": "Session Outcomes",
+      "child": "Child",
+      "service": "Service",
+      "dateTime": "Date & Time",
+      "preferred": "Preferred",
+      "mode": "Mode",
+      "location": "Location",
+      "onlineLink": "Online Link",
+      "joinSession": "Join Session",
+      "therapist": "Therapist",
+      "price": "Price",
+      "notes": "Notes",
+      "progressSummary": "Progress Summary",
+      "caseNotes": "Case Notes",
+      "goals": "Treatment Goals",
+      "nextSteps": "Next Steps",
+      "attachments": "Attachments",
+      "updatedBy": "Updated by",
+      "noOutcomes": "Session outcomes will appear here once the therapist completes the session report.",
+      "error": {
+        "title": "Error Loading Session"
+      }
+    }
+  },
+  "therapistDashboard": {
+    "title": "Therapist Dashboard",
+    "empty": {
+      "title": "No sessions scheduled today",
+      "description": "You don't have any sessions scheduled for today. Check your upcoming sessions to see what's coming up.",
+      "viewSessions": "View My Sessions"
+    },
+    "todaySessions": {
+      "title": "Today's Sessions",
+      "empty": "No sessions scheduled for today",
+      "parent": "Parent",
+      "joinLink": "Join Session",
+      "addUpdate": "Add Update",
+      "viewDetails": "View Details"
+    },
+    "pendingNotes": {
+      "title": "Pending Notes",
+      "description": "You have completed sessions that need case updates.",
+      "count": "session(s) need updates",
+      "viewSessions": "View Sessions"
+    },
+    "quickActions": {
+      "title": "Quick Actions",
+      "addUpdate": "Add Update",
+      "addUpdateDesc": "Create a case update for a session",
+      "viewCalendar": "View Calendar",
+      "viewCalendarDesc": "See all your scheduled sessions"
+    }
+  },
+  "therapistSessions": {
+    "title": "My Sessions",
+    "subtitle": "View and manage your assigned sessions",
+    "tabs": {
+      "list": "List View",
+      "calendar": "Calendar View"
+    },
+    "filters": {
+      "title": "Filters",
+      "clear": "Clear Filters",
+      "dateRange": "Date Range",
+      "today": "Today",
+      "week": "This Week",
+      "month": "This Month",
+      "custom": "Custom Range",
+      "from": "From",
+      "to": "To",
+      "status": "Status",
+      "mode": "Mode"
+    },
+    "status": {
+      "all": "All Statuses",
+      "confirmed": "Confirmed",
+      "completed": "Completed",
+      "cancelled": "Cancelled",
+      "noShow": "No Show",
+      "pending": "Pending"
+    },
+    "mode": {
+      "all": "All Modes",
+      "inCentre": "In Centre",
+      "online": "Online"
+    },
+    "yearsOld": "years old",
+    "service": "Service",
+    "actions": {
+      "openDetails": "Open Details",
+      "joinSession": "Join Session"
+    },
+    "empty": {
+      "title": "No sessions found",
+      "description": "No sessions match your current filters. Try adjusting your filters or check a different date range."
+    },
+    "calendar": {
+      "comingSoon": "Calendar View Coming Soon",
+      "description": "Calendar view will be available in a future update."
+    }
+  },
+  "therapistSessionDetails": {
+    "title": "Session Details",
+    "yearsOld": "years old",
+    "joinSession": "Join Session",
+    "status": {
+      "confirmed": "Confirmed",
+      "completed": "Completed",
+      "cancelled": "Cancelled",
+      "noShow": "No Show",
+      "pending": "Pending"
+    },
+    "childSnapshot": {
+      "title": "Child Snapshot",
+      "openProfile": "Open Child Profile",
+      "diagnosisStatus": "Diagnosis Status",
+      "diagnosisDetails": "Diagnosis Details",
+      "mainConcerns": "Main Concerns"
+    },
+    "diagnosis": {
+      "autism": "Autism Spectrum Disorder (ASD)",
+      "gdd": "Global Developmental Delay (GDD)",
+      "suspected": "Suspected (Waiting for assessment)",
+      "none": "No concerns",
+      "unknown": "Not sure / Not yet"
+    },
+    "actions": {
+      "markCompleted": "Mark Completed",
+      "markNoShow": "Mark No-Show",
+      "addUpdate": "Add Update/Note",
+      "uploadMedia": "Upload Media/Document"
+    },
+    "timeline": {
+      "title": "Timeline",
+      "empty": "No previous updates available",
+      "by": "By",
+      "progressSummary": "Progress Summary",
+      "caseNotes": "Case Notes",
+      "goals": "Treatment Goals",
+      "nextSteps": "Next Steps",
+      "attachments": "Attachments"
+    },
+    "modals": {
+      "markCompleted": {
+        "title": "Mark Session as Completed",
+        "message": "Are you sure you want to mark this session as completed? This action cannot be undone."
+      },
+      "markNoShow": {
+        "title": "Mark Session as No-Show",
+        "message": "Are you sure you want to mark this session as no-show? This will indicate that the child did not attend the session."
+      },
+      "confirm": "Confirm",
+      "cancel": "Cancel"
+    },
+    "error": {
+      "title": "Error Loading Session"
+    }
+  },
+  "updateComposer": {
+    "title": "Create Progress Update",
+    "subtitle": "Write an update that parents will see",
+    "child": "Child",
+    "selectChild": "Select a child",
+    "updateType": {
+      "label": "Update Type",
+      "sessionSummary": "Session Summary",
+      "weeklyNote": "Weekly Note",
+      "milestone": "Milestone",
+      "homeActivity": "Home Activity",
+      "incident": "Incident"
+    },
+    "titleField": "Title",
+    "optional": "Optional",
+    "titlePlaceholder": "Enter a title for this update (optional)",
+    "body": "Body Text",
+    "bodyPlaceholder": "Write your update here...",
+    "media": "Media",
+    "uploadFiles": "Upload Files",
+    "mediaHint": "Supported: JPG, PNG, WebP images, MP4 videos, PDF documents (max 50MB each)",
+    "saveDraft": "Save Draft",
+    "publishToParent": "Publish to Parent",
+    "saving": "Saving...",
+    "publishing": "Publishing...",
+    "errors": {
+      "childRequired": "Please select a child",
+      "bodyRequired": "Body text is required"
+    }
+  },
+  "therapistChildren": {
+    "title": "My Children",
+    "subtitle": "Children you are working with",
+    "searchPlaceholder": "Search by child or parent name...",
+    "empty": "No children assigned",
+    "emptyDesc": "You don't have any children assigned to you yet. Children will appear here once you have accepted bookings.",
+    "noResults": "No children found",
+    "noResultsDesc": "Try adjusting your search query.",
+    "parent": "Parent",
+    "sessions": "sessions",
+    "lastSession": "Last session",
+    "yearsOld": "years old",
+    "male": "Male",
+    "female": "Female"
+  },
+  "therapistChildProfile": {
+    "title": "Child Profile",
+    "yearsOld": "years old",
+    "male": "Male",
+    "female": "Female",
+    "addUpdate": "Add Update",
+    "childDetails": "Child Details",
+    "dateOfBirth": "Date of Birth",
+    "primaryLanguage": "Primary Language",
+    "otherLanguages": "Other Languages",
+    "schoolStatus": "School Status",
+    "parentInfo": "Parent Information",
+    "parentName": "Parent Name",
+    "email": "Email",
+    "phone": "Phone",
+    "concernsDiagnosis": "Concerns & Diagnosis",
+    "diagnosisStatus": "Diagnosis Status",
+    "diagnosisDetails": "Diagnosis Details",
+    "mainConcerns": "Main Concerns",
+    "familyGoals": "Family Goals",
+    "sessionHistory": "Session History",
+    "noSessions": "No sessions found",
+    "updatesHistory": "Updates History",
+    "noUpdates": "No updates found",
+    "preferred": "Preferred",
+    "online": "Online",
+    "inCentre": "In Centre",
+    "viewDetails": "View Details",
+    "draft": "Draft",
+    "attachments": "Attachments",
+    "status": {
+      "completed": "Completed",
+      "confirmed": "Confirmed",
+      "awaitingPayment": "Awaiting Payment",
+      "awaitingCashPayment": "Awaiting Cash Payment",
+      "awaitingReview": "Awaiting Review",
+      "cancelled": "Cancelled",
+      "noShow": "No Show",
+      "pending": "Pending"
+    },
+    "diagnosis": {
+      "autism": "Autism Spectrum Disorder (ASD)",
+      "gdd": "Global Developmental Delay (GDD)",
+      "suspected": "Suspected (Waiting for assessment)",
+      "none": "No concerns",
+      "unknown": "Not sure / Not yet"
+    },
+    "updateType": {
+      "sessionSummary": "Session Summary",
+      "weeklyNote": "Weekly Note",
+      "milestone": "Milestone",
+      "homeActivity": "Home Activity",
+      "incident": "Incident"
+    },
+    "error": {
+      "title": "Error Loading Child Profile"
+    }
+  },
+  "therapistNotifications": {
+    "title": "Notifications",
+    "subtitle": "Stay updated with your sessions and assignments",
+    "showUnread": "Show Unread Only",
+    "showAll": "Show All",
+    "markAllRead": "Mark All as Read",
+    "markAsRead": "Mark as Read",
+    "viewDetails": "View Details",
+    "empty": "No notifications",
+    "emptyDesc": "You're all caught up! New notifications will appear here.",
+    "noUnread": "No unread notifications",
+    "noUnreadDesc": "All notifications have been read."
+  },
+  "finance": {
+    "header": {
+      "title": "Bloom Spectrum Centre"
+    },
+    "nav": {
+      "dashboard": "Dashboard",
+      "payments": "Payments",
+      "cashDesk": "Cash Desk",
+      "invoices": "Invoices",
+      "receipts": "Receipts",
+      "statements": "Statements",
+      "reports": "Reports",
+      "settings": "Settings"
+    },
+    "actions": {
+      "printPdf": "Print PDF",
+      "markCashPaid": "Mark Cash Received",
+      "view": "View",
+      "edit": "Edit",
+      "delete": "Delete",
+      "export": "Export",
+      "download": "Download"
+    },
+    "status": {
+      "paid": "Paid",
+      "unpaid": "Unpaid",
+      "pending": "Pending",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
     }
   }
 }

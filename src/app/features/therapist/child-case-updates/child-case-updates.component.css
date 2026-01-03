@@ -1,0 +1,36 @@
+/* Child Case Updates Component Styles */
+
+/* File upload drag and drop area */
+input[type="file"] {
+  cursor: pointer;
+}
+
+/* Image preview grid */
+.aspect-square {
+  aspect-ratio: 1 / 1;
+}
+
+/* Smooth transitions */
+.transition-opacity {
+  transition: opacity 0.2s ease-in-out;
+}
+
+/* Scrollbar styling for modal */
+.max-h-\[90vh\]::-webkit-scrollbar {
+  width: 8px;
+}
+
+.max-h-\[90vh\]::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 4px;
+}
+
+.max-h-\[90vh\]::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+.max-h-\[90vh\]::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+

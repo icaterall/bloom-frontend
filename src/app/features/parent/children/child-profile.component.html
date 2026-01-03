@@ -1,0 +1,66 @@
+<div class="max-w-4xl mx-auto space-y-6">
+  <button (click)="goBack()" class="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4">
+    <lucide-angular [img]="ArrowLeftIcon" size="18"></lucide-angular>
+    <span>{{ 'common.back' | translate }}</span>
+  </button>
+
+  <div *ngIf="isLoading" class="flex justify-center py-12">
+    <div class="inline-flex items-center space-x-3">
+      <span class="h-6 w-6 border-2 border-[#2563EB] border-t-transparent rounded-full animate-spin"></span>
+      <span class="text-sm text-gray-600">{{ 'common.loading' | translate }}</span>
+    </div>
+  </div>
+
+  <div *ngIf="!isLoading && child" class="space-y-6">
+    <!-- Child Header -->
+    <div class="bg-white rounded-lg border border-gray-200 p-6">
+      <div class="flex items-start justify-between">
+        <div class="flex items-center gap-4">
+          <div class="w-20 h-20 rounded-full bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center text-white text-4xl">
+            🧒
+          </div>
+          <div>
+            <h1 class="text-2xl font-bold text-gray-900">{{ child.full_name }}</h1>
+            <p class="text-gray-600 mt-1">{{ calculateAge(child.date_of_birth) }} {{ 'parentDashboard.childCard.yearsOld' | translate }}</p>
+          </div>
+        </div>
+        <button class="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+          <lucide-angular [img]="PencilIcon" size="18"></lucide-angular>
+          <span>{{ 'common.edit' | translate }}</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Child Details -->
+    <div class="bg-white rounded-lg border border-gray-200 p-6">
+      <h2 class="text-lg font-semibold text-gray-900 mb-4">{{ 'common.details' | translate }}</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <p class="text-sm text-gray-600">{{ 'common.gender' | translate }}</p>
+          <p class="text-base font-medium text-gray-900">{{ child.gender || '—' }}</p>
+        </div>
+        <div>
+          <p class="text-sm text-gray-600">{{ 'common.dateOfBirth' | translate }}</p>
+          <p class="text-base font-medium text-gray-900">{{ child.date_of_birth | date:'longDate' }}</p>
+        </div>
+        <div *ngIf="child.diagnosis_status">
+          <p class="text-sm text-gray-600">{{ 'common.diagnosis' | translate }}</p>
+          <p class="text-base font-medium text-gray-900">{{ child.diagnosis_status }}</p>
+        </div>
+        <div *ngIf="child.primary_language">
+          <p class="text-sm text-gray-600">{{ 'common.primaryLanguage' | translate }}</p>
+          <p class="text-base font-medium text-gray-900">{{ child.primary_language }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="flex gap-4">
+      <button (click)="bookSession()" class="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3 bg-[#2563EB] text-white rounded-lg hover:bg-[#1d4ed8] transition-colors">
+        <lucide-angular [img]="CalendarPlusIcon" size="20"></lucide-angular>
+        <span>{{ 'parentDashboard.childCard.bookSession' | translate }}</span>
+      </button>
+    </div>
+  </div>
+</div>
+

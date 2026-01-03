@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { TranslationService } from '../../../shared/services/translation.service';
+import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 import { User } from '../../../shared/models/user.model';
 import { 
   LucideAngularModule, 
@@ -11,19 +12,21 @@ import {
   LogOut, 
   Menu, 
   X, 
-  LayoutDashboard, 
-  User as UserIcon,
-  FileText,
-  MessageSquare,
+  Home,
+  CalendarPlus,
   Calendar,
+  CreditCard,
+  FileText,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  User as UserIcon,
+  Clock
 } from 'lucide-angular';
 
 @Component({
   selector: 'app-parent-layout',
   standalone: true,
-  imports: [CommonModule, RouterModule, LucideAngularModule],
+  imports: [CommonModule, RouterModule, LucideAngularModule, TranslatePipe],
   templateUrl: './parent-layout.component.html'
 })
 export class ParentLayoutComponent implements OnInit {
@@ -38,21 +41,23 @@ export class ParentLayoutComponent implements OnInit {
   LogOutIcon = LogOut;
   MenuIcon = Menu;
   XIcon = X;
-  DashboardIcon = LayoutDashboard;
-  UserIcon = UserIcon;
-  FileTextIcon = FileText;
-  MessageSquareIcon = MessageSquare;
+  HomeIcon = Home;
+  CalendarPlusIcon = CalendarPlus;
   CalendarIcon = Calendar;
+  ClockIcon = Clock;
+  CreditCardIcon = CreditCard;
+  FileTextIcon = FileText;
   ChevronLeftIcon = ChevronLeft;
   ChevronRightIcon = ChevronRight;
+  UserIcon = UserIcon;
 
   menuItems = [
-    { label: 'Dashboard', icon: this.DashboardIcon, route: '/parent/dashboard' },
-    { label: 'Profile Settings', icon: this.SettingsIcon, route: '/parent/settings' },
-    // Placeholders for future features
-    // { label: 'Reports', icon: this.FileTextIcon, route: '/parent/reports' },
-    // { label: 'Messages', icon: this.MessageSquareIcon, route: '/parent/messages' },
-    // { label: 'Schedule', icon: this.CalendarIcon, route: '/parent/schedule' },
+    { icon: this.HomeIcon, labelKey: 'navigation.home', route: '/parent/home' },
+    { icon: this.CalendarIcon, labelKey: 'navigation.schedule', route: '/parent/schedule' },
+    { icon: this.ClockIcon, labelKey: 'navigation.sessions', route: '/parent/sessions' },
+    { icon: this.FileTextIcon, labelKey: 'navigation.childUpdates', route: '/parent/updates' },
+    { icon: this.CreditCardIcon, labelKey: 'navigation.payments', route: '/parent/payments' },
+    { icon: this.SettingsIcon, labelKey: 'navigation.settings', route: '/parent/settings' },
   ];
 
   constructor(
@@ -76,6 +81,7 @@ export class ParentLayoutComponent implements OnInit {
     if (this.isMobile) {
       this.isSidebarOpen = false;
     } else {
+      // Always keep sidebar open on desktop
       this.isSidebarOpen = true;
     }
   }

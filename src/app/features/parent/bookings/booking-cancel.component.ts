@@ -76,13 +76,13 @@ export class BookingCancelComponent implements OnInit {
   }
 
   goToDashboard(): void {
-    this.router.navigate(['/parent/dashboard']);
+    this.router.navigate(['/parent/home']);
   }
 
   tryAgain(): void {
     if (this.bookingId) {
       // Navigate to dashboard where user can retry payment
-      this.router.navigate(['/parent/dashboard'], {
+      this.router.navigate(['/parent/home'], {
         queryParams: { booking_id: this.bookingId }
       });
     } else {

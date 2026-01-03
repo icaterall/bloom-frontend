@@ -42,7 +42,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
               router.navigate(['/admin/dashboard']);
               break;
             case 'parent':
-              router.navigate(['/parent/dashboard']);
+              router.navigate(['/parent/home']);
               break;
             case 'clinical_manager':
               router.navigate(['/clinical-manager/dashboard']);

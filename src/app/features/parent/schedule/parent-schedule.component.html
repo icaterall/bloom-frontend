@@ -1,0 +1,261 @@
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <!-- Header -->
+  <div class="mb-6">
+    <h1 class="text-3xl font-bold text-gray-900 mb-2 flex items-center gap-3">
+      <lucide-angular [img]="CalendarIcon" size="32" class="text-[#2563EB]"></lucide-angular>
+      {{ 'schedule.title' | translate }}
+    </h1>
+    <p class="text-gray-600">{{ 'schedule.subtitle' | translate }}</p>
+  </div>
+
+  <!-- Child Filter -->
+  <div *ngIf="children.length > 0" class="mb-6">
+    <label for="child-select" class="block text-sm font-medium text-gray-700 mb-2">
+      {{ 'schedule.filterByChild' | translate }}
+    </label>
+    <select 
+      id="child-select" 
+      [(ngModel)]="selectedChildId" 
+      (change)="onChildFilterChange()"
+      class="block w-full md:w-auto px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-[#2563EB] sm:text-sm"
+    >
+      <option value="all">{{ 'schedule.allChildren' | translate }}</option>
+      <option *ngFor="let child of children" [value]="child.id">{{ child.full_name }}</option>
+    </select>
+  </div>
+
+  <!-- Calendar Controls -->
+  <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
+    <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <button
+          (click)="previousMonth()"
+          [disabled]="isLoading"
+          class="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50"
+        >
+          <lucide-angular [img]="ChevronLeftIcon" size="20"></lucide-angular>
+        </button>
+        <h2 class="text-xl font-semibold text-gray-900 min-w-[200px] text-center">
+          {{ monthNames[currentMonth] }} {{ currentYear }}
+        </h2>
+        <button
+          (click)="nextMonth()"
+          [disabled]="isLoading"
+          class="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50"
+        >
+          <lucide-angular [img]="ChevronRightIcon" size="20"></lucide-angular>
+        </button>
+      </div>
+      <button
+        (click)="goToToday()"
+        class="px-4 py-2 bg-[#2563EB] text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm"
+      >
+        {{ 'schedule.today' | translate }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="flex items-center justify-center py-16">
+    <div class="text-center">
+      <div class="inline-block w-12 h-12 border-4 border-[#2563EB] border-t-transparent rounded-full animate-spin mb-4"></div>
+      <p class="text-gray-600">{{ 'common.loading' | translate }}</p>
+    </div>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !isLoading" class="bg-red-50 border border-red-200 rounded-lg p-6 mb-6">
+    <div class="flex items-center gap-3">
+      <lucide-angular [img]="AlertCircleIcon" size="24" class="text-red-600"></lucide-angular>
+      <div>
+        <h3 class="font-semibold text-red-900">{{ 'schedule.error.title' | translate }}</h3>
+        <p class="text-sm text-red-700">{{ error }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Calendar Grid -->
+  <div *ngIf="!isLoading && !error" class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+    <!-- Days of Week Header -->
+    <div class="grid grid-cols-7 border-b border-gray-200">
+      <div *ngFor="let day of daysOfWeek" class="p-3 text-center text-sm font-semibold text-gray-600 bg-gray-50">
+        {{ day }}
+      </div>
+    </div>
+
+    <!-- Calendar Days -->
+    <div class="grid grid-cols-7">
+      <div
+        *ngFor="let day of getCalendarDays()"
+        class="min-h-[120px] border-r border-b border-gray-200 p-2 transition-colors hover:bg-gray-50"
+        [class.bg-gray-50]="!isCurrentMonth(day.date)"
+        [class.bg-blue-50]="isToday(day.date)"
+        [class.border-blue-500]="isToday(day.date)"
+      >
+        <div class="flex items-center justify-between mb-1">
+          <span
+            class="text-sm font-semibold"
+            [class.text-gray-400]="!isCurrentMonth(day.date)"
+            [class.text-[#2563EB]]="isToday(day.date)"
+            [class.text-gray-900]="isCurrentMonth(day.date) && !isToday(day.date)"
+          >
+            {{ day.date.getDate() }}
+          </span>
+          <span *ngIf="day.sessions.length > 0" class="text-xs font-semibold text-[#2563EB] bg-blue-100 px-2 py-0.5 rounded-full">
+            {{ day.sessions.length }}
+          </span>
+        </div>
+        
+        <div class="space-y-1 max-h-[80px] overflow-y-auto">
+          <button
+            *ngFor="let session of day.sessions.slice(0, 3)"
+            (click)="openBookingModal(session)"
+            class="w-full text-left px-2 py-1 rounded text-xs font-medium transition-colors block truncate hover:opacity-80"
+            [class.bg-blue-100]="session.mode === 'online'"
+            [class.text-blue-800]="session.mode === 'online'"
+            [class.bg-emerald-100]="session.mode === 'in_centre'"
+            [class.text-emerald-800]="session.mode === 'in_centre'"
+            [class.border]="session.mode === 'online'"
+            [class.border-blue-200]="session.mode === 'online'"
+            [class.border-emerald-200]="session.mode === 'in_centre'"
+          >
+            <div class="flex items-center gap-1">
+              <lucide-angular 
+                [img]="session.mode === 'online' ? VideoIcon : MapPinIcon" 
+                size="12"
+              ></lucide-angular>
+              <span class="truncate">
+                {{ session.confirmed_start_at ? (session.confirmed_start_at | date:'shortTime') : (session.preferred_start_at | date:'shortTime') }}
+              </span>
+            </div>
+            <div class="truncate text-xs font-semibold mt-0.5">
+              {{ session.child_name || 'Session' }}
+            </div>
+          </button>
+          <div *ngIf="day.sessions.length > 3" class="text-xs text-gray-500 text-center py-1">
+            +{{ day.sessions.length - 3 }} {{ 'schedule.more' | translate }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading && !error && bookings.length === 0" class="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
+    <lucide-angular [img]="CalendarIcon" size="48" class="mx-auto text-gray-400 mb-4"></lucide-angular>
+    <h3 class="text-lg font-semibold text-gray-900 mb-2">{{ 'schedule.noBookings' | translate }}</h3>
+    <p class="text-sm text-gray-600">{{ 'schedule.noBookingsDesc' | translate }}</p>
+  </div>
+
+  <!-- Booking Detail Modal -->
+  <div
+    *ngIf="showBookingModal && selectedBooking"
+    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+    (click)="closeBookingModal()"
+  >
+    <div
+      class="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="p-6">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-xl font-bold text-gray-900">{{ 'schedule.bookingDetails' | translate }}</h3>
+          <button
+            (click)="closeBookingModal()"
+            class="text-gray-400 hover:text-gray-600 transition-colors"
+          >
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+
+        <div class="space-y-4">
+          <!-- Child Name -->
+          <div class="flex items-center gap-3">
+            <lucide-angular [img]="UsersIcon" size="20" class="text-gray-500"></lucide-angular>
+            <div>
+              <p class="text-sm text-gray-600">{{ 'schedule.child' | translate }}</p>
+              <p class="font-semibold text-gray-900">{{ selectedBooking.child_name }}</p>
+            </div>
+          </div>
+
+          <!-- Service Type -->
+          <div class="flex items-center gap-3">
+            <lucide-angular [img]="CalendarIcon" size="20" class="text-gray-500"></lucide-angular>
+            <div>
+              <p class="text-sm text-gray-600">{{ 'schedule.service' | translate }}</p>
+              <p class="font-semibold text-gray-900">{{ selectedBooking.booking_type_name || selectedBooking.booking_type }}</p>
+            </div>
+          </div>
+
+          <!-- Date & Time -->
+          <div class="flex items-center gap-3">
+            <lucide-angular [img]="ClockIcon" size="20" class="text-gray-500"></lucide-angular>
+            <div>
+              <p class="text-sm text-gray-600">{{ 'schedule.dateTime' | translate }}</p>
+              <p class="font-semibold text-gray-900">
+                <span *ngIf="selectedBooking.confirmed_start_at">
+                  {{ selectedBooking.confirmed_start_at | date:'fullDate' }} at {{ selectedBooking.confirmed_start_at | date:'shortTime' }}
+                </span>
+                <span *ngIf="!selectedBooking.confirmed_start_at && selectedBooking.preferred_start_at">
+                  {{ selectedBooking.preferred_start_at | date:'fullDate' }} at {{ selectedBooking.preferred_start_at | date:'shortTime' }}
+                  <span class="text-xs text-amber-600 ml-2">({{ 'schedule.preferred' | translate }})</span>
+                </span>
+              </p>
+            </div>
+          </div>
+
+          <!-- Mode -->
+          <div class="flex items-center gap-3">
+            <lucide-angular [img]="selectedBooking.mode === 'online' ? VideoIcon : MapPinIcon" size="20" class="text-gray-500"></lucide-angular>
+            <div>
+              <p class="text-sm text-gray-600">{{ 'schedule.mode' | translate }}</p>
+              <p class="font-semibold text-gray-900">
+                {{ selectedBooking.mode === 'online' ? ('booking.mode.online' | translate) : ('booking.mode.inCentre' | translate) }}
+              </p>
+            </div>
+          </div>
+
+          <!-- Location or Online Link -->
+          <div *ngIf="selectedBooking.mode === 'in_centre' && selectedBooking.location" class="flex items-center gap-3">
+            <lucide-angular [img]="MapPinIcon" size="20" class="text-gray-500"></lucide-angular>
+            <div>
+              <p class="text-sm text-gray-600">{{ 'schedule.location' | translate }}</p>
+              <p class="font-semibold text-gray-900">{{ selectedBooking.location }}</p>
+            </div>
+          </div>
+
+          <div *ngIf="selectedBooking.mode === 'online' && selectedBooking.online_meeting_link" class="flex items-center gap-3">
+            <lucide-angular [img]="VideoIcon" size="20" class="text-gray-500"></lucide-angular>
+            <div>
+              <p class="text-sm text-gray-600">{{ 'schedule.onlineLink' | translate }}</p>
+              <a [href]="selectedBooking.online_meeting_link" target="_blank" rel="noopener noreferrer" class="text-[#2563EB] hover:underline font-semibold">
+                {{ 'schedule.joinSession' | translate }}
+              </a>
+            </div>
+          </div>
+
+          <!-- Status -->
+          <div class="pt-2">
+            <p class="text-sm text-gray-600 mb-2">{{ 'schedule.statusLabel' | translate }}</p>
+            <span class="inline-block px-3 py-1 rounded-full text-xs font-semibold border" [ngClass]="getStatusColor(selectedBooking.status)">
+              {{ getStatusLabel(selectedBooking.status) | translate }}
+            </span>
+          </div>
+
+          <!-- View Details Button -->
+          <div class="pt-4 border-t border-gray-200">
+            <a
+              [routerLink]="['/parent/bookings', selectedBooking.id]"
+              class="block w-full text-center px-4 py-2 bg-[#2563EB] text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+            >
+              {{ 'schedule.viewDetails' | translate }}
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+

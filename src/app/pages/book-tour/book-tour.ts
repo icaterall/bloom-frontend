@@ -22,7 +22,7 @@ export class BookTourComponent implements OnInit {
       const user = this.authService.getCurrentUser();
 
       if (user?.role === 'parent') {
-        this.router.navigate(['/parent/dashboard']);
+        this.router.navigate(['/parent/home']);
       } else if (user?.role === 'admin') {
         this.router.navigate(['/admin/dashboard']);
       } else if (user?.role === 'staff') {

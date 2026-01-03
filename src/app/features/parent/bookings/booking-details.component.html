@@ -1,0 +1,62 @@
+<div class="max-w-4xl mx-auto space-y-6">
+  <button (click)="goBack()" class="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4">
+    <lucide-angular [img]="ArrowLeftIcon" size="18"></lucide-angular>
+    <span>{{ 'common.back' | translate }}</span>
+  </button>
+
+  <div *ngIf="isLoading" class="flex justify-center py-12">
+    <div class="inline-flex items-center space-x-3">
+      <span class="h-6 w-6 border-2 border-[#2563EB] border-t-transparent rounded-full animate-spin"></span>
+      <span class="text-sm text-gray-600">{{ 'common.loading' | translate }}</span>
+    </div>
+  </div>
+
+  <div *ngIf="!isLoading && booking" class="bg-white rounded-lg border border-gray-200 p-6 space-y-6">
+    <h1 class="text-2xl font-bold text-gray-900">{{ 'parentDashboard.childCard.viewBooking' | translate }}</h1>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div>
+        <p class="text-sm text-gray-600 mb-1">{{ 'parentDashboard.childCard.child' | translate }}</p>
+        <p class="text-base font-medium text-gray-900">{{ booking.child_name }}</p>
+      </div>
+      <div>
+        <p class="text-sm text-gray-600 mb-1">{{ 'bookingWizard.step3.service' | translate }}</p>
+        <p class="text-base font-medium text-gray-900">{{ booking.booking_type_name || booking.booking_type }}</p>
+      </div>
+      <div *ngIf="booking.confirmed_start_at">
+        <p class="text-sm text-gray-600 mb-1 flex items-center gap-1">
+          <lucide-angular [img]="CalendarIcon" size="14"></lucide-angular>
+          {{ 'parentDashboard.childCard.confirmedTime' | translate }}
+        </p>
+        <p class="text-base font-medium text-gray-900">
+          {{ booking.confirmed_start_at | date:'fullDate' }} {{ 'parentDashboard.childCard.at' | translate }} 
+          {{ booking.confirmed_start_at | date:'shortTime' }}
+        </p>
+      </div>
+      <div>
+        <p class="text-sm text-gray-600 mb-1 flex items-center gap-1">
+          <lucide-angular [img]="booking.mode === 'online' ? VideoIcon : MapPinIcon" size="14"></lucide-angular>
+          {{ 'parentDashboard.childCard.location' | translate }}
+        </p>
+        <p class="text-base font-medium text-gray-900">
+          <span *ngIf="booking.mode === 'online' && booking.online_meeting_link">
+            <a [href]="booking.online_meeting_link" target="_blank" class="text-[#2563EB] hover:underline">
+              {{ booking.online_meeting_link }}
+            </a>
+          </span>
+          <span *ngIf="booking.mode === 'in_centre'">Bloom Spectrum Centre, Putrajaya</span>
+        </p>
+      </div>
+      <div *ngIf="booking.price">
+        <p class="text-sm text-gray-600 mb-1 flex items-center gap-1">
+          <lucide-angular [img]="CreditCardIcon" size="14"></lucide-angular>
+          {{ 'bookingWizard.step3.price' | translate }}
+        </p>
+        <p class="text-base font-medium text-gray-900">
+          {{ booking.currency || 'MYR' }} {{ booking.price | number:'1.2-2' }}
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+

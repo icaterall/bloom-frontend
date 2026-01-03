@@ -191,12 +191,36 @@
       "timeRequired": "Masa diperlukan"
     }
   },
+  "navigation": {
+    "home": "Utama",
+    "child": "Anak",
+    "schedule": "Jadual",
+    "messages": "Mesej",
+    "documents": "Dokumen",
+    "childUpdates": "Kemaskini Anak",
+    "sessions": "Sesi",
+    "payments": "Pembayaran",
+    "resources": "Sumber",
+    "settings": "Tetapan",
+    "role": "Ibu Bapa",
+    "logout": "Log Keluar",
+    "portalTitle": "Portal Ibu Bapa",
+    "switchToEnglish": "Switch to English",
+    "switchToMalay": "Tukar ke Bahasa Melayu"
+  },
   "common": {
     "loading": "Memuatkan...",
     "error": "Ralat",
     "success": "Berjaya",
     "cancel": "Batal",
     "save": "Simpan",
+    "back": "Kembali",
+    "edit": "Sunting",
+    "details": "Butiran",
+    "gender": "Jantina",
+    "diagnosis": "Diagnosis",
+    "dateOfBirth": "Tarikh Lahir",
+    "primaryLanguage": "Bahasa Utama",
     "delete": "Padam",
     "edit": "Edit",
     "view": "Lihat",
@@ -263,11 +287,88 @@
       "empty": "Tiada amaran pada masa ini"
     }
   },
+  "bookingWizard": {
+    "title": "Tempah Sesi untuk",
+    "step": "Langkah",
+    "of": "daripada",
+    "step1": {
+      "subtitle": "Pilih perkhidmatan dan jenis sesi",
+      "chooseService": "Pilih Perkhidmatan",
+      "chooseMode": "Pilih Mod",
+      "services": {
+        "consultation": "Konsultasi",
+        "centreSession": "Sesi di Pusat",
+        "onlineSession": "Sesi Atas Talian"
+      },
+      "modes": {
+        "inCentre": "Di Pusat",
+        "online": "Atas Talian",
+        "modeRestricted": "Perkhidmatan ini hanya tersedia",
+        "modeLockedNote": "Mod dikunci untuk perkhidmatan ini"
+      },
+      "duration": "min",
+      "loadingServices": "Memuatkan perkhidmatan..."
+    },
+    "step2": {
+      "title": "Pilih masa pilihan anda",
+      "subtitle": "Pilih masa pilihan anda. Kami akan sahkan.",
+      "selectDate": "Pilih Tarikh",
+      "selectTime": "Masa Dicadangkan",
+      "location": "Lokasi",
+      "notes": "Nota (pilihan)",
+      "notesPlaceholder": "Sebarang permintaan khas atau nota untuk pusat...",
+      "urgency": "Ada kecemasan?",
+      "continue": "Seterusnya"
+    },
+    "step3": {
+      "title": "Semak & Pembayaran",
+      "subtitle": "Bagaimana anda ingin membayar?",
+      "summary": "Ringkasan Tempahan",
+      "child": "Anak",
+      "service": "Perkhidmatan",
+      "mode": "Mod",
+      "time": "Masa",
+      "duration": "Tempoh",
+      "location": "Lokasi",
+      "price": "Harga",
+      "paymentMethod": "Kaedah Pembayaran",
+      "card": "Kad (Stripe)",
+      "cardDesc": "Bayar dengan selamat menggunakan kad kredit atau debit",
+      "onlineBanking": "Perbankan Dalam Talian",
+      "onlineBankingDesc": "Bayar melalui pindahan bank FPX",
+      "cash": "Tunai di Pusat",
+      "cashDesc": "Bayar di kaunter dalam masa 24 jam",
+      "recommended": "Disyorkan",
+      "policyAgree": "Saya setuju dengan polisi pembatalan & bayaran balik.",
+      "policyRequired": "Anda mesti bersetuju dengan polisi pembatalan dan bayaran balik untuk meneruskan.",
+      "payNow": "Bayar Sekarang",
+      "reserveBooking": "Tempah & Bayar Tunai"
+    },
+    "step4": {
+      "bookingConfirmed": "Tempahan Disahkan!",
+      "cashReservedDesc": "Ditempah. Sila bayar di pusat dalam 24 jam.",
+      "amountDue": "Jumlah Terhutang",
+      "redirecting": "Menghala ke pembayaran selamat...",
+      "redirectingDesc": "Sila tunggu sementara kami menyambungkan anda ke pembekal pembayaran kami.",
+      "paymentReceived": "Bayaran diterima.",
+      "paymentReceivedDesc": "Bayaran diterima. Menunggu pengesahan."
+    }
+  },
   "parentDashboard": {
     "welcomeBack": "Selamat datang kembali,",
     "noChildrenSubtitle": "Jom lengkapkan profil anak anda supaya kami boleh cadangkan program yang sesuai.",
     "hasChildrenSubtitle": "Berikut ialah ringkasan kemajuan dan jadual anak anda.",
+    "upcomingSession": {
+      "title": "Sesi Akan Datang",
+      "reminder": "Anda mempunyai sesi yang dijadualkan pada",
+      "addToCalendar": "Tambah ke Kalendar",
+      "directions": "Arah"
+    },
     "gettingStartedChecklist": "Senarai Semak Permulaan",
+    "successToast": {
+      "childSaved": "Profil anak disimpan. Seterusnya: tempah sesi.",
+      "nextAction": ""
+    },
     "steps": {
       "addChildTitle": "Tambah profil anak anda",
       "addChildDescription": "Beritahu kami tentang anak anda supaya kami dapat memahami keperluannya.",
@@ -278,8 +379,12 @@
       "bookTourDescription": "Lawati kami untuk melihat kemudahan dan berjumpa dengan pasukan kami.",
       "bookTourButton": "Tempah Sekarang"
     },
+    "myChild": "Anak Saya",
+    "myChildren": "Anak-Anak Saya",
+    "addAnotherChildSmall": "Tambah lagi",
     "childCard": {
       "yearsOld": "tahun",
+      "noUpcomingSession": "Tiada sesi akan datang",
       "status": {
         "not_enrolled": "Belum Didaftar",
         "enrolled": "Telah Didaftar",
@@ -299,15 +404,34 @@
         "awaiting_payment": "Menunggu Pembayaran",
         "awaiting_cash_payment": "Menunggu Pembayaran Tunai",
         "awaiting_clinical_review": "Menunggu Semakan",
+        "awaitingConfirmation": "Menunggu pengesahan",
+        "paid": "Dibayar",
         "confirmed": "Disahkan",
         "cancelled": "Dibatalkan",
         "completed": "Selesai",
         "no_show": "Tidak Hadir"
       },
+      "viewBooking": "Lihat Tempahan",
+      "viewInstructions": "Lihat Arahan",
+      "viewDetails": "Lihat Butiran",
+      "joinSession": "Sertai Sesi",
+      "messageCentre": "Mesej Pusat",
+      "cancel": "Batal",
       "nextSessionLabel": "Sesi seterusnya:",
-      "viewSchedule": "Lihat Jadual"
+      "therapist": "Ahli Terapi",
+      "confirmedTime": "Masa disahkan",
+      "location": "Lokasi",
+      "viewSchedule": "Lihat Jadual",
+      "sessionCompletedDesc": "Sesi anda telah selesai. Lihat nota dan dokumen di bawah.",
+      "viewNotes": "Lihat Nota",
+      "documents": "Dokumen",
+      "bookNextSession": "Tempah Sesi Seterusnya",
+      "latestUpdate": "Kemaskini Terkini",
+      "mediaFiles": "fail media",
+      "viewAllUpdates": "Lihat Semua Kemaskini"
     },
     "addAnotherChild": "Tambah Anak Lain",
+    "child": "Anak",
     "quickActions": {
       "bookTour": "Tempah Lawatan",
       "goalsProgress": "Matlamat & Kemajuan",
@@ -320,6 +444,415 @@
       "bookConsultation": "Tempah Konsultasi",
       "resourceLibrary": "Perpustakaan Sumber",
       "parentGuide": "Panduan Ibu Bapa"
+    }
+  },
+  "payments": {
+    "noPayments": "Tiada sejarah pembayaran dijumpai"
+  },
+  "settings": {
+    "title": "Tetapan Profil",
+    "subtitle": "Urus maklumat peribadi dan pilihan anda",
+    "fullName": "Nama Penuh",
+    "fullNamePlaceholder": "Nama penuh anda",
+    "nameRequired": "Nama diperlukan dan mesti sekurang-kurangnya 2 aksara.",
+    "email": "Alamat E-mel",
+    "emailCannotChange": "Alamat e-mel tidak boleh diubah.",
+    "phoneNumber": "Nombor Telefon",
+    "phonePlaceholder": "+60 12 345 6789",
+    "preferredLanguage": "Bahasa Pilihan",
+    "languageEnglish": "Bahasa Inggeris",
+    "languageMalay": "Bahasa Melayu",
+    "saveChanges": "Simpan Perubahan",
+    "saving": "Menyimpan...",
+    "profileUpdated": "Profil berjaya dikemaskini",
+    "updateFailed": "Gagal mengemaskini profil"
+  },
+  "parentUpdates": {
+    "subtitle": "Lihat kemaskini dan laporan kemajuan dari pusat",
+    "noChildren": "Tiada anak didaftarkan",
+    "noChildrenDesc": "Tambah anak untuk mula menerima kemaskini dari pusat.",
+    "allChildren": "Semua Anak",
+    "noUpdates": "Tiada kemaskini tersedia",
+    "noUpdatesDesc": "Kemaskini dari ahli terapi akan muncul di sini setelah sesi bermula.",
+    "byTherapist": "Oleh",
+    "progressSummary": "Ringkasan Kemajuan",
+    "caseNotes": "Nota Kes",
+    "goals": "Matlamat Rawatan",
+    "nextSteps": "Langkah Seterusnya",
+    "attachments": "Lampiran"
+  },
+  "schedule": {
+    "title": "Jadual",
+    "subtitle": "Lihat semua sesi anak anda dalam format kalendar",
+    "filterByChild": "Tapis mengikut Anak",
+    "allChildren": "Semua Anak",
+    "today": "Hari Ini",
+    "more": "lagi",
+    "noBookings": "Tiada sesi dijadualkan",
+    "noBookingsDesc": "Tempah sesi untuk melihatnya muncul di kalendar anda.",
+    "error": {
+      "title": "Ralat Memuatkan Kalendar"
+    },
+    "child": "Anak",
+    "service": "Perkhidmatan",
+    "dateTime": "Tarikh & Masa",
+    "preferred": "Pilihan",
+    "mode": "Mod",
+    "location": "Lokasi",
+    "onlineLink": "Pautan Dalam Talian",
+    "joinSession": "Sertai Sesi",
+    "viewDetails": "Lihat Butiran",
+    "bookingDetails": "Butiran Tempahan",
+    "statusLabel": "Status",
+    "status": {
+      "confirmed": "Disahkan",
+      "awaitingPayment": "Menunggu Pembayaran",
+      "awaitingCashPayment": "Menunggu Bayaran Tunai",
+      "awaitingReview": "Menunggu Semakan",
+      "completed": "Selesai",
+      "cancelled": "Dibatalkan",
+      "pending": "Menunggu"
+    }
+  },
+  "sessions": {
+    "title": "Sesi",
+    "subtitle": "Lihat semua sesi anak anda dan hasilnya",
+    "filterByChild": "Tapis mengikut Anak",
+    "filterByStatus": "Tapis mengikut Status",
+    "allChildren": "Semua Anak",
+    "search": "Cari",
+    "searchPlaceholder": "Cari mengikut anak, perkhidmatan, ahli terapi, atau tarikh...",
+    "viewDetails": "Lihat Butiran",
+    "noSessions": "Tiada sesi dijumpai",
+    "noSessionsDesc": "Tiada sesi yang sepadan dengan penapis semasa anda.",
+    "status": {
+      "all": "Semua Status",
+      "completed": "Selesai",
+      "confirmed": "Disahkan",
+      "awaitingPayment": "Menunggu Pembayaran",
+      "awaitingCashPayment": "Menunggu Bayaran Tunai",
+      "awaitingReview": "Menunggu Semakan",
+      "cancelled": "Dibatalkan",
+      "noShow": "Tidak Hadir",
+      "pending": "Menunggu"
+    },
+    "table": {
+      "date": "Tarikh & Masa",
+      "child": "Anak",
+      "service": "Perkhidmatan",
+      "mode": "Mod",
+      "therapist": "Ahli Terapi",
+      "status": "Status",
+      "actions": "Tindakan",
+      "notAssigned": "Tidak Ditugaskan"
+    },
+    "details": {
+      "title": "Butiran Sesi",
+      "sessionInfo": "Maklumat Sesi",
+      "outcomes": "Hasil Sesi",
+      "child": "Anak",
+      "service": "Perkhidmatan",
+      "dateTime": "Tarikh & Masa",
+      "preferred": "Pilihan",
+      "mode": "Mod",
+      "location": "Lokasi",
+      "onlineLink": "Pautan Dalam Talian",
+      "joinSession": "Sertai Sesi",
+      "therapist": "Ahli Terapi",
+      "price": "Harga",
+      "notes": "Nota",
+      "progressSummary": "Ringkasan Kemajuan",
+      "caseNotes": "Nota Kes",
+      "goals": "Matlamat Rawatan",
+      "nextSteps": "Langkah Seterusnya",
+      "attachments": "Lampiran",
+      "updatedBy": "Dikemaskini oleh",
+      "noOutcomes": "Hasil sesi akan muncul di sini setelah ahli terapi melengkapkan laporan sesi.",
+      "error": {
+        "title": "Ralat Memuatkan Sesi"
+      }
+    }
+  },
+  "therapistDashboard": {
+    "title": "Papan Pemuka Ahli Terapi",
+    "empty": {
+      "title": "Tiada sesi dijadualkan hari ini",
+      "description": "Anda tidak mempunyai sebarang sesi yang dijadualkan untuk hari ini. Semak sesi akan datang anda untuk melihat apa yang akan datang.",
+      "viewSessions": "Lihat Sesi Saya"
+    },
+    "todaySessions": {
+      "title": "Sesi Hari Ini",
+      "empty": "Tiada sesi dijadualkan untuk hari ini",
+      "parent": "Ibu Bapa",
+      "joinLink": "Sertai Sesi",
+      "addUpdate": "Tambah Kemaskini",
+      "viewDetails": "Lihat Butiran"
+    },
+    "pendingNotes": {
+      "title": "Nota Tertunggak",
+      "description": "Anda mempunyai sesi yang telah selesai yang memerlukan kemaskini kes.",
+      "count": "sesi memerlukan kemaskini",
+      "viewSessions": "Lihat Sesi"
+    },
+    "quickActions": {
+      "title": "Tindakan Pantas",
+      "addUpdate": "Tambah Kemaskini",
+      "addUpdateDesc": "Buat kemaskini kes untuk sesi",
+      "viewCalendar": "Lihat Kalendar",
+      "viewCalendarDesc": "Lihat semua sesi yang dijadualkan anda"
+    }
+  },
+  "therapistSessions": {
+    "title": "Sesi Saya",
+    "subtitle": "Lihat dan urus sesi yang ditugaskan kepada anda",
+    "tabs": {
+      "list": "Paparan Senarai",
+      "calendar": "Paparan Kalendar"
+    },
+    "filters": {
+      "title": "Penapis",
+      "clear": "Kosongkan Penapis",
+      "dateRange": "Julat Tarikh",
+      "today": "Hari Ini",
+      "week": "Minggu Ini",
+      "month": "Bulan Ini",
+      "custom": "Julat Tersuai",
+      "from": "Dari",
+      "to": "Hingga",
+      "status": "Status",
+      "mode": "Mod"
+    },
+    "status": {
+      "all": "Semua Status",
+      "confirmed": "Disahkan",
+      "completed": "Selesai",
+      "cancelled": "Dibatalkan",
+      "noShow": "Tidak Hadir",
+      "pending": "Menunggu"
+    },
+    "mode": {
+      "all": "Semua Mod",
+      "inCentre": "Di Pusat",
+      "online": "Dalam Talian"
+    },
+    "yearsOld": "tahun",
+    "service": "Perkhidmatan",
+    "actions": {
+      "openDetails": "Buka Butiran",
+      "joinSession": "Sertai Sesi"
+    },
+    "empty": {
+      "title": "Tiada sesi dijumpai",
+      "description": "Tiada sesi yang sepadan dengan penapis semasa anda. Cuba laraskan penapis anda atau semak julat tarikh yang berbeza."
+    },
+    "calendar": {
+      "comingSoon": "Paparan Kalendar Akan Datang",
+      "description": "Paparan kalendar akan tersedia dalam kemaskini akan datang."
+    }
+  },
+  "therapistSessionDetails": {
+    "title": "Butiran Sesi",
+    "yearsOld": "tahun",
+    "joinSession": "Sertai Sesi",
+    "status": {
+      "confirmed": "Disahkan",
+      "completed": "Selesai",
+      "cancelled": "Dibatalkan",
+      "noShow": "Tidak Hadir",
+      "pending": "Menunggu"
+    },
+    "childSnapshot": {
+      "title": "Gambaran Anak",
+      "openProfile": "Buka Profil Anak",
+      "diagnosisStatus": "Status Diagnosis",
+      "diagnosisDetails": "Butiran Diagnosis",
+      "mainConcerns": "Kebimbangan Utama"
+    },
+    "diagnosis": {
+      "autism": "Gangguan Spektrum Autisme (ASD)",
+      "gdd": "Kelewatan Perkembangan Global (GDD)",
+      "suspected": "Disyaki (Menunggu penilaian)",
+      "none": "Tiada kebimbangan",
+      "unknown": "Tidak pasti / Belum lagi"
+    },
+    "actions": {
+      "markCompleted": "Tandakan Selesai",
+      "markNoShow": "Tandakan Tidak Hadir",
+      "addUpdate": "Tambah Kemaskini/Nota",
+      "uploadMedia": "Muat Naik Media/Dokumen",
+      "uploadMedia": "Muat Naik Media/Dokumen"
+    },
+    "timeline": {
+      "title": "Garis Masa",
+      "empty": "Tiada kemaskini sebelumnya tersedia",
+      "by": "Oleh",
+      "progressSummary": "Ringkasan Kemajuan",
+      "caseNotes": "Nota Kes",
+      "goals": "Matlamat Rawatan",
+      "nextSteps": "Langkah Seterusnya",
+      "attachments": "Lampiran"
+    },
+    "modals": {
+      "markCompleted": {
+        "title": "Tandakan Sesi sebagai Selesai",
+        "message": "Adakah anda pasti mahu menandakan sesi ini sebagai selesai? Tindakan ini tidak boleh dibatalkan."
+      },
+      "markNoShow": {
+        "title": "Tandakan Sesi sebagai Tidak Hadir",
+        "message": "Adakah anda pasti mahu menandakan sesi ini sebagai tidak hadir? Ini akan menunjukkan bahawa anak tidak menghadiri sesi."
+      },
+      "confirm": "Sahkan",
+      "cancel": "Batal"
+    },
+    "error": {
+      "title": "Ralat Memuatkan Sesi"
+    }
+  },
+  "updateComposer": {
+    "title": "Buat Kemaskini Kemajuan",
+    "subtitle": "Tulis kemaskini yang akan dilihat oleh ibu bapa",
+    "child": "Anak",
+    "selectChild": "Pilih anak",
+    "updateType": {
+      "label": "Jenis Kemaskini",
+      "sessionSummary": "Ringkasan Sesi",
+      "weeklyNote": "Nota Mingguan",
+      "milestone": "Pencapaian",
+      "homeActivity": "Aktiviti Rumah",
+      "incident": "Insiden"
+    },
+    "titleField": "Tajuk",
+    "optional": "Pilihan",
+    "titlePlaceholder": "Masukkan tajuk untuk kemaskini ini (pilihan)",
+    "body": "Teks Badan",
+    "bodyPlaceholder": "Tulis kemaskini anda di sini...",
+    "media": "Media",
+    "uploadFiles": "Muat Naik Fail",
+    "mediaHint": "Disokong: Imej JPG, PNG, WebP, Video MP4, Dokumen PDF (maks 50MB setiap satu)",
+    "saveDraft": "Simpan Draf",
+    "publishToParent": "Terbitkan kepada Ibu Bapa",
+    "saving": "Menyimpan...",
+    "publishing": "Menerbitkan...",
+    "errors": {
+      "childRequired": "Sila pilih anak",
+      "bodyRequired": "Teks badan diperlukan"
+    }
+  },
+  "therapistChildren": {
+    "title": "Anak Saya",
+    "subtitle": "Anak yang anda bekerjasama",
+    "searchPlaceholder": "Cari mengikut nama anak atau ibu bapa...",
+    "empty": "Tiada anak ditetapkan",
+    "emptyDesc": "Anda belum mempunyai sebarang anak yang ditetapkan kepada anda. Anak akan muncul di sini setelah anda menerima tempahan.",
+    "noResults": "Tiada anak ditemui",
+    "noResultsDesc": "Cuba laraskan carian anda.",
+    "parent": "Ibu Bapa",
+    "sessions": "sesi",
+    "lastSession": "Sesi terakhir",
+    "yearsOld": "tahun",
+    "male": "Lelaki",
+    "female": "Perempuan"
+  },
+  "therapistChildProfile": {
+    "title": "Profil Anak",
+    "yearsOld": "tahun",
+    "male": "Lelaki",
+    "female": "Perempuan",
+    "addUpdate": "Tambah Kemaskini",
+    "childDetails": "Butiran Anak",
+    "dateOfBirth": "Tarikh Lahir",
+    "primaryLanguage": "Bahasa Utama",
+    "otherLanguages": "Bahasa Lain",
+    "schoolStatus": "Status Sekolah",
+    "parentInfo": "Maklumat Ibu Bapa",
+    "parentName": "Nama Ibu Bapa",
+    "email": "E-mel",
+    "phone": "Telefon",
+    "concernsDiagnosis": "Kebimbangan & Diagnosis",
+    "diagnosisStatus": "Status Diagnosis",
+    "diagnosisDetails": "Butiran Diagnosis",
+    "mainConcerns": "Kebimbangan Utama",
+    "familyGoals": "Matlamat Keluarga",
+    "sessionHistory": "Sejarah Sesi",
+    "noSessions": "Tiada sesi ditemui",
+    "updatesHistory": "Sejarah Kemaskini",
+    "noUpdates": "Tiada kemaskini ditemui",
+    "preferred": "Pilihan",
+    "online": "Atas Talian",
+    "inCentre": "Di Pusat",
+    "viewDetails": "Lihat Butiran",
+    "draft": "Draf",
+    "attachments": "Lampiran",
+    "status": {
+      "completed": "Selesai",
+      "confirmed": "Disahkan",
+      "awaitingPayment": "Menunggu Pembayaran",
+      "awaitingCashPayment": "Menunggu Bayaran Tunai",
+      "awaitingReview": "Menunggu Semakan",
+      "cancelled": "Dibatalkan",
+      "noShow": "Tidak Hadir",
+      "pending": "Menunggu"
+    },
+    "diagnosis": {
+      "autism": "Gangguan Spektrum Autisme (ASD)",
+      "gdd": "Kelewatan Perkembangan Global (GDD)",
+      "suspected": "Disyaki (Menunggu penilaian)",
+      "none": "Tiada kebimbangan",
+      "unknown": "Tidak pasti / Belum lagi"
+    },
+    "updateType": {
+      "sessionSummary": "Ringkasan Sesi",
+      "weeklyNote": "Nota Mingguan",
+      "milestone": "Pencapaian",
+      "homeActivity": "Aktiviti Rumah",
+      "incident": "Insiden"
+    },
+    "error": {
+      "title": "Ralat Memuatkan Profil Anak"
+    }
+  },
+  "therapistNotifications": {
+    "title": "Notifikasi",
+    "subtitle": "Kekal dikemaskini dengan sesi dan tugasan anda",
+    "showUnread": "Tunjukkan Belum Dibaca Sahaja",
+    "showAll": "Tunjukkan Semua",
+    "markAllRead": "Tandakan Semua sebagai Dibaca",
+    "markAsRead": "Tandakan sebagai Dibaca",
+    "viewDetails": "Lihat Butiran",
+    "empty": "Tiada notifikasi",
+    "emptyDesc": "Anda sudah terkini! Notifikasi baharu akan muncul di sini.",
+    "noUnread": "Tiada notifikasi belum dibaca",
+    "noUnreadDesc": "Semua notifikasi telah dibaca."
+  },
+  "finance": {
+    "header": {
+      "title": "Bloom Spectrum Centre"
+    },
+    "nav": {
+      "dashboard": "Papan Pemuka",
+      "payments": "Pembayaran",
+      "cashDesk": "Kaunter Tunai",
+      "invoices": "Invois",
+      "receipts": "Resit",
+      "statements": "Penyata",
+      "reports": "Laporan",
+      "settings": "Tetapan"
+    },
+    "actions": {
+      "printPdf": "Cetak PDF",
+      "markCashPaid": "Tandakan Tunai Diterima",
+      "view": "Lihat",
+      "edit": "Edit",
+      "delete": "Padam",
+      "export": "Eksport",
+      "download": "Muat Turun"
+    },
+    "status": {
+      "paid": "Dibayar",
+      "unpaid": "Belum Dibayar",
+      "pending": "Menunggu",
+      "completed": "Selesai",
+      "cancelled": "Dibatalkan"
     }
   }
 }

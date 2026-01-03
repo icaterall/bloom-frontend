@@ -1,31 +1,54 @@
-<div class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-  <!-- Backdrop -->
-  <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-    <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" (click)="onClose()"></div>
+<!-- Full-page on mobile, modal on desktop -->
+<div class="fixed inset-0 z-50 overflow-y-auto bg-white md:bg-gray-500 md:bg-opacity-75" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+  <!-- Backdrop (desktop only) -->
+  <div class="hidden md:block fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" (click)="onClose()"></div>
 
-    <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-
+  <!-- Content Container -->
+  <div class="min-h-screen md:flex md:items-center md:justify-center md:min-h-0 md:p-4">
     <!-- Modal Panel -->
-    <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl w-full">
+    <div class="bg-white md:rounded-lg md:shadow-xl md:max-w-5xl md:w-full md:my-8 min-h-screen md:min-h-0">
       
+      <!-- Top Bar: Back Arrow, Step Indicator, Language Toggle -->
+      <div class="sticky top-0 z-10 bg-white border-b border-gray-200 px-4 md:px-6 py-3 flex items-center justify-between">
+        <div class="flex items-center gap-4">
+          <button 
+            (click)="currentStep > 1 ? onBack() : onClose()" 
+            class="p-2 -ml-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+            aria-label="Back"
+          >
+            <lucide-angular [img]="ArrowLeftIcon" size="20"></lucide-angular>
+          </button>
+          <div class="text-sm font-medium text-gray-700">
+            {{ currentStep }}/{{ totalSteps }}
+          </div>
+        </div>
+        
+        <button 
+          (click)="toggleLanguage()" 
+          class="px-3 py-1.5 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors border border-gray-300"
+        >
+          {{ currentLanguage === 'en' ? 'BM' : 'EN' }}
+        </button>
+      </div>
+
       <!-- Header -->
-      <div class="bg-white px-6 pt-6 pb-4 border-b border-gray-200">
+      <div class="bg-white px-4 md:px-6 pt-6 pb-4 border-b border-gray-200">
         <div class="flex justify-between items-start">
           <div class="flex-1">
             <h2 class="text-2xl font-bold text-gray-900" id="modal-title">
-              <span *ngIf="currentStep === 1">Book a Session for {{ child?.full_name }}</span>
-              <span *ngIf="currentStep === 2">Choose a preferred time</span>
-              <span *ngIf="currentStep === 3">Payment</span>
-              <span *ngIf="currentStep === 4">Booking Confirmed</span>
+              <span *ngIf="currentStep === 1">{{ 'bookingWizard.title' | translate }} {{ child?.full_name }}</span>
+              <span *ngIf="currentStep === 2">{{ 'bookingWizard.step2.title' | translate }}</span>
+              <span *ngIf="currentStep === 3">{{ 'bookingWizard.step3.title' | translate }}</span>
+              <span *ngIf="currentStep === 4">{{ 'bookingWizard.step4.bookingConfirmed' | translate }}</span>
             </h2>
             <p class="mt-1 text-sm text-gray-600">
-              <span *ngIf="currentStep === 1">Choose the service and session type.</span>
-              <span *ngIf="currentStep === 2">We will confirm or suggest another time.</span>
-              <span *ngIf="currentStep === 3">Select your preferred payment method.</span>
-              <span *ngIf="currentStep === 4">Your booking has been reserved successfully.</span>
+              <span *ngIf="currentStep === 1">{{ 'bookingWizard.step1.subtitle' | translate }}</span>
+              <span *ngIf="currentStep === 2">{{ 'bookingWizard.step2.subtitle' | translate }}</span>
+              <span *ngIf="currentStep === 3">{{ 'bookingWizard.step3.subtitle' | translate }}</span>
+              <span *ngIf="currentStep === 4">{{ 'bookingWizard.step4.cashReservedDesc' | translate }}</span>
             </p>
           </div>
-          <button (click)="onClose()" class="text-gray-400 hover:text-gray-500 focus:outline-none ml-4">
+          <button (click)="onClose()" class="hidden md:block text-gray-400 hover:text-gray-500 focus:outline-none ml-4">
             <lucide-angular [img]="XIcon" size="24"></lucide-angular>
           </button>
         </div>
@@ -81,21 +104,21 @@
         </div>
       </div>
 
-      <!-- Content -->
+        <!-- Content -->
       <form [formGroup]="bookingForm" (ngSubmit)="onContinue()">
-        <div class="px-6 py-6">
+        <div class="px-4 md:px-6 py-6">
           
           <!-- STEP 1: Service + Mode Selection -->
           <div *ngIf="currentStep === 1" class="space-y-8">
             
             <!-- A) Choose Service -->
             <div>
-              <h3 class="text-lg font-semibold text-gray-900 mb-4">A) Choose Service</h3>
+              <h3 class="text-lg font-semibold text-gray-900 mb-4">{{ 'bookingWizard.step1.chooseService' | translate }}</h3>
               
               <div *ngIf="isLoadingTypes" class="flex justify-center py-8">
                 <div class="inline-flex items-center space-x-3">
                   <span class="h-6 w-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></span>
-                  <span class="text-sm text-gray-600">Loading services...</span>
+                  <span class="text-sm text-gray-600">{{ 'bookingWizard.step1.loadingServices' | translate }}</span>
                 </div>
               </div>
 
@@ -115,10 +138,15 @@
                     class="sr-only"
                   >
                   <div class="text-center">
-                    <h4 class="text-base font-semibold text-gray-900 mb-2">{{ type.name }}</h4>
+                    <div class="text-4xl mb-3">{{ getServiceIcon(type.code) }}</div>
+                    <h4 class="text-base font-semibold text-gray-900 mb-2">
+                      {{ type.code === 'consultation' ? ('bookingWizard.step1.services.consultation' | translate) : 
+                         type.code === 'centre_session' ? ('bookingWizard.step1.services.centreSession' | translate) : 
+                         ('bookingWizard.step1.services.onlineSession' | translate) }}
+                    </h4>
                     <div class="flex items-center justify-center gap-1 text-sm text-gray-600 mb-3">
                       <lucide-angular [img]="ClockIcon" size="16"></lucide-angular>
-                      <span>{{ type.default_duration_min }} min</span>
+                      <span>{{ type.default_duration_min }} {{ 'bookingWizard.step1.duration' | translate }}</span>
                     </div>
                     <div *ngIf="pricePreview && bookingForm.get('booking_type')?.value === type.code && bookingForm.get('mode')?.value" 
                          class="text-sm font-medium text-blue-600">
@@ -145,7 +173,7 @@
 
             <!-- B) Choose Mode -->
             <div>
-              <h3 class="text-lg font-semibold text-gray-900 mb-4">B) Choose Mode</h3>
+              <h3 class="text-lg font-semibold text-gray-900 mb-4">{{ 'bookingWizard.step1.chooseMode' | translate }}</h3>
               
               <div class="space-y-3">
                 <!-- In-centre Option -->
@@ -167,11 +195,13 @@
                     class="sr-only"
                   >
                   <div class="flex items-center flex-1">
-                    <div class="flex-shrink-0">
-                      <lucide-angular [img]="MapPinIcon" size="20" class="text-gray-600"></lucide-angular>
-                    </div>
-                    <div class="ml-3 flex-1">
-                      <p class="text-sm font-medium text-gray-900">{{ getModeLabel('in_centre') }}</p>
+                    <div class="flex-shrink-0 text-2xl mr-3">🏢</div>
+                    <div class="flex-1">
+                      <p class="text-sm font-medium text-gray-900">{{ 'bookingWizard.step1.modes.inCentre' | translate }}</p>
+                      <p *ngIf="selectedBookingType && !isModeAllowed('in_centre')" class="text-xs text-gray-500 mt-1 flex items-center gap-1">
+                        <lucide-angular [img]="LockIcon" size="12"></lucide-angular>
+                        <span>{{ 'bookingWizard.step1.modes.modeRestricted' | translate }} {{ 'bookingWizard.step1.modes.online' | translate }}</span>
+                      </p>
                     </div>
                     <div *ngIf="bookingForm.get('mode')?.value === 'in_centre'" 
                          class="flex-shrink-0 ml-3">
@@ -203,11 +233,13 @@
                     class="sr-only"
                   >
                   <div class="flex items-center flex-1">
-                    <div class="flex-shrink-0">
-                      <lucide-angular [img]="MonitorIcon" size="20" class="text-gray-600"></lucide-angular>
-                    </div>
-                    <div class="ml-3 flex-1">
-                      <p class="text-sm font-medium text-gray-900">{{ getModeLabel('online') }}</p>
+                    <div class="flex-shrink-0 text-2xl mr-3">💻</div>
+                    <div class="flex-1">
+                      <p class="text-sm font-medium text-gray-900">{{ 'bookingWizard.step1.modes.online' | translate }}</p>
+                      <p *ngIf="selectedBookingType && !isModeAllowed('online')" class="text-xs text-gray-500 mt-1 flex items-center gap-1">
+                        <lucide-angular [img]="LockIcon" size="12"></lucide-angular>
+                        <span>{{ 'bookingWizard.step1.modes.modeRestricted' | translate }} {{ 'bookingWizard.step1.modes.inCentre' | translate }}</span>
+                      </p>
                     </div>
                     <div *ngIf="bookingForm.get('mode')?.value === 'online'" 
                          class="flex-shrink-0 ml-3">
@@ -227,20 +259,29 @@
               </p>
             </div>
           </div>
+          <!-- End STEP 1 -->
 
           <!-- STEP 2: Time Selection -->
-          <div *ngIf="currentStep === 2" class="space-y-6">
+          <div *ngIf="currentStep === 2" class="space-y-6 pb-24">
             
             <!-- Error Message -->
             <div *ngIf="errorMessage" class="p-3 bg-red-50 text-red-700 rounded-md text-sm">
               {{ errorMessage }}
             </div>
 
+            <!-- Subtitle -->
+            <p class="text-sm text-gray-600 mb-6">
+              {{ 'bookingWizard.step2.subtitle' | translate }}
+            </p>
+
             <!-- Calendar + Time Slots -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <!-- Left: Calendar -->
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-3">Select Date</label>
+                <label class="flex items-center gap-2 text-sm font-medium text-gray-700 mb-3">
+                  <span class="text-lg">📅</span>
+                  <span>{{ 'bookingWizard.step2.selectDate' | translate }}</span>
+                </label>
                 
                 <!-- Custom Calendar -->
                 <div class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
@@ -319,7 +360,10 @@
 
               <!-- Right: Time Slots -->
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Suggested Times</label>
+                <label class="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+                  <span class="text-lg">⏰</span>
+                  <span>{{ 'bookingWizard.step2.selectTime' | translate }}</span>
+                </label>
                 <div class="grid grid-cols-3 gap-2 max-h-64 overflow-y-auto">
                   <button
                     *ngFor="let slot of availableTimeSlots"
@@ -327,9 +371,14 @@
                     (click)="bookingForm.patchValue({ time: slot })"
                     [class.bg-blue-600]="bookingForm.get('time')?.value === slot"
                     [class.text-white]="bookingForm.get('time')?.value === slot"
-                    [class.bg-gray-100]="bookingForm.get('time')?.value !== slot"
+                    [class.border-blue-600]="bookingForm.get('time')?.value === slot"
+                    [class.border-2]="bookingForm.get('time')?.value === slot"
+                    [class.border-gray-300]="bookingForm.get('time')?.value !== slot"
+                    [class.bg-white]="bookingForm.get('time')?.value !== slot"
                     [class.text-gray-700]="bookingForm.get('time')?.value !== slot"
-                    class="px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-100 transition-colors"
+                    [class.text-gray-400]="false"
+                    [class.cursor-not-allowed]="false"
+                    class="px-3 py-2 rounded-md text-sm font-medium hover:border-blue-400 hover:bg-blue-50 transition-colors border-2"
                   >
                     {{ slot }}
                   </button>
@@ -356,21 +405,17 @@
             <div class="space-y-4">
               <!-- Notes -->
               <div>
-                <label for="notes" class="block text-sm font-medium text-gray-700 mb-2">
-                  Notes to centre (Optional)
+                <label for="notes" class="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+                  <span class="text-lg">📝</span>
+                  <span>{{ 'bookingWizard.step2.notes' | translate }}</span>
                 </label>
-                <div class="relative">
-                  <div class="absolute top-3 left-3 pointer-events-none">
-                    <lucide-angular [img]="FileTextIcon" class="h-5 w-5 text-gray-400"></lucide-angular>
-                  </div>
-                  <textarea 
-                    id="notes"
-                    formControlName="notes"
-                    rows="3"
-                    class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                    placeholder="Any specific concerns or requirements?"
-                  ></textarea>
-                </div>
+                <textarea 
+                  id="notes"
+                  formControlName="notes"
+                  rows="3"
+                  class="block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  [placeholder]="'bookingWizard.step2.notesPlaceholder' | translate"
+                ></textarea>
               </div>
 
               <!-- Urgency -->
@@ -391,207 +436,216 @@
               </div>
             </div>
           </div>
+          <!-- End STEP 2 -->
 
           <!-- STEP 3: Payment Method -->
-          <div *ngIf="currentStep === 3" class="space-y-6">
+          <div *ngIf="currentStep === 3" class="space-y-6 pb-24">
             
             <!-- Booking Summary Card -->
-            <div *ngIf="getBookingSummary() as summary" class="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-lg p-6">
-              <h3 class="text-lg font-semibold text-gray-900 mb-4">Booking Summary</h3>
-              <div class="space-y-3">
-                <div class="flex justify-between">
-                  <span class="text-sm text-gray-600">Child:</span>
-                  <span class="text-sm font-medium text-gray-900">{{ summary.childName }}</span>
+            <div *ngIf="getBookingSummary() as summary" class="bg-[#F9FAFB] border border-gray-200 rounded-lg p-6">
+              <h3 class="text-lg font-semibold text-gray-900 mb-4">{{ 'bookingWizard.step3.summary' | translate }}</h3>
+              <div class="space-y-4">
+                <!-- Child -->
+                <div class="flex items-center gap-3">
+                  <span class="text-2xl">🧒</span>
+                  <div class="flex-1">
+                    <span class="text-xs text-gray-500">{{ 'bookingWizard.step3.child' | translate }}</span>
+                    <p class="text-sm font-medium text-gray-900">{{ summary.childName }}</p>
+                  </div>
                 </div>
-                <div class="flex justify-between">
-                  <span class="text-sm text-gray-600">Service:</span>
-                  <span class="text-sm font-medium text-gray-900">{{ summary.service }}</span>
+                
+                <!-- Service -->
+                <div class="flex items-center gap-3">
+                  <span class="text-2xl">{{ getServiceIconFromType(summary.serviceCode) }}</span>
+                  <div class="flex-1">
+                    <span class="text-xs text-gray-500">{{ 'bookingWizard.step3.service' | translate }}</span>
+                    <p class="text-sm font-medium text-gray-900">{{ summary.service }}</p>
+                  </div>
                 </div>
-                <div class="flex justify-between">
-                  <span class="text-sm text-gray-600">Mode:</span>
-                  <span class="text-sm font-medium text-gray-900">{{ summary.mode }}</span>
+                
+                <!-- Time -->
+                <div class="flex items-center gap-3">
+                  <span class="text-2xl">⏰</span>
+                  <div class="flex-1">
+                    <span class="text-xs text-gray-500">{{ 'bookingWizard.step3.time' | translate }}</span>
+                    <p class="text-sm font-medium text-gray-900">{{ summary.preferredTime }} ({{ summary.duration }} {{ 'bookingWizard.step1.duration' | translate }})</p>
+                  </div>
                 </div>
-                <div class="flex justify-between">
-                  <span class="text-sm text-gray-600">Preferred time:</span>
-                  <span class="text-sm font-medium text-gray-900">{{ summary.preferredTime }} ({{ summary.duration }} min)</span>
+                
+                <!-- Location -->
+                <div class="flex items-center gap-3">
+                  <span class="text-2xl">📍</span>
+                  <div class="flex-1">
+                    <span class="text-xs text-gray-500">{{ 'bookingWizard.step3.location' | translate }}</span>
+                    <p class="text-sm font-medium text-gray-900">{{ summary.location }}</p>
+                  </div>
                 </div>
-                <div class="flex justify-between pt-3 border-t border-blue-200">
-                  <span class="text-base font-semibold text-gray-900">Price:</span>
-                  <span class="text-base font-bold text-blue-600">{{ summary.currency }} {{ summary.price | number:'1.2-2' }}</span>
+                
+                <!-- Price -->
+                <div class="flex items-center gap-3 pt-3 border-t border-gray-200">
+                  <span class="text-2xl">💳</span>
+                  <div class="flex-1 flex justify-between items-center">
+                    <div>
+                      <span class="text-xs text-gray-500">{{ 'bookingWizard.step3.price' | translate }}</span>
+                      <p class="text-base font-bold text-gray-900">{{ summary.currency }} {{ summary.price | number:'1.2-2' }}</p>
+                    </div>
+                  </div>
                 </div>
               </div>
-              <p class="mt-4 text-xs text-gray-600 italic">
-                Note: "We will confirm the exact time after payment."
-              </p>
             </div>
 
             <!-- Payment Method Selection -->
             <div>
-              <h3 class="text-lg font-semibold text-gray-900 mb-4">How do you want to pay?</h3>
+              <h3 class="text-lg font-semibold text-gray-900 mb-6">{{ 'bookingWizard.step3.subtitle' | translate }}</h3>
               
-              <!-- Policy Checkbox -->
-              <div class="mb-6">
-                <label class="flex items-start">
-                  <input 
-                    type="checkbox" 
-                    formControlName="agree_to_policy"
-                    class="mt-1 mr-3 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                  >
-                  <span class="text-sm text-gray-700">
-                    I agree to the 
-                    <a href="#" class="text-blue-600 hover:text-blue-800 underline">cancellation and refund policy</a>.
-                  </span>
-                </label>
-                <p *ngIf="bookingForm.get('agree_to_policy')?.invalid && bookingForm.get('agree_to_policy')?.touched" 
-                   class="mt-2 text-xs text-red-600">
-                  You must agree to the cancellation and refund policy to continue.
-                </p>
-              </div>
-              
-              <div class="space-y-4">
+              <div class="space-y-4 mb-6">
                 <!-- A) Card (Stripe) - Recommended -->
                 <div
-                  class="relative p-5 border-2 rounded-lg transition-all"
+                  class="relative p-5 border-2 rounded-lg transition-all bg-white"
                   [class.border-blue-500]="bookingForm.get('payment_method')?.value === 'card'"
                   [class.bg-blue-50]="bookingForm.get('payment_method')?.value === 'card'"
                   [class.border-gray-200]="bookingForm.get('payment_method')?.value !== 'card'"
                   [class.hover:border-blue-300]="bookingForm.get('payment_method')?.value !== 'card'"
-                  [class.hover:bg-blue-50/50]="bookingForm.get('payment_method')?.value !== 'card'"
                 >
-                  <div class="flex items-start justify-between">
-                    <div class="flex items-start flex-1">
-                      <input 
-                        type="radio" 
-                        formControlName="payment_method" 
-                        value="card"
-                        class="mt-1 mr-3 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                      >
-                      <div class="flex-1">
-                        <div class="flex items-center gap-2">
-                          <h4 class="text-base font-semibold text-gray-900">Card (Stripe)</h4>
-                          <span class="px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">Recommended</span>
-                        </div>
-                        <p class="text-sm text-gray-600 mt-1">Pay securely with Visa/Mastercard.</p>
+                  <div class="flex items-start gap-4">
+                    <span class="text-3xl">💳</span>
+                    <div class="flex-1">
+                      <div class="flex items-center gap-2 mb-1">
+                        <h4 class="text-base font-semibold text-gray-900">{{ 'bookingWizard.step3.card' | translate }}</h4>
+                        <span class="px-2 py-0.5 text-xs font-medium bg-[#F59E0B] text-white rounded-full">{{ 'bookingWizard.step3.recommended' | translate }}</span>
                       </div>
+                      <p class="text-sm text-gray-600">{{ 'bookingWizard.step3.cardDesc' | translate }}</p>
                     </div>
                   </div>
                   <div class="mt-4">
                     <button
                       type="button"
-                      (click)="bookingForm.patchValue({ payment_method: 'card' }); onContinue()"
-                      [disabled]="isLoadingPayment || !bookingForm.get('agree_to_policy')?.value"
-                      class="w-full sm:w-auto px-6 py-2.5 bg-[#2563EB] text-white text-sm font-semibold rounded-md hover:bg-[#1d4ed8] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      (click)="bookingForm.patchValue({ payment_method: 'card' })"
+                      [class.bg-[#2563EB]]="bookingForm.get('payment_method')?.value === 'card'"
+                      [class.text-white]="bookingForm.get('payment_method')?.value === 'card'"
+                      [class.bg-gray-100]="bookingForm.get('payment_method')?.value !== 'card'"
+                      [class.text-gray-700]="bookingForm.get('payment_method')?.value !== 'card'"
+                      class="w-full px-6 py-2.5 text-sm font-semibold rounded-md hover:bg-[#1d4ed8] hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
                     >
-                      Pay Now
+                      {{ 'bookingWizard.step3.payNow' | translate }}
                     </button>
                   </div>
                 </div>
 
                 <!-- B) Online Banking -->
                 <div
-                  class="relative p-5 border-2 rounded-lg transition-all"
+                  class="relative p-5 border-2 rounded-lg transition-all bg-white"
                   [class.border-blue-500]="bookingForm.get('payment_method')?.value === 'online_banking'"
                   [class.bg-blue-50]="bookingForm.get('payment_method')?.value === 'online_banking'"
                   [class.border-gray-200]="bookingForm.get('payment_method')?.value !== 'online_banking'"
                   [class.hover:border-blue-300]="bookingForm.get('payment_method')?.value !== 'online_banking'"
-                  [class.hover:bg-blue-50/50]="bookingForm.get('payment_method')?.value !== 'online_banking'"
                 >
-                  <div class="flex items-start justify-between">
-                    <div class="flex items-start flex-1">
-                      <input 
-                        type="radio" 
-                        formControlName="payment_method" 
-                        value="online_banking"
-                        class="mt-1 mr-3 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                      >
-                      <div class="flex-1">
-                        <h4 class="text-base font-semibold text-gray-900">Online Banking</h4>
-                        <p class="text-sm text-gray-600 mt-1">Pay via FPX / bank transfer (online).</p>
-                      </div>
+                  <div class="flex items-start gap-4">
+                    <span class="text-3xl">🏦</span>
+                    <div class="flex-1">
+                      <h4 class="text-base font-semibold text-gray-900 mb-1">{{ 'bookingWizard.step3.onlineBanking' | translate }}</h4>
+                      <p class="text-sm text-gray-600">{{ 'bookingWizard.step3.onlineBankingDesc' | translate }}</p>
                     </div>
                   </div>
                   <div class="mt-4">
                     <button
                       type="button"
-                      (click)="bookingForm.patchValue({ payment_method: 'online_banking' }); onContinue()"
-                      [disabled]="isLoadingPayment || !bookingForm.get('agree_to_policy')?.value"
-                      class="w-full sm:w-auto px-6 py-2.5 bg-[#2563EB] text-white text-sm font-semibold rounded-md hover:bg-[#1d4ed8] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      (click)="bookingForm.patchValue({ payment_method: 'online_banking' })"
+                      [class.bg-[#2563EB]]="bookingForm.get('payment_method')?.value === 'online_banking'"
+                      [class.text-white]="bookingForm.get('payment_method')?.value === 'online_banking'"
+                      [class.bg-gray-100]="bookingForm.get('payment_method')?.value !== 'online_banking'"
+                      [class.text-gray-700]="bookingForm.get('payment_method')?.value !== 'online_banking'"
+                      class="w-full px-6 py-2.5 text-sm font-semibold rounded-md hover:bg-[#1d4ed8] hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
                     >
-                      Pay via Online Banking
+                      {{ 'bookingWizard.step3.payNow' | translate }}
                     </button>
                   </div>
                 </div>
 
                 <!-- C) Cash at Centre -->
                 <div
-                  class="relative p-5 border-2 rounded-lg transition-all"
+                  class="relative p-5 border-2 rounded-lg transition-all bg-white"
                   [class.border-blue-500]="bookingForm.get('payment_method')?.value === 'cash'"
                   [class.bg-blue-50]="bookingForm.get('payment_method')?.value === 'cash'"
                   [class.border-gray-200]="bookingForm.get('payment_method')?.value !== 'cash'"
                   [class.hover:border-blue-300]="bookingForm.get('payment_method')?.value !== 'cash'"
-                  [class.hover:bg-blue-50/50]="bookingForm.get('payment_method')?.value !== 'cash'"
                 >
-                  <div class="flex items-start justify-between">
-                    <div class="flex items-start flex-1">
-                      <input 
-                        type="radio" 
-                        formControlName="payment_method" 
-                        value="cash"
-                        class="mt-1 mr-3 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                      >
-                      <div class="flex-1">
-                        <h4 class="text-base font-semibold text-gray-900">Cash at Centre</h4>
-                        <p class="text-sm text-gray-600 mt-1">Pay at reception within 24 hours to confirm.</p>
-                      </div>
+                  <div class="flex items-start gap-4">
+                    <span class="text-3xl">💵</span>
+                    <div class="flex-1">
+                      <h4 class="text-base font-semibold text-gray-900 mb-1">{{ 'bookingWizard.step3.cash' | translate }}</h4>
+                      <p class="text-sm text-gray-600">{{ 'bookingWizard.step3.cashDesc' | translate }}</p>
                     </div>
                   </div>
                   <div class="mt-4">
                     <button
                       type="button"
-                      (click)="bookingForm.patchValue({ payment_method: 'cash' }); onContinue()"
-                      [disabled]="isLoadingPayment || !bookingForm.get('agree_to_policy')?.value"
-                      class="w-full sm:w-auto px-6 py-2.5 bg-white border-2 border-[#2563EB] text-[#2563EB] text-sm font-semibold rounded-md hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      (click)="bookingForm.patchValue({ payment_method: 'cash' })"
+                      [class.bg-[#2563EB]]="bookingForm.get('payment_method')?.value === 'cash'"
+                      [class.text-white]="bookingForm.get('payment_method')?.value === 'cash'"
+                      [class.bg-gray-100]="bookingForm.get('payment_method')?.value !== 'cash'"
+                      [class.text-gray-700]="bookingForm.get('payment_method')?.value !== 'cash'"
+                      class="w-full px-6 py-2.5 text-sm font-semibold rounded-md hover:bg-[#1d4ed8] hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
                     >
-                      Reserve & Pay Cash
+                      {{ 'bookingWizard.step3.reserveBooking' | translate }}
                     </button>
                   </div>
                 </div>
               </div>
 
-              <p *ngIf="bookingForm.get('payment_method')?.invalid && bookingForm.get('payment_method')?.touched" 
-                 class="mt-4 text-xs text-red-600">
-                Please select a payment method.
-              </p>
+              <!-- Policy Checkbox -->
+              <div class="mb-6">
+                <label class="flex items-start gap-3">
+                  <input 
+                    type="checkbox" 
+                    formControlName="agree_to_policy"
+                    class="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  >
+                  <span class="flex items-center gap-2 text-sm text-gray-700">
+                    <span class="text-lg">🛡️</span>
+                    <span>{{ 'bookingWizard.step3.policyAgree' | translate }}</span>
+                  </span>
+                </label>
+                <p *ngIf="bookingForm.get('agree_to_policy')?.invalid && bookingForm.get('agree_to_policy')?.touched" 
+                   class="mt-2 text-xs text-red-600">
+                  {{ 'bookingWizard.step3.policyRequired' | translate }}
+                </p>
+              </div>
+            </div>
+
+            <p *ngIf="bookingForm.get('payment_method')?.invalid && bookingForm.get('payment_method')?.touched" 
+               class="mt-4 text-xs text-red-600">
+              Please select a payment method.
+            </p>
+          </div>
+          <!-- End STEP 3 -->
+
+          <!-- STEP 4: Loading Screen (for Card/Online Banking) -->
+          <div *ngIf="currentStep === 4 && isLoadingPayment && (bookingForm.get('payment_method')?.value === 'card' || bookingForm.get('payment_method')?.value === 'online_banking')" class="flex flex-col items-center justify-center min-h-[400px] space-y-6">
+            <div class="text-6xl animate-spin">🔄</div>
+            <div class="text-center">
+              <p class="text-lg font-semibold text-gray-900">{{ 'bookingWizard.step4.redirecting' | translate }}</p>
+              <p class="text-sm text-gray-600 mt-2">{{ 'bookingWizard.step4.redirectingDesc' | translate }}</p>
             </div>
           </div>
+          <!-- End STEP 4 Loading -->
 
-          <!-- STEP 4: Confirmation -->
-          <div *ngIf="currentStep === 4" class="space-y-6">
+          <!-- STEP 4: Confirmation (Cash Payment) -->
+          <div *ngIf="currentStep === 4 && !isLoadingPayment && bookingForm.get('payment_method')?.value === 'cash'" class="space-y-6">
             
             <!-- Success Message -->
             <div class="text-center py-6">
-              <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-emerald-100 mb-4">
-                <svg class="h-8 w-8 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                </svg>
+              <!-- Payment Status Badge -->
+              <div class="flex items-center justify-center mb-4">
+                <span class="inline-flex items-center gap-2 rounded-full bg-amber-100 px-5 py-2.5 text-sm font-bold text-amber-800 ring-2 ring-amber-300">
+                  <span class="text-lg">🟠</span>
+                  <span class="text-lg">💵</span>
+                  <span>{{ 'bookingWizard.step4.cashReservedDesc' | translate }}</span>
+                </span>
               </div>
-              <h3 class="text-2xl font-bold text-gray-900 mb-2">Booking Reserved!</h3>
-              <p class="text-base text-gray-700">
-                Your appointment is tentatively booked. Please pay at the centre within 24 hours to confirm.
-              </p>
               <p *ngIf="getBookingSummary() as summary" class="text-base text-gray-700 mt-2">
-                Amount due: <span class="font-semibold text-amber-700">{{ summary.currency }} {{ summary.price | number:'1.2-2' }}</span>
+                {{ 'bookingWizard.step4.amountDue' | translate }}: <span class="font-semibold text-amber-700">{{ summary.currency }} {{ summary.price | number:'1.2-2' }}</span>
               </p>
-            </div>
-
-            <!-- Payment Status Badge -->
-            <div class="flex items-center justify-center">
-              <span class="inline-flex items-center gap-2 rounded-full bg-amber-100 px-5 py-2.5 text-sm font-bold text-amber-800 ring-2 ring-amber-300">
-                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
-                Cash Payment Pending - Pay at Centre
-              </span>
             </div>
 
             <!-- Booking Details Summary -->
@@ -715,46 +769,67 @@
               </div>
             </div>
           </div>
-
+          <!-- End STEP 4 Cash Confirmation -->
         </div>
+        <!-- End Content Div (px-4 md:px-6 py-6) -->
 
         <!-- Footer -->
-        <div *ngIf="currentStep !== 3 && currentStep !== 4" class="bg-gray-50 px-6 py-4 sm:flex sm:flex-row-reverse sm:justify-between">
+        <div *ngIf="currentStep === 1 || currentStep === 2" class="fixed bottom-0 left-0 right-0 md:relative md:bottom-auto md:left-auto md:right-auto bg-white border-t border-gray-200 px-4 md:px-6 py-4 sm:flex sm:flex-row-reverse sm:justify-between shadow-lg md:shadow-none z-10">
           <button 
             type="submit" 
             [disabled]="(currentStep === 1 && (bookingForm.get('booking_type')?.invalid || bookingForm.get('mode')?.invalid)) || (currentStep === 2 && (bookingForm.get('date')?.invalid || bookingForm.get('time')?.invalid)) || isLoadingBooking"
-            class="w-full inline-flex justify-center items-center rounded-md border border-transparent shadow-sm px-6 py-2.5 bg-[#2563EB] text-base font-medium text-white hover:bg-[#1d4ed8] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            class="w-full inline-flex justify-center items-center gap-2 rounded-md border border-transparent shadow-sm px-6 py-3 bg-[#2563EB] text-base font-medium text-white hover:bg-[#1d4ed8] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             <span *ngIf="isLoadingBooking" class="inline-flex items-center">
               <span class="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></span>
               Creating booking...
             </span>
-            <span *ngIf="!isLoadingBooking">
-              <span *ngIf="currentStep === 1">Continue</span>
-              <span *ngIf="currentStep === 2">Continue to Payment</span>
+            <span *ngIf="!isLoadingBooking" class="inline-flex items-center gap-2">
+              <span *ngIf="currentStep === 1">{{ 'common.next' | translate }}</span>
+              <span *ngIf="currentStep === 2">{{ 'bookingWizard.step2.continue' | translate }}</span>
+              <lucide-angular *ngIf="currentStep === 2" [img]="ArrowRightIcon" size="18"></lucide-angular>
             </span>
           </button>
-          <div class="flex gap-3">
+          <div class="hidden sm:flex gap-3">
             <button 
               *ngIf="currentStep > 1"
               type="button" 
               (click)="onBack()"
-              class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2.5 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:w-auto"
+              class="inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2.5 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
             >
-              Back
+              {{ 'common.back' | translate }}
             </button>
             <button 
               type="button" 
               (click)="onClose()"
-              class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2.5 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:w-auto"
+              class="inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2.5 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
             >
-              Cancel
+              {{ 'common.cancel' | translate }}
             </button>
           </div>
         </div>
 
+        <!-- Step 3 Footer -->
+        <div *ngIf="currentStep === 3" class="fixed bottom-0 left-0 right-0 md:relative md:bottom-auto md:left-auto md:right-auto bg-white border-t border-gray-200 px-4 md:px-6 py-4 shadow-lg md:shadow-none z-10">
+          <button 
+            type="button" 
+            (click)="onContinue()"
+            [disabled]="bookingForm.get('payment_method')?.invalid || bookingForm.get('agree_to_policy')?.invalid || isLoadingPayment"
+            class="w-full inline-flex justify-center items-center gap-2 rounded-md border border-transparent shadow-sm px-6 py-3 bg-[#2563EB] text-base font-medium text-white hover:bg-[#1d4ed8] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            <span *ngIf="isLoadingPayment" class="inline-flex items-center">
+              <span class="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></span>
+              Processing...
+            </span>
+            <span *ngIf="!isLoadingPayment" class="inline-flex items-center gap-2">
+              <span>{{ 'bookingWizard.step3.payNow' | translate }}</span>
+              <lucide-angular [img]="ArrowRightIcon" size="18"></lucide-angular>
+            </span>
+          </button>
+        </div>
+
         <!-- Step 4 Footer -->
-        <div *ngIf="currentStep === 4" class="bg-gray-50 px-6 py-4 sm:flex sm:flex-row-reverse">
+        <div *ngIf="currentStep === 4" class="bg-gray-50 px-4 md:px-6 py-4 sm:flex sm:flex-row-reverse">
           <button 
             type="button" 
             (click)="onClose()"

@@ -14,6 +14,7 @@ export class ChildService {
 
   /**
    * Get all children for current user
+   * GET /api/children → list my children
    */
   getChildren(): Observable<ChildResponse> {
     return this.http.get<ChildResponse>(this.apiUrl);
@@ -28,6 +29,7 @@ export class ChildService {
 
   /**
    * Create a new child profile
+   * POST /api/children → create child
    */
   createChild(childData: Child): Observable<ChildResponse> {
     return this.http.post<ChildResponse>(this.apiUrl, childData);

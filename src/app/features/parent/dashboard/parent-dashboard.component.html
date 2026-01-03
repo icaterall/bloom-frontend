@@ -1,389 +1,675 @@
-<div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-    <ng-container *ngIf="!isLoading; else loadingState">
+<div class="max-w-7xl mx-auto space-y-6">
+  <!-- Success Toast -->
+  <div *ngIf="showSuccessToast" class="fixed top-6 right-6 z-50 transition-all duration-300 transform translate-y-0 opacity-100">
+    <div class="rounded-lg shadow-xl p-4 flex items-center gap-3 border-l-4 bg-white border-[#10B981] text-gray-800 min-w-[320px] max-w-md">
+      <div class="flex-shrink-0 p-1 rounded-full bg-[#10B981]/10 text-[#10B981]">
+        <lucide-angular [img]="CheckCircleIcon" size="20" class="text-[#10B981]"></lucide-angular>
+      </div>
       
-      <!-- Welcome Header -->
-      <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 p-6 md:p-8">
-        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div>
-            <h1 class="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-              Welcome back, {{ currentUser?.name }}! 👋
-            </h1>
-            <p class="mt-2 text-slate-600 text-lg">
-              {{ children.length === 0 ? 'Let\'s get started by adding your child\'s profile' : 'Here\'s an overview of your children\'s progress' }}
-      </p>
+      <div class="flex-1">
+        <p class="text-sm font-semibold text-gray-900">
+          {{ 'parentDashboard.successToast.childSaved' | translate }}
+        </p>
+      </div>
+      
+      <button (click)="showSuccessToast = false" class="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-md hover:bg-gray-100">
+        <lucide-angular [img]="XIcon" size="18"></lucide-angular>
+      </button>
     </div>
-          <button 
-            *ngIf="children.length > 0"
-            (click)="openAddChildModal()"
-            class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200"
+  </div>
+
+  <ng-container *ngIf="!isLoading; else loadingState">
+    <!-- Upcoming Session Banner -->
+    <div *ngIf="getUpcomingSession() as upcomingSession" class="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg shadow-lg p-4 md:p-6 text-white">
+      <div class="flex items-start gap-4">
+        <div class="flex-shrink-0 text-3xl">⏳</div>
+        <div class="flex-1 min-w-0">
+          <h3 class="text-lg font-bold mb-1">{{ 'parentDashboard.upcomingSession.title' | translate }}</h3>
+          <p class="text-sm md:text-base opacity-90 mb-4">
+            {{ 'parentDashboard.upcomingSession.reminder' | translate }}
+            <span class="font-semibold">
+              {{ upcomingSession.confirmed_start_at | date:'fullDate' }} {{ 'parentDashboard.childCard.at' | translate }} 
+              {{ upcomingSession.confirmed_start_at | date:'shortTime' }}
+            </span>
+          </p>
+          <div class="flex flex-wrap gap-2">
+            <button
+              (click)="addToCalendar(upcomingSession)"
+              class="inline-flex items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg text-sm font-semibold transition-colors backdrop-blur-sm"
+            >
+              <span class="text-lg">📅</span>
+              <span>+</span>
+              <span>{{ 'parentDashboard.upcomingSession.addToCalendar' | translate }}</span>
+            </button>
+            <button
+              *ngIf="upcomingSession.mode === 'in_centre'"
+              (click)="openDirections()"
+              class="inline-flex items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg text-sm font-semibold transition-colors backdrop-blur-sm"
+            >
+              <span class="text-lg">🧭</span>
+              <span>{{ 'parentDashboard.upcomingSession.directions' | translate }}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Header: Welcome + Profile Menu -->
+    <div class="flex items-start justify-between gap-4">
+      <div>
+        <h2 class="text-2xl font-bold text-gray-900">
+          {{ 'parentDashboard.welcomeBack' | translate }} {{ currentUser?.name }}! 👋
+        </h2>
+        
+        <!-- Dynamic Subtitle based on state -->
+        <p *ngIf="children.length === 0" class="mt-1 text-gray-600">
+          {{ 'parentDashboard.noChildrenSubtitle' | translate }}
+        </p>
+        <p *ngIf="children.length > 0" class="mt-1 text-gray-600">
+          {{ 'parentDashboard.hasChildrenSubtitle' | translate }}
+        </p>
+      </div>
+
+      <!-- Profile avatar + dropdown -->
+      <div *ngIf="currentUser" class="relative">
+        <button
+          type="button"
+          (click)="toggleProfileMenu()"
+          class="flex items-center gap-3 px-3 py-2 rounded-full bg-white border border-gray-200 shadow-sm hover:shadow-md hover:border-blue-300 transition"
+        >
+          <div class="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center text-white font-semibold">
+            {{ (currentUser.name || currentUser.email || '?') | slice:0:1 | uppercase }}
+          </div>
+          <div class="hidden sm:flex flex-col items-start">
+            <span class="text-sm font-semibold text-gray-900 truncate max-w-[140px]">
+              {{ currentUser.name || currentUser.email }}
+            </span>
+            <span class="text-xs text-gray-500 truncate max-w-[140px]">
+              {{ currentUser.email }}
+            </span>
+          </div>
+          <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+
+        <!-- Dropdown menu -->
+        <div
+          *ngIf="isProfileMenuOpen"
+          class="absolute right-0 mt-2 w-56 bg-white border border-gray-200 rounded-xl shadow-lg py-2 z-20"
+        >
+          <div class="px-4 py-3 border-b border-gray-100">
+            <p class="text-sm font-semibold text-gray-900 truncate">
+              {{ currentUser.name || currentUser.email }}
+            </p>
+            <p class="text-xs text-gray-500 truncate">
+              {{ currentUser.email }}
+            </p>
+          </div>
+          <a
+            routerLink="/parent/settings"
+            (click)="closeProfileMenu()"
+            class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer"
           >
-            <span class="text-xl">➕</span>
-            <span>Add Another Child</span>
+            <span class="mr-2">⚙️</span>
+            <span>Account settings</span>
+          </a>
+          <button
+            type="button"
+            (click)="logout()"
+            class="w-full flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50 cursor-pointer"
+          >
+            <span class="mr-2">🚪</span>
+            <span>Logout</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- STATE 1: No Children - Show Setup Checklist -->
+    <div *ngIf="children.length === 0 && !isLoading" class="mb-8">
+      <div class="bg-white border border-blue-100 shadow-sm rounded overflow-hidden">
+        <div class="p-4">
+          <h3 class="text-lg font-medium text-gray-900 mb-4">{{ 'parentDashboard.gettingStartedChecklist' | translate }}</h3>
+          
+          <div class="space-y-3">
+            <!-- Step 1: Add Child (Active) -->
+            <div class="flex items-start p-3 bg-blue-50 border border-blue-200 rounded">
+              <div class="flex-shrink-0 mt-1">
+                <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold">1</div>
+              </div>
+              <div class="ml-4 flex-1">
+                <h4 class="text-lg font-medium text-blue-900">{{ 'parentDashboard.steps.addChildTitle' | translate }}</h4>
+                <p class="text-sm text-blue-700 mt-1">{{ 'parentDashboard.steps.addChildDescription' | translate }}</p>
+                <button (click)="openAddChildModal()" class="mt-3 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                  <span class="mr-2 text-lg" aria-hidden="true">➕</span>
+                  {{ 'parentDashboard.steps.addChildButton' | translate }}
                 </button>
               </div>
             </div>
 
-      <!-- No Children State -->
-      <div *ngIf="children.length === 0" class="bg-white rounded-2xl shadow-lg border border-slate-200 p-8 md:p-12">
-        <div class="text-center max-w-2xl mx-auto">
-          <div class="inline-flex items-center justify-center w-24 h-24 rounded-full bg-gradient-to-br from-blue-100 to-indigo-100 mb-6">
-            <span class="text-5xl">👶</span>
+            <!-- Step 2: Share Concerns (Inactive) -->
+            <div class="flex items-start p-3 bg-gray-50 border border-gray-200 rounded opacity-60">
+              <div class="flex-shrink-0 mt-1">
+                <div class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center text-gray-600 font-bold">2</div>
+              </div>
+              <div class="ml-4">
+                <h4 class="text-lg font-medium text-gray-900">{{ 'parentDashboard.steps.shareConcernsTitle' | translate }}</h4>
+                <p class="text-sm text-gray-500 mt-1">{{ 'parentDashboard.steps.shareConcernsDescription' | translate }}</p>
+              </div>
+            </div>
+
+            <!-- Step 3: Book Tour (Active if children exist but no booking) -->
+            <div class="flex items-start p-3 bg-gray-50 border border-gray-200 rounded" [class.opacity-60]="children.length === 0">
+              <div class="flex-shrink-0 mt-1">
+                <div class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center text-gray-600 font-bold" [class.bg-blue-600]="children.length > 0" [class.text-white]="children.length > 0">3</div>
+              </div>
+              <div class="ml-4">
+                <h4 class="text-lg font-medium text-gray-900" [class.text-blue-900]="children.length > 0">{{ 'parentDashboard.steps.bookTourTitle' | translate }}</h4>
+                <p class="text-sm text-gray-500 mt-1" [class.text-blue-700]="children.length > 0">{{ 'parentDashboard.steps.bookTourDescription' | translate }}</p>
+                <button *ngIf="children.length > 0" (click)="openBookTourModal()" class="mt-3 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                  {{ 'parentDashboard.steps.bookTourButton' | translate }}
+                </button>
+              </div>
+            </div>
           </div>
-          <h2 class="text-2xl font-bold text-slate-900 mb-4">Get Started</h2>
-          <p class="text-slate-600 mb-8">Add your child's profile to begin tracking their journey with us</p>
-          <button 
-            (click)="openAddChildModal()"
-            class="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 text-lg"
-          >
-            <span class="text-xl">➕</span>
-            <span>Add Your First Child</span>
-          </button>
         </div>
       </div>
+    </div>
+
+    <!-- STATE 2 & 3: Children Exist -->
+    <div *ngIf="children.length > 0" class="space-y-8">
       
-      <!-- Children Cards with Status Timeline -->
-      <div *ngIf="children.length > 0" class="space-y-6">
+      <!-- Children Cards -->
+      <div>
+        <!-- Section Header with Title and Add Button -->
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-lg font-semibold text-gray-900">
+            {{ (children.length === 1 ? 'parentDashboard.myChild' : 'parentDashboard.myChildren') | translate }}
+          </h3>
+          <button 
+            *ngIf="children.length === 1"
+            (click)="openAddChildModal()" 
+            class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-blue-600 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 hover:border-blue-300 transition-colors"
+          >
+            <span class="text-sm leading-none">+</span>
+            <span>{{ 'parentDashboard.addAnotherChildSmall' | translate }}</span>
+          </button>
+        </div>
+        
+        <!-- Horizontal Children List -->
+        <div class="flex gap-5 overflow-x-auto pb-2">
           @for (child of children; track child.id) {
-          <div class="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden hover:shadow-2xl transition-all duration-300">
-            <!-- Card Header with Gradient -->
-            <div class="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 p-6 text-white">
+            <div
+              class="group relative overflow-hidden rounded-xl bg-gradient-to-br from-blue-50 via-white to-indigo-50 border border-blue-100/70 shadow-sm hover:shadow-lg hover:border-blue-300 transition-all duration-200 hover:-translate-y-0.5 flex-shrink-0"
+              [ngClass]="{'w-full': children.length === 1, 'w-[450px]': children.length > 1}"
+            >
+              <!-- Accent bar -->
+              <div class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-blue-500 via-indigo-500 to-cyan-400"></div>
+
+              <div class="p-5 pt-6 space-y-5">
                 <div class="flex items-start justify-between gap-4">
                   <div class="flex items-center gap-4">
-                  <div class="relative">
-                    <div class="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center text-4xl shadow-lg">
-                      <span>👶</span>
-                      </div>
-                    <div class="absolute -bottom-2 -right-2 bg-white text-blue-600 rounded-full w-7 h-7 flex items-center justify-center text-xs font-bold shadow-lg">
-                      {{ calculateAge(child.date_of_birth) }}
+                    <div
+                      class="relative w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center text-white shadow-sm"
+                    >
+                      <span aria-hidden="true" class="text-3xl">🧒</span>
                     </div>
-                  </div>
+
                     <div>
-                    <h3 class="text-2xl font-bold mb-1">{{ child.full_name }}</h3>
-                    <p class="text-blue-100 text-sm">{{ child.gender | titlecase }} • {{ child.date_of_birth | date:'mediumDate' }}</p>
-                  </div>
-                </div>
-                <div class="flex items-center gap-2">
-                  <button
-                    (click)="openEditChildModal(child)"
-                    class="p-2 rounded-lg bg-white/20 hover:bg-white/30 transition-colors"
-                    title="Edit Profile"
-                  >
-                    <lucide-angular [img]="PencilIcon" size="18" class="text-white"></lucide-angular>
-                  </button>
-                </div>
-              </div>
-            </div>
+                      <h3 class="text-xl font-bold text-slate-900 tracking-tight">
+                        {{ child.full_name }}
+                      </h3>
+                      <p class="mt-1 text-sm text-slate-500">
+                        {{ calculateAge(child.date_of_birth) }} {{ 'parentDashboard.childCard.yearsOld' | translate }}
+                      </p>
 
-            <!-- Card Body -->
-            <div class="p-6 space-y-6">
-              <!-- Current Status & Latest Update -->
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <!-- Current Status Card -->
-                <div class="bg-gradient-to-br from-slate-50 to-blue-50/50 rounded-xl p-5 border border-slate-200">
-                  <div class="flex items-center justify-between mb-3">
-                    <h4 class="text-sm font-semibold text-slate-700 uppercase tracking-wide">Current Status</h4>
-                    <button 
-                      (click)="openTimelineModal(child)"
-                      class="text-xs text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1"
-                    >
-                      <lucide-angular [img]="TrendingUpIcon" size="14"></lucide-angular>
-                      View Timeline
-                    </button>
-                  </div>
-                  <div *ngIf="getLatestCaseUpdate(child.id) as latestUpdate; else noStatus">
-                    <div class="flex items-center gap-3 mb-3">
-                      <div [ngClass]="getStatusColor(latestUpdate.status || '')" class="px-3 py-1.5 rounded-lg font-semibold text-sm">
-                        {{ latestUpdate.status || 'No status' }}
+                      <!-- Quick Status Chip: No Upcoming Session or Booking Status -->
+                      <div class="mt-2 space-y-1.5">
+                        <!-- Paid + Awaiting confirmation (combined status) -->
+                        <ng-container *ngIf="getBookingForChild(child.id) as booking">
+                          <div 
+                            *ngIf="isBookingPaid(booking) && booking.status === 'awaiting_clinical_review'" 
+                            class="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium"
+                            [style.background-color]="'#10B981'"
+                            [style.color]="'white'"
+                          >
+                            <span>✅</span>
+                            <span>{{ 'parentDashboard.childCard.bookingStatus.paid' | translate }} — {{ 'parentDashboard.childCard.bookingStatus.awaitingConfirmation' | translate }}</span>
+                          </div>
+                        </ng-container>
+                        <!-- Awaiting cash payment chip (only if not paid yet) -->
+                        <ng-container *ngIf="getBookingForChild(child.id) as booking">
+                          <div 
+                            *ngIf="isAwaitingCash(booking) && !isBookingPaid(booking)" 
+                            class="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium"
+                            [style.background-color]="'#F59E0B'"
+                            [style.color]="'white'"
+                          >
+                            <span>{{ 'parentDashboard.childCard.bookingStatus.awaitingCashPayment' | translate }}</span>
+                          </div>
+                        </ng-container>
+                        <!-- Session status chip -->
+                        <div 
+                          *ngIf="!getBookingForChild(child.id)" 
+                          class="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium bg-gray-100 text-gray-700"
+                        >
+                          <span>{{ 'parentDashboard.childCard.noUpcomingSession' | translate }}</span>
+                        </div>
                       </div>
-                      <span class="text-xs text-slate-500">{{ getRelativeTime(latestUpdate.created_at) }}</span>
                     </div>
-                    <p *ngIf="latestUpdate.progress_summary" class="text-sm text-slate-700 line-clamp-2">
-                      {{ latestUpdate.progress_summary }}
-                    </p>
-                    <p *ngIf="!latestUpdate.progress_summary && latestUpdate.case_notes" class="text-sm text-slate-700 line-clamp-2">
-                      {{ latestUpdate.case_notes }}
-                    </p>
-                  </div>
-                  <ng-template #noStatus>
-                    <div class="text-sm text-slate-500 italic">No status updates yet</div>
-                  </ng-template>
                   </div>
 
-                <!-- Quick Actions -->
-                <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-5 border border-blue-200">
-                  <h4 class="text-sm font-semibold text-slate-700 uppercase tracking-wide mb-3">Quick Actions</h4>
-                  <div class="space-y-2">
+                  <div class="flex flex-col items-end gap-2">
                     <button
-                      *ngIf="!getBookingForChild(child.id)"
-                      (click)="openBookSessionModal(child)"
-                      class="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200"
+                      class="text-sm font-medium text-gray-600 hover:text-gray-800 hover:underline underline-offset-4 transition-colors"
                     >
-                      <lucide-angular [img]="CalendarIcon" size="18"></lucide-angular>
-                      <span>Book Session</span>
+                      {{ 'parentDashboard.childCard.viewProfile' | translate }}
                     </button>
                     <button
-                      (click)="openTimelineModal(child)"
-                      class="w-full flex items-center justify-center gap-2 px-4 py-2 bg-white text-blue-600 font-medium rounded-lg border border-blue-200 hover:bg-blue-50 transition-colors"
+                      (click)="openEditChildModal(child)"
+                      class="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 bg-gray-50 px-3 py-1.5 text-sm font-medium text-gray-700 hover:text-gray-900 hover:border-gray-400 hover:bg-gray-100 shadow-sm transition-colors"
                     >
-                      <lucide-angular [img]="TrendingUpIcon" size="16"></lucide-angular>
-                      <span>View Progress Timeline</span>
+                      <lucide-angular [img]="PencilIcon" size="14"></lucide-angular>
+                      <span>{{ 'common.edit' | translate }}</span>
                     </button>
-                  </div>
                   </div>
                 </div>
 
-              <!-- Recent Updates Timeline Preview -->
-              <div *ngIf="getCaseUpdatesForChild(child.id).length > 0" class="border-t border-slate-200 pt-6">
-                <div class="flex items-center justify-between mb-4">
-                  <h4 class="text-lg font-semibold text-slate-900 flex items-center gap-2">
-                    <lucide-angular [img]="TrendingUpIcon" size="20" class="text-blue-600"></lucide-angular>
-                    Recent Updates
-                  </h4>
-                  <button
-                    (click)="openTimelineModal(child)"
-                    class="text-sm text-blue-600 hover:text-blue-800 font-medium"
-                  >
-                    View All →
-                  </button>
-                </div>
-                <div class="space-y-3">
-                  @for (update of getCaseUpdatesForChild(child.id).slice(0, 3); track update.id) {
-                    <div class="flex gap-4 p-4 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors">
-                      <div class="flex-shrink-0">
-                        <div class="w-2 h-2 rounded-full bg-blue-500 mt-2"></div>
-                        <div class="w-px h-full bg-slate-300 ml-0.5 mt-1"></div>
+                <!-- Primary CTA: Book Session Button, View Booking, Cash Payment Actions, Next Session Actions, or Completed Session Actions -->
+                <div class="mt-4 relative group">
+                  <!-- Completed Session Actions -->
+                  <ng-container *ngIf="getBookingForChild(child.id) as booking">
+                    <div *ngIf="isSessionCompleted(booking)" class="space-y-3">
+                      <!-- Completed Status Badge -->
+                      <div class="bg-gradient-to-r from-emerald-50 to-green-50 border-2 border-emerald-200 rounded-lg p-4">
+                        <div class="flex items-center gap-2 mb-3">
+                          <span class="text-2xl">✅</span>
+                          <span class="text-sm font-semibold text-emerald-900">{{ 'parentDashboard.childCard.bookingStatus.completed' | translate }}</span>
+                        </div>
+                        <p class="text-xs text-emerald-700 mb-4">
+                          {{ 'parentDashboard.childCard.sessionCompletedDesc' | translate }}
+                        </p>
+                        
+                        <!-- Quick Actions -->
+                        <div class="grid grid-cols-1 gap-2">
+                          <button
+                            (click)="viewSessionNotes(booking)"
+                            class="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-white border-2 border-emerald-200 px-4 py-3 text-sm font-semibold text-emerald-900 hover:bg-emerald-50 transition-colors"
+                          >
+                            <span class="text-lg">📝</span>
+                            <span>{{ 'parentDashboard.childCard.viewNotes' | translate }}</span>
+                          </button>
+                          <button
+                            (click)="viewSessionDocuments(booking)"
+                            class="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-white border-2 border-emerald-200 px-4 py-3 text-sm font-semibold text-emerald-900 hover:bg-emerald-50 transition-colors"
+                          >
+                            <span class="text-lg">📂</span>
+                            <span>{{ 'parentDashboard.childCard.documents' | translate }}</span>
+                          </button>
+                          <button
+                            (click)="openBookSessionModal(child)"
+                            class="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-[#2563EB] px-4 py-3 text-sm font-semibold text-white shadow-sm hover:bg-[#1d4ed8] transition-colors"
+                          >
+                            <span class="text-lg">📅</span>
+                            <span>{{ 'parentDashboard.childCard.bookNextSession' | translate }}</span>
+                          </button>
+                        </div>
                       </div>
-                      <div class="flex-1 min-w-0">
-                        <div class="flex items-center gap-2 mb-1">
-                          <span [ngClass]="getStatusColor(update.status || '')" class="px-2 py-0.5 rounded text-xs font-semibold">
-                            {{ update.status || 'Update' }}
-                          </span>
-                          <span class="text-xs text-slate-500">{{ getRelativeTime(update.created_at) }}</span>
                     </div>
-                        <p *ngIf="update.progress_summary" class="text-sm text-slate-700 line-clamp-2 mb-1">
-                          {{ update.progress_summary }}
-                        </p>
-                        <p *ngIf="!update.progress_summary && update.case_notes" class="text-sm text-slate-700 line-clamp-2 mb-1">
-                          {{ update.case_notes }}
-                        </p>
-                        <div *ngIf="update.attachments && update.attachments.length > 0" class="flex items-center gap-2 mt-2">
-                          <span class="text-xs text-slate-500">Attachments:</span>
-                          <div class="flex items-center gap-1">
-                            @for (att of update.attachments.slice(0, 3); track att.url) {
-                              <span class="text-xs">
-                                @if (att.type === 'photo') {
-                                  <lucide-angular [img]="ImageIcon" size="12" class="text-blue-600"></lucide-angular>
-                                } @else if (att.type === 'video') {
-                                  <lucide-angular [img]="VideoIcon" size="12" class="text-purple-600"></lucide-angular>
-                                } @else {
-                                  <lucide-angular [img]="FileIcon" size="12" class="text-slate-600"></lucide-angular>
-                                }
+                  </ng-container>
+                  
+                  
+                  <!-- Show View Booking button if paid and awaiting confirmation (but no therapist assigned yet) -->
+                  <ng-container *ngIf="getBookingForChild(child.id) as booking">
+                    <button
+                      *ngIf="isBookingPaid(booking) && booking.status === 'awaiting_clinical_review' && !hasTherapistAssigned(booking)"
+                      (click)="viewBooking(booking)"
+                      class="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-[#2563EB] px-6 py-4 text-base font-semibold text-white shadow-sm hover:bg-[#1d4ed8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
+                    >
+                      <lucide-angular [img]="EyeIcon" size="20"></lucide-angular>
+                      <span>{{ 'parentDashboard.childCard.viewBooking' | translate }}</span>
+                    </button>
+                  </ng-container>
+                  
+                  <!-- Show cash payment action buttons (only if not paid yet) -->
+                  <ng-container *ngIf="getBookingForChild(child.id) as booking">
+                    <div *ngIf="isAwaitingCash(booking) && !isBookingPaid(booking)" class="space-y-2">
+                    <button
+                      (click)="viewInstructions(booking)"
+                      class="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-[#2563EB] px-6 py-4 text-base font-semibold text-white shadow-sm hover:bg-[#1d4ed8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
+                    >
+                      <span class="text-lg">📄</span>
+                      <span>{{ 'parentDashboard.childCard.viewInstructions' | translate }}</span>
+                    </button>
+                    <button
+                      (click)="cancelBooking(booking)"
+                      class="w-full inline-flex items-center justify-center gap-2 rounded-lg border-2 border-gray-300 bg-white px-6 py-4 text-base font-semibold text-gray-700 shadow-sm hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-500 focus-visible:ring-offset-2 transition-colors"
+                    >
+                      <span class="text-lg">🗑️</span>
+                      <span>{{ 'parentDashboard.childCard.cancel' | translate }}</span>
+                    </button>
+                    </div>
+                  </ng-container>
+                  
+                  <!-- Show book button only when no active booking for this child -->
+                  <button
+                    *ngIf="!getBookingForChild(child.id)"
+                    (click)="openBookSessionModal(child)"
+                    [class.book-session-pulse]="child.id && !hasAnimatedBookButton[child.id]"
+                    class="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-[#2563EB] px-6 py-4 text-base font-semibold text-white shadow-sm hover:bg-[#1d4ed8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
+                    (animationend)="onBookButtonAnimationEnd(child.id)"
+                  >
+                    <lucide-angular [img]="CalendarPlusIcon" size="20"></lucide-angular>
+                    <span>{{ 'parentDashboard.childCard.bookSession' | translate }}</span>
+                  </button>
+
+                  <!-- If booking exists, show detailed booking card -->
+                  <div
+                    *ngIf="getBookingForChild(child.id) as existingBooking"
+                    class="w-full rounded-xl border-2 border-blue-200 bg-gradient-to-br from-blue-50 via-white to-indigo-50 shadow-sm overflow-hidden"
+                  >
+                    <!-- Header with status -->
+                    <div class="bg-gradient-to-r from-blue-600 to-indigo-600 px-4 py-3 text-white">
+                      <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                          <lucide-angular [img]="CalendarIcon" size="18"></lucide-angular>
+                          <span class="font-semibold text-sm">{{ existingBooking.booking_type_name || existingBooking.booking_type | titlecase }}</span>
+                        </div>
+                        <span
+                          *ngIf="isAwaitingCash(existingBooking); else otherStatus"
+                          class="inline-flex items-center gap-1 rounded-full bg-amber-500 px-2.5 py-1 text-[11px] font-semibold text-white ring-1 ring-amber-300"
+                        >
+                          🟠 Awaiting Payment
                         </span>
-                            }
-                            @if (update.attachments.length > 3) {
-                              <span class="text-xs text-slate-500">+{{ update.attachments.length - 3 }} more</span>
-                            }
-                      </div>
-                      </div>
+                        <ng-template #otherStatus>
+                          <span 
+                            class="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold ring-1"
+                            [ngClass]="{
+                              'text-white': existingBooking.status === 'completed' || existingBooking.therapist_response === 'accepted' || existingBooking.status === 'confirmed' || existingBooking.status === 'awaiting_clinical_review' || existingBooking.status === 'awaiting_payment',
+                              'bg-white/20 text-white ring-white/30': !existingBooking.therapist_response && existingBooking.status !== 'confirmed' && existingBooking.status !== 'completed'
+                            }"
+                            [style.background-color]="existingBooking.status === 'completed' || existingBooking.therapist_response === 'accepted' || existingBooking.status === 'confirmed' ? '#10B981' : (existingBooking.status === 'awaiting_clinical_review' ? '#2563EB' : (existingBooking.status === 'awaiting_payment' ? '#F59E0B' : ''))"
+                            [style.border-color]="existingBooking.status === 'completed' || existingBooking.therapist_response === 'accepted' || existingBooking.status === 'confirmed' ? '#10B981' : (existingBooking.status === 'awaiting_clinical_review' ? '#2563EB' : (existingBooking.status === 'awaiting_payment' ? '#F59E0B' : ''))"
+                          >
+                            <span *ngIf="existingBooking.status === 'completed'" class="text-xs">✅</span>
+                            <span *ngIf="existingBooking.therapist_response === 'accepted' && existingBooking.status !== 'completed'" class="h-1.5 w-1.5 rounded-full bg-white"></span>
+                            <span>{{ ('parentDashboard.childCard.bookingStatus.' + existingBooking.status) | translate }}</span>
+                          </span>
+                        </ng-template>
                       </div>
                     </div>
-                  }
-                </div>
-              </div>
 
-              <!-- Booking Status -->
-              <div *ngIf="getBookingForChild(child.id) as existingBooking" class="border-t border-slate-200 pt-6">
-                <div class="bg-blue-50 rounded-xl p-5 border border-blue-200">
-                  <div class="flex items-center justify-between mb-3">
-                    <h4 class="font-semibold text-blue-900">Upcoming Session</h4>
-                    <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-semibold">
-                      {{ existingBooking.status | titlecase }}
+                    <!-- Booking Details Content -->
+                    <div class="p-4 space-y-4">
+                      <!-- Confirmed Schedule (if therapist has confirmed) -->
+                      <div *ngIf="existingBooking.confirmed_start_at || existingBooking.therapist_response === 'accepted'" 
+                           class="bg-emerald-50 border border-emerald-200 rounded-lg p-3 space-y-2">
+                        <div class="flex items-center gap-2 mb-3">
+                          <lucide-angular [img]="CheckCircleIcon" size="16" class="text-emerald-600"></lucide-angular>
+                          <span class="text-sm font-semibold text-emerald-800">Confirmed Schedule</span>
+                        </div>
+                        
+                        <!-- Horizontal Row: Date & Time + Online Session -->
+                        <div class="flex flex-col md:flex-row gap-4 md:gap-6">
+                          <!-- Date & Time Section -->
+                          <div class="flex items-start gap-2 text-sm flex-1">
+                            <lucide-angular [img]="ClockIcon" size="16" class="text-emerald-600 mt-0.5 flex-shrink-0"></lucide-angular>
+                            <div class="flex-1 min-w-0">
+                              <p class="font-medium text-emerald-900">Date & Time</p>
+                              <p class="text-emerald-700">
+                                {{ existingBooking.confirmed_start_at | date:'fullDate' }} at 
+                                {{ existingBooking.confirmed_start_at | date:'shortTime' }}
+                              </p>
+                              <p *ngIf="existingBooking.confirmed_end_at" class="text-xs text-emerald-600 mt-1">
+                                Until {{ existingBooking.confirmed_end_at | date:'shortTime' }}
+                              </p>
+                            </div>
+                          </div>
+                          
+                          <!-- Vertical Divider (only on larger screens) -->
+                          <div *ngIf="existingBooking.mode === 'online' && existingBooking.online_meeting_link" 
+                               class="hidden md:block w-px bg-emerald-300/50 flex-shrink-0"></div>
+                          
+                          <!-- Online Session Link - Same Row with Visual Division -->
+                          <div *ngIf="existingBooking.mode === 'online' && existingBooking.online_meeting_link" 
+                               class="flex items-start gap-3 flex-1 md:pl-4 md:border-l-2 md:border-emerald-300/50">
+                            <div class="flex-shrink-0">
+                              <div class="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center">
+                                <lucide-angular [img]="VideoIcon" size="20" class="text-emerald-700"></lucide-angular>
+                              </div>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                              <p class="text-xs font-semibold text-emerald-800 mb-1">Online Session</p>
+                              <a 
+                                [href]="existingBooking.online_meeting_link" 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-sm font-semibold transition-colors shadow-sm hover:shadow-md mb-2"
+                              >
+                                <span>Click to join Google Meet session</span>
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                                </svg>
+                              </a>
+                              <p class="text-xs text-emerald-600 break-all font-mono">
+                                {{ existingBooking.online_meeting_link }}
+                              </p>
+                            </div>
+                          </div>
+                          
+                          <!-- In-Centre Location -->
+                          <div *ngIf="existingBooking.mode === 'in_centre'" 
+                               class="flex items-start gap-2 flex-1 md:pl-4 md:border-l-2 md:border-emerald-300/50">
+                            <lucide-angular [img]="MapPinIcon" size="16" class="text-emerald-600 mt-0.5 flex-shrink-0"></lucide-angular>
+                            <div class="flex-1 min-w-0">
+                              <p class="font-medium text-emerald-900 text-sm">Location</p>
+                              <p class="text-emerald-700 text-xs mt-1">
+                                Bloom Spectrum Centre<br>
+                                No. A-1-08, Block A, Conezion Commercial<br>
+                                Persiaran IRC 3, IOI Resort City, 62502 Putrajaya
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Pending Schedule (if not yet confirmed by therapist) -->
+                      <div *ngIf="!existingBooking.confirmed_start_at && existingBooking.therapist_response !== 'accepted'" 
+                           class="bg-blue-50 border border-blue-200 rounded-lg p-3 space-y-2">
+                        <div class="flex items-center gap-2 mb-2">
+                          <lucide-angular [img]="ClockIcon" size="16" class="text-blue-600"></lucide-angular>
+                          <span class="text-sm font-semibold text-blue-800">Preferred Schedule</span>
+                        </div>
+                        <div class="text-sm">
+                          <p class="text-blue-700">
+                            {{ existingBooking.preferred_start_at || existingBooking.start_at | date:'fullDate' }} at 
+                            {{ existingBooking.preferred_start_at || existingBooking.start_at | date:'shortTime' }}
+                          </p>
+                          <p class="text-xs text-blue-600 mt-1 italic">
+                            Awaiting therapist confirmation. You'll be notified once confirmed.
+                          </p>
+                        </div>
+                      </div>
+
+                      <!-- Therapist Notes (if available) -->
+                      <div *ngIf="existingBooking.notes" class="bg-slate-50 border border-slate-200 rounded-lg p-3">
+                        <p class="text-xs font-semibold text-slate-700 mb-1">Therapist Notes:</p>
+                        <p class="text-sm text-slate-600">{{ existingBooking.notes }}</p>
+                      </div>
+
+                      <!-- Latest Updates Section -->
+                      <div *ngIf="getLatestProgressUpdate(child.id) as latestUpdate" class="bg-gradient-to-br from-purple-50 to-indigo-50 border border-purple-200 rounded-lg p-4">
+                        <div class="flex items-center gap-2 mb-3">
+                          <lucide-angular [img]="FileTextIcon" size="18" class="text-purple-600"></lucide-angular>
+                          <h4 class="text-sm font-semibold text-purple-900">{{ 'parentDashboard.childCard.latestUpdate' | translate }}</h4>
+                          <span class="ml-auto text-xs text-purple-600">{{ formatDate(latestUpdate.created_at) }}</span>
+                        </div>
+                        <div *ngIf="latestUpdate.title" class="mb-2">
+                          <p class="text-sm font-semibold text-purple-900">{{ latestUpdate.title }}</p>
+                        </div>
+                        <p class="text-sm text-purple-800 mb-3 line-clamp-2">{{ latestUpdate.body }}</p>
+                        <div *ngIf="latestUpdate.media && latestUpdate.media.length > 0" class="flex items-center gap-2 mb-2">
+                          <lucide-angular [img]="ImageIcon" size="14" class="text-purple-600"></lucide-angular>
+                          <span class="text-xs text-purple-700">{{ latestUpdate.media.length }} {{ 'parentDashboard.childCard.mediaFiles' | translate }}</span>
+                        </div>
+                        <button
+                          (click)="viewAllUpdates(child)"
+                          class="text-xs font-semibold text-purple-700 hover:text-purple-900 underline"
+                        >
+                          {{ 'parentDashboard.childCard.viewAllUpdates' | translate }} →
+                        </button>
+                      </div>
+
+                      <!-- Payment Information (if awaiting cash payment) -->
+                      <div *ngIf="isAwaitingCash(existingBooking)" class="bg-amber-50 border border-amber-200 rounded-lg p-3 space-y-2">
+                        <div class="flex items-center justify-between">
+                          <span class="text-sm font-semibold text-amber-900">Amount Due:</span>
+                          <span class="text-sm font-bold text-amber-800">
+                            {{ (existingBooking.currency || 'MYR') }} {{ existingBooking.price || '—' }}
+                          </span>
+                        </div>
+                        <div class="flex items-center justify-between text-xs text-amber-700">
+                          <span>Pay before:</span>
+                          <span>{{ getCashPayBy(existingBooking) || existingBooking.preferred_start_at || existingBooking.start_at | date:'medium' }}</span>
+                        </div>
+                        <div class="flex flex-wrap gap-2 pt-2">
+                          <button type="button" class="inline-flex items-center justify-center px-3 py-1.5 rounded-md bg-[#2563EB] text-white text-xs font-semibold shadow-sm hover:bg-[#1d4ed8]">
+                            View instructions
+                          </button>
+                          <button type="button" class="inline-flex items-center justify-center px-3 py-1.5 rounded-md border border-red-200 text-red-700 text-xs font-semibold bg-red-50 hover:bg-red-100">
+                            Cancel booking
+                          </button>
+                          <button type="button" class="inline-flex items-center justify-center px-3 py-1.5 rounded-md border border-blue-200 text-blue-700 text-xs font-semibold bg-white hover:bg-blue-50">
+                            Switch to online payment
+                          </button>
+                        </div>
+                      </div>
+
+                      <!-- Booking ID -->
+                      <div class="text-xs text-slate-500 text-center pt-2 border-t border-slate-200">
+                        Booking ID: #{{ existingBooking.id }}
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Tooltip -->
+                  <div *ngIf="!getBookingForChild(child.id)" class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-10">
+                    {{ 'parentDashboard.childCard.bookSessionTooltip' | translate }}
+                    <div class="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1">
+                      <div class="border-4 border-transparent border-t-gray-900"></div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Action / next-step area (hidden when an active booking exists) -->
+                <div
+                  *ngIf="!getBookingForChild(child.id)"
+                  class="mt-2 rounded-lg border border-dashed border-slate-200/80 bg-slate-50/70 px-3.5 py-3 text-sm"
+                >
+                  <!-- Case 1: Not Enrolled & No Booking -->
+                  <div
+                    *ngIf="child.child_status === 'not_enrolled' && !getBookingForChild(child.id)"
+                    class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+                  >
+                    <p class="text-slate-600 text-sm">
+                      {{ 'parentDashboard.childCard.nextStepNotEnrolledNoBooking' | translate }}
+                    </p>
+                    <button
+                      (click)="openBookTourModal()"
+                      class="inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-full bg-blue-600 px-4 py-2 text-xs font-semibold text-white shadow-sm hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1"
+                    >
+                      <span class="text-base leading-none" aria-hidden="true">📅</span>
+                      <span>{{ 'parentDashboard.childCard.bookTour' | translate }}</span>
+                    </button>
+                  </div>
+
+                  <!-- Case 2: Not Enrolled & Has Booking -->
+                  <div
+                    *ngIf="child.child_status === 'not_enrolled' && getBookingForChild(child.id) as booking"
+                    class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+                  >
+                    <div>
+                      <p class="text-sm font-semibold text-blue-700">
+                        {{ 'parentDashboard.childCard.upcoming' | translate }} {{ booking.booking_type | titlecase }}
+                      </p>
+                      <p class="text-xs text-slate-500">
+                        {{ booking.start_at | date:'mediumDate' }}
+                        {{ 'parentDashboard.childCard.at' | translate }}
+                        {{ booking.start_at | date:'shortTime' }}
+                      </p>
+                    </div>
+                    <span
+                      class="inline-flex items-center gap-1 rounded-full bg-blue-50 px-3 py-1 text-[11px] font-semibold text-blue-700 ring-1 ring-blue-100"
+                    >
+                      <span class="h-1.5 w-1.5 rounded-full bg-blue-400"></span>
+                      <span>{{ ('parentDashboard.childCard.bookingStatus.' + booking.status) | translate }}</span>
                     </span>
                   </div>
-                  <div class="space-y-2 text-sm">
-                    <div class="flex items-center gap-2 text-blue-800">
-                      <lucide-angular [img]="CalendarIcon" size="16"></lucide-angular>
-                      <span>{{ existingBooking.preferred_start_at || existingBooking.start_at | date:'fullDate' }} at {{ existingBooking.preferred_start_at || existingBooking.start_at | date:'shortTime' }}</span>
-                    </div>
-                    <div class="text-blue-700">
-                      <span class="font-medium">{{ existingBooking.booking_type | titlecase }}</span>
-                      <span *ngIf="existingBooking.mode"> • {{ existingBooking.mode === 'online' ? 'Online' : 'In Centre' }}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        }
-                </div>
 
-      <!-- Timeline Modal -->
-      <div 
-        *ngIf="showTimelineModal && selectedChildForTimeline"
-        class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-        (click)="closeTimelineModal()"
-      >
-        <div 
-          class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col"
-          (click)="$event.stopPropagation()"
-        >
-          <!-- Modal Header -->
-          <div class="bg-gradient-to-r from-blue-600 to-indigo-600 p-6 text-white">
-            <div class="flex items-center justify-between">
-              <div>
-                <h2 class="text-2xl font-bold mb-1">{{ selectedChildForTimeline.full_name }}'s Progress Timeline</h2>
-                <p class="text-blue-100 text-sm">Day-to-day updates and progress tracking</p>
-              </div>
-                    <button
-                (click)="closeTimelineModal()"
-                class="p-2 rounded-lg bg-white/20 hover:bg-white/30 transition-colors"
+                  <!-- Case 3: Enrolled or In Assessment -->
+                  <div *ngIf="child.child_status !== 'not_enrolled'">
+                    <!-- No upcoming booking -->
+                    <div
+                      *ngIf="!getUpcomingBookingForChild(child.id)"
                     >
-                <span class="text-2xl">×</span>
-                    </button>
-                  </div>
-          </div>
-
-          <!-- Modal Body -->
-          <div class="flex-1 overflow-y-auto p-6">
-            <div *ngIf="isLoadingCaseUpdates[selectedChildForTimeline.id!]" class="flex items-center justify-center py-12">
-              <div class="text-center">
-                <div class="inline-block w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-4"></div>
-                <p class="text-slate-600">Loading timeline...</p>
-              </div>
-            </div>
-
-            <div *ngIf="!isLoadingCaseUpdates[selectedChildForTimeline.id!] && getCaseUpdatesForChild(selectedChildForTimeline.id).length === 0" class="text-center py-12">
-              <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-100 mb-4">
-                <lucide-angular [img]="FileTextIcon" size="32" class="text-slate-400"></lucide-angular>
-                    </div>
-              <p class="text-slate-600 font-medium">No updates yet</p>
-              <p class="text-slate-500 text-sm mt-1">Updates from your therapist will appear here</p>
-                  </div>
-
-            <!-- Timeline -->
-            <div *ngIf="!isLoadingCaseUpdates[selectedChildForTimeline.id!] && getCaseUpdatesForChild(selectedChildForTimeline.id).length > 0" class="relative">
-              <!-- Timeline Line -->
-              <div class="absolute left-8 top-0 bottom-0 w-0.5 bg-gradient-to-b from-blue-200 via-indigo-200 to-purple-200"></div>
-
-              <!-- Timeline Items -->
-              <div class="space-y-6">
-                @for (update of getCaseUpdatesForChild(selectedChildForTimeline.id); track update.id) {
-                  <div class="relative flex gap-6">
-                    <!-- Timeline Dot -->
-                    <div class="relative z-10 flex-shrink-0">
-                      <div class="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white shadow-lg">
-                        <lucide-angular [img]="TrendingUpIcon" size="24"></lucide-angular>
-                      </div>
+                      <p class="text-sm text-slate-600">
+                        {{ 'parentDashboard.childCard.noSessionsBooked' | translate }}
+                      </p>
                     </div>
                     
-                    <!-- Content Card -->
-                    <div class="flex-1 bg-white rounded-xl border-2 border-slate-200 shadow-lg hover:shadow-xl transition-all duration-200 overflow-hidden">
-                      <!-- Card Header -->
-                      <div class="bg-gradient-to-r from-slate-50 to-blue-50/50 p-4 border-b border-slate-200">
-                        <div class="flex items-center justify-between flex-wrap gap-2">
-                          <div class="flex items-center gap-3">
-                            <span [ngClass]="getStatusColor(update.status || '')" class="px-3 py-1 rounded-lg font-semibold text-sm">
-                              {{ update.status || 'Update' }}
-                            </span>
-                            <span class="text-sm text-slate-600">{{ formatDate(update.created_at) }}</span>
-                          </div>
-                          <span class="text-xs text-slate-500">{{ getRelativeTime(update.created_at) }}</span>
-                        </div>
-                        <div *ngIf="update.therapist_name" class="mt-2 text-sm text-slate-600">
-                          <span class="font-medium">Therapist:</span> {{ update.therapist_name }}
-                        </div>
+                    <!-- Has upcoming booking -->
+                    <div
+                      *ngIf="getUpcomingBookingForChild(child.id) as booking"
+                      class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+                    >
+                      <div>
+                        <p class="text-sm font-semibold text-blue-700">
+                          {{ 'parentDashboard.childCard.nextSessionLabel' | translate }} {{ booking.booking_type | titlecase }}
+                        </p>
+                        <p class="text-xs text-slate-500">
+                          {{ booking.preferred_start_at || booking.start_at | date:'mediumDate' }}
+                          {{ 'parentDashboard.childCard.at' | translate }}
+                          {{ booking.preferred_start_at || booking.start_at | date:'shortTime' }}
+                        </p>
                       </div>
-
-                      <!-- Card Body -->
-                      <div class="p-5 space-y-4">
-                        <!-- Progress Summary -->
-                        <div *ngIf="update.progress_summary">
-                          <h4 class="text-sm font-semibold text-slate-700 mb-2 flex items-center gap-2">
-                            <lucide-angular [img]="TrendingUpIcon" size="16" class="text-green-600"></lucide-angular>
-                            Progress Summary
-                          </h4>
-                          <p class="text-slate-700 whitespace-pre-wrap">{{ update.progress_summary }}</p>
-                        </div>
-
-                        <!-- Case Notes -->
-                        <div *ngIf="update.case_notes">
-                          <h4 class="text-sm font-semibold text-slate-700 mb-2 flex items-center gap-2">
-                            <lucide-angular [img]="FileTextIcon" size="16" class="text-blue-600"></lucide-angular>
-                            Case Notes
-                          </h4>
-                          <p class="text-slate-700 whitespace-pre-wrap">{{ update.case_notes }}</p>
-                        </div>
-
-                        <!-- Goals -->
-                        <div *ngIf="update.goals && (isArray(update.goals) ? update.goals.length > 0 : update.goals)">
-                          <h4 class="text-sm font-semibold text-slate-700 mb-2">Treatment Goals</h4>
-                          <ul class="list-disc list-inside space-y-1 text-slate-700">
-                            @if (isArray(update.goals)) {
-                              @for (goal of update.goals; track goal) {
-                                <li>{{ goal }}</li>
-                              }
-                            } @else {
-                              <li>{{ update.goals }}</li>
-                            }
-                          </ul>
-                        </div>
-
-                        <!-- Next Steps -->
-                        <div *ngIf="update.next_steps">
-                          <h4 class="text-sm font-semibold text-slate-700 mb-2">Next Steps</h4>
-                          <p class="text-slate-700 whitespace-pre-wrap">{{ update.next_steps }}</p>
-                        </div>
-
-                        <!-- Attachments -->
-                        <div *ngIf="update.attachments && update.attachments.length > 0" class="border-t border-slate-200 pt-4">
-                          <h4 class="text-sm font-semibold text-slate-700 mb-3">Attachments ({{ update.attachments.length }})</h4>
-                          <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                            @for (att of update.attachments; track att.url) {
-                              <a 
-                                [href]="att.url" 
-                                target="_blank"
-                                class="group relative aspect-square rounded-lg overflow-hidden border-2 border-slate-200 hover:border-blue-400 transition-colors bg-slate-50 flex items-center justify-center"
-                              >
-                                @if (att.type === 'photo') {
-                                  <img [src]="att.url" [alt]="att.filename" class="w-full h-full object-cover group-hover:scale-105 transition-transform">
-                                } @else if (att.type === 'video') {
-                                  <div class="text-center p-4">
-                                    <lucide-angular [img]="VideoIcon" size="32" class="text-purple-600 mx-auto mb-2"></lucide-angular>
-                                    <p class="text-xs text-slate-600 truncate">{{ att.filename }}</p>
-                                  </div>
-                                } @else {
-                                  <div class="text-center p-4">
-                                    <lucide-angular [img]="FileIcon" size="32" class="text-slate-600 mx-auto mb-2"></lucide-angular>
-                                    <p class="text-xs text-slate-600 truncate">{{ att.filename }}</p>
-                                  </div>
-                                }
-                              </a>
-                            }
+                      <span
+                        class="inline-flex items-center gap-1 rounded-full bg-blue-50 px-3 py-1 text-[11px] font-semibold text-blue-700 ring-1 ring-blue-100"
+                      >
+                        <span class="h-1.5 w-1.5 rounded-full bg-blue-400"></span>
+                        <span>{{ ('parentDashboard.childCard.bookingStatus.' + booking.status) | translate }}</span>
+                      </span>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
           }
+          
+          <!-- Add Another Child Card (only show when multiple children) -->
+          <button 
+            *ngIf="children.length > 1"
+            (click)="openAddChildModal()" 
+            class="border-2 border-dashed border-blue-200 rounded-xl p-6 flex flex-col items-center justify-center text-gray-500 hover:border-blue-500 hover:text-blue-600 hover:bg-blue-50 transition-colors flex-shrink-0 w-[300px] min-h-[400px]">
+            <span class="mb-3 text-4xl" aria-hidden="true">➕</span>
+            <span class="font-medium text-sm">{{ 'parentDashboard.addAnotherChild' | translate }}</span>
+          </button>
         </div>
       </div>
-        </div>
-      </div>
+
     </div>
     </ng-container>
 
     <ng-template #loadingState>
       <div class="flex items-center justify-center py-16">
-        <div class="text-center">
-          <div class="inline-block w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-4"></div>
-          <p class="text-slate-600">Loading dashboard...</p>
+        <div class="inline-flex items-center space-x-3">
+          <span class="h-6 w-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></span>
+          <span class="text-sm text-gray-600">{{ 'common.loading' | translate }}</span>
         </div>
       </div>
     </ng-template>
-  </div>
 
-  <!-- Modals -->
+  <!-- Add Child Modal -->
   <app-add-child-modal 
     *ngIf="showAddChildModal" 
     [child]="selectedChild"
@@ -392,6 +678,7 @@
     (childUpdated)="onChildUpdated()">
   </app-add-child-modal>
 
+  <!-- Book Tour Modal -->
   <app-book-tour-modal
     *ngIf="showBookTourModal"
     [children]="children"
@@ -400,6 +687,7 @@
     (bookingCreated)="onBookingCreated()">
   </app-book-tour-modal>
 
+  <!-- Booking Wizard -->
   <app-booking-wizard
     *ngIf="showBookingWizard"
     [child]="selectedChildForWizard"
@@ -407,3 +695,4 @@
     (stepComplete)="onWizardStepComplete($event)">
   </app-booking-wizard>
 </div>
+

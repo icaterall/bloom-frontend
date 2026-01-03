@@ -1,17 +1,19 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { LucideAngularModule, X, Clock, MapPin, Monitor, Calendar, FileText, ChevronLeft, ChevronRight } from 'lucide-angular';
+import { LucideAngularModule, X, Clock, MapPin, Monitor, Calendar, FileText, ChevronLeft, ChevronRight, ArrowLeft, ArrowRight, Lock } from 'lucide-angular';
 import { Child } from '../../../../shared/models/child.model';
 import { BookingService } from '../../../../core/services/booking.service';
 import { BookingType } from '../../../../shared/models/booking-type.model';
 import { CreateBookingRequest } from '../../../../shared/models/booking.model';
 import { TranslatePipe } from '../../../../shared/pipes/translate.pipe';
+import { TranslationService } from '../../../../shared/services/translation.service';
+import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
   selector: 'app-booking-wizard',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, LucideAngularModule],
+  imports: [CommonModule, ReactiveFormsModule, LucideAngularModule, TranslatePipe],
   templateUrl: './booking-wizard.component.html',
   styleUrls: ['./booking-wizard.component.css']
 })
@@ -61,10 +63,17 @@ export class BookingWizardComponent implements OnInit {
   FileTextIcon = FileText;
   ChevronLeftIcon = ChevronLeft;
   ChevronRightIcon = ChevronRight;
+  ArrowLeftIcon = ArrowLeft;
+  ArrowRightIcon = ArrowRight;
+  LockIcon = Lock;
+
+  currentLanguage: string = 'en';
 
   constructor(
     private fb: FormBuilder,
-    private bookingService: BookingService
+    private bookingService: BookingService,
+    private translationService: TranslationService,
+    private authService: AuthService
   ) {
     // Set min date to tomorrow
     const tomorrow = new Date();
@@ -90,6 +99,10 @@ export class BookingWizardComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.currentLanguage = this.translationService.getCurrentLanguage();
+    this.translationService.currentLang$.subscribe(lang => {
+      this.currentLanguage = lang;
+    });
     this.loadBookingTypes();
     this.initCalendar();
     
@@ -310,13 +323,26 @@ export class BookingWizardComponent implements OnInit {
             }
           });
         } else if (paymentMethod === 'card' || paymentMethod === 'online_banking') {
-          // Online payment - redirect to Stripe checkout
+          // Online payment - show loading screen then redirect to Stripe checkout
           if (response.checkout_url) {
             console.log('[BookingWizard] Redirecting to Stripe:', response.checkout_url);
-            window.location.href = response.checkout_url;
+            // Move to step 4 (loading screen) before redirecting
+            this.currentStep = 4;
+            this.isLoadingPayment = true;
+            // Redirect after a brief moment to show loading screen
+            if (response.checkout_url) {
+              setTimeout(() => {
+                window.location.href = response.checkout_url!;
+              }, 1000);
+            } else {
+              console.error('[BookingWizard] Checkout URL missing in response');
+              this.errorMessage = 'Checkout URL not available. Please try again.';
+              this.isLoadingPayment = false;
+            }
           } else {
             console.error('[BookingWizard] Checkout URL missing in response');
             this.errorMessage = 'Checkout URL not available. Please try again.';
+            this.isLoadingPayment = false;
           }
         }
       },
@@ -342,7 +368,25 @@ export class BookingWizardComponent implements OnInit {
   }
 
   getBookingSummary(): any {
-    if (!this.createdBooking || !this.step1Data) return null;
+    if (!this.createdBooking || !this.step1Data) {
+      // For step 3, we might not have createdBooking yet, so use form values
+      const preferredStartAt = this.bookingForm.get('date')?.value && this.bookingForm.get('time')?.value
+        ? new Date(`${this.bookingForm.get('date')?.value}T${this.bookingForm.get('time')?.value}`).toISOString()
+        : null;
+      const duration = this.step1Data.bookingType?.default_duration_min || 60;
+      
+      return {
+        childName: this.child?.full_name || '',
+        service: this.step1Data.bookingType?.name || '',
+        serviceCode: this.step1Data.booking_type,
+        mode: this.step1Data.mode,
+        preferredTime: preferredStartAt ? this.formatDate(preferredStartAt) : '',
+        duration: duration,
+        price: this.step1Data.price?.price || 0,
+        currency: this.step1Data.price?.currency || 'MYR',
+        location: this.getLocation()
+      };
+    }
     
     const preferredStartAt = this.createdBooking.preferred_start_at || 
                             new Date(`${this.bookingForm.get('date')?.value}T${this.bookingForm.get('time')?.value}`).toISOString();
@@ -351,11 +395,13 @@ export class BookingWizardComponent implements OnInit {
     return {
       childName: this.child?.full_name || '',
       service: this.step1Data.bookingType?.name || '',
-      mode: this.getModeLabel(this.step1Data.mode),
+      serviceCode: this.step1Data.booking_type,
+      mode: this.step1Data.mode,
       preferredTime: this.formatDate(preferredStartAt),
       duration: duration,
       price: this.createdBooking.price || this.step1Data.price?.price || 0,
-      currency: this.createdBooking.currency || this.step1Data.price?.currency || 'MYR'
+      currency: this.createdBooking.currency || this.step1Data.price?.currency || 'MYR',
+      location: this.getLocation()
     };
   }
 
@@ -484,6 +530,32 @@ export class BookingWizardComponent implements OnInit {
     
     const dateString = date.toISOString().split('T')[0];
     this.bookingForm.patchValue({ date: dateString });
+  }
+
+  toggleLanguage(): void {
+    this.translationService.toggleLanguage();
+    const newLang = this.translationService.getCurrentLanguage();
+    if (this.authService.isAuthenticatedUser()) {
+      this.authService.updateProfile({ preferred_language: newLang }).subscribe({
+        error: (err) => console.error('Failed to update language preference', err)
+      });
+    }
+  }
+
+  getServiceIcon(code: string): string {
+    if (code === 'consultation') return '🩺';
+    if (code === 'centre_session') return '🏢';
+    if (code === 'online_session') return '💻';
+    return '📅';
+  }
+
+  getServiceIconFromType(type: string | undefined): string {
+    if (!type) return '📅';
+    const lowerType = type.toLowerCase();
+    if (lowerType.includes('consultation')) return '🩺';
+    if (lowerType.includes('centre') || lowerType.includes('center')) return '🏢';
+    if (lowerType.includes('online')) return '💻';
+    return '📅';
   }
 }
 

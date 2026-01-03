@@ -1,0 +1,658 @@
+<div class="bookings-page">
+  <!-- Page Header -->
+  <header class="page-header">
+    <div class="header-left">
+      <h1 class="page-title">Bookings Management</h1>
+      <p class="page-description">Monitor and manage all session bookings</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-secondary" (click)="loadBookings()">
+        <lucide-angular [img]="RefreshIcon" [size]="18"></lucide-angular>
+        <span>Refresh</span>
+      </button>
+      <button class="btn btn-primary" (click)="exportData()">
+        <lucide-angular [img]="DownloadIcon" [size]="18"></lucide-angular>
+        <span>Export</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Stats Cards -->
+  <section class="stats-grid" *ngIf="stats">
+    <div class="stat-card stat-total">
+      <div class="stat-icon">
+        <lucide-angular [img]="CalendarDaysIcon" [size]="24"></lucide-angular>
+      </div>
+      <div class="stat-content">
+        <span class="stat-value">{{ stats.total }}</span>
+        <span class="stat-label">Total Bookings</span>
+      </div>
+    </div>
+    <div class="stat-card stat-today">
+      <div class="stat-icon">
+        <lucide-angular [img]="ClockIcon" [size]="24"></lucide-angular>
+      </div>
+      <div class="stat-content">
+        <span class="stat-value">{{ stats.today }}</span>
+        <span class="stat-label">Today</span>
+      </div>
+    </div>
+    <div class="stat-card stat-confirmed">
+      <div class="stat-icon">
+        <lucide-angular [img]="CheckCircleIcon" [size]="24"></lucide-angular>
+      </div>
+      <div class="stat-content">
+        <span class="stat-value">{{ stats.confirmed }}</span>
+        <span class="stat-label">Confirmed</span>
+      </div>
+    </div>
+    <div class="stat-card stat-completed">
+      <div class="stat-icon">
+        <lucide-angular [img]="TrendingUpIcon" [size]="24"></lucide-angular>
+      </div>
+      <div class="stat-content">
+        <span class="stat-value">{{ stats.completed }}</span>
+        <span class="stat-label">Completed</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Content Card -->
+  <div class="content-card">
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <!-- Search -->
+      <div class="search-box">
+        <lucide-angular [img]="SearchIcon" [size]="18" class="search-icon"></lucide-angular>
+        <input
+          type="text"
+          class="search-input"
+          placeholder="Search by child, parent, therapist, or ID..."
+          [(ngModel)]="searchTerm"
+          (input)="onSearchInput()"
+        />
+        <button
+          *ngIf="searchTerm"
+          class="search-clear"
+          (click)="searchTerm = ''; onSearchInput()"
+        >
+          <lucide-angular [img]="XIcon" [size]="16"></lucide-angular>
+        </button>
+      </div>
+
+      <!-- Quick Filters -->
+      <div class="quick-filters">
+        <select
+          class="filter-select"
+          [(ngModel)]="selectedStatus"
+          (change)="applyFilters()"
+        >
+          <option *ngFor="let opt of statusOptions" [value]="opt.value">{{ opt.label }}</option>
+        </select>
+
+        <select
+          class="filter-select"
+          [(ngModel)]="selectedType"
+          (change)="applyFilters()"
+        >
+          <option *ngFor="let opt of typeOptions" [value]="opt.value">{{ opt.label }}</option>
+        </select>
+
+        <select
+          class="filter-select"
+          [(ngModel)]="selectedMode"
+          (change)="applyFilters()"
+        >
+          <option *ngFor="let opt of modeOptions" [value]="opt.value">{{ opt.label }}</option>
+        </select>
+      </div>
+
+      <!-- Advanced Filters Toggle -->
+      <button
+        class="btn btn-ghost"
+        [class.active]="showFilters"
+        (click)="toggleFilters()"
+      >
+        <lucide-angular [img]="FilterIcon" [size]="18"></lucide-angular>
+        <span>Filters</span>
+        <span *ngIf="hasActiveFilters" class="filter-badge">{{ hasActiveFilters ? '!' : '' }}</span>
+      </button>
+
+      <button
+        *ngIf="hasActiveFilters"
+        class="btn btn-link"
+        (click)="clearFilters()"
+      >
+        Clear all
+      </button>
+    </div>
+
+    <!-- Advanced Filters Panel -->
+    <div class="filters-panel" *ngIf="showFilters">
+      <div class="filter-group">
+        <label class="filter-label">Date From</label>
+        <input
+          type="date"
+          class="filter-input"
+          [(ngModel)]="dateFrom"
+          (change)="applyFilters()"
+        />
+      </div>
+      <div class="filter-group">
+        <label class="filter-label">Date To</label>
+        <input
+          type="date"
+          class="filter-input"
+          [(ngModel)]="dateTo"
+          (change)="applyFilters()"
+        />
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div class="loading-overlay" *ngIf="isLoading">
+      <div class="loading-spinner">
+        <lucide-angular [img]="LoaderIcon" [size]="32" class="spin"></lucide-angular>
+      </div>
+      <p class="loading-text">Loading bookings...</p>
+    </div>
+
+    <!-- Error State -->
+    <div class="error-state" *ngIf="error && !isLoading">
+      <lucide-angular [img]="AlertCircleIcon" [size]="48" class="error-icon"></lucide-angular>
+      <h3 class="error-title">Failed to load bookings</h3>
+      <p class="error-message">{{ error }}</p>
+      <button class="btn btn-primary" (click)="loadBookings()">
+        <lucide-angular [img]="RefreshIcon" [size]="18"></lucide-angular>
+        Try Again
+      </button>
+    </div>
+
+    <!-- Data Table -->
+    <div class="table-wrapper" *ngIf="!isLoading && !error">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th class="th-id">
+              <button class="sort-btn" (click)="sortBy('id')">
+                ID
+                <lucide-angular [img]="getSortIcon('id')" [size]="14"></lucide-angular>
+              </button>
+            </th>
+            <th class="th-child">
+              <button class="sort-btn" (click)="sortBy('child_name')">
+                Child
+                <lucide-angular [img]="getSortIcon('child_name')" [size]="14"></lucide-angular>
+              </button>
+            </th>
+            <th class="th-parent">
+              <button class="sort-btn" (click)="sortBy('parent_name')">
+                Parent
+                <lucide-angular [img]="getSortIcon('parent_name')" [size]="14"></lucide-angular>
+              </button>
+            </th>
+            <th class="th-type">
+              <button class="sort-btn" (click)="sortBy('booking_type')">
+                Type
+                <lucide-angular [img]="getSortIcon('booking_type')" [size]="14"></lucide-angular>
+              </button>
+            </th>
+            <th class="th-datetime">
+              <button class="sort-btn" (click)="sortBy('confirmed_start_at')">
+                Date & Time
+                <lucide-angular [img]="getSortIcon('confirmed_start_at')" [size]="14"></lucide-angular>
+              </button>
+            </th>
+            <th class="th-status">
+              <button class="sort-btn" (click)="sortBy('status')">
+                Status
+                <lucide-angular [img]="getSortIcon('status')" [size]="14"></lucide-angular>
+              </button>
+            </th>
+            <th class="th-therapist">
+              <button class="sort-btn" (click)="sortBy('therapist_name')">
+                Therapist
+                <lucide-angular [img]="getSortIcon('therapist_name')" [size]="14"></lucide-angular>
+              </button>
+            </th>
+            <th class="th-actions">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <ng-container *ngFor="let booking of bookings">
+            <!-- Main Row -->
+            <tr
+              class="data-row"
+              [class.expanded]="expandedRowId === booking.id"
+              [class.row-today]="isToday(booking.confirmed_start_at || booking.preferred_start_at)"
+              (click)="toggleRowExpansion(booking.id!)"
+            >
+              <td class="td-id">
+                <span class="booking-id">#{{ booking.id }}</span>
+              </td>
+              <td class="td-child">
+                <div class="cell-user">
+                  <div class="user-avatar child-avatar">
+                    {{ (booking.child_name || 'U')[0] }}
+                  </div>
+                  <span class="user-name">{{ booking.child_name || '-' }}</span>
+                </div>
+              </td>
+              <td class="td-parent">
+                <div class="cell-user">
+                  <div class="user-avatar parent-avatar">
+                    {{ (booking.parent_name || 'U')[0] }}
+                  </div>
+                  <div class="user-info">
+                    <span class="user-name">{{ booking.parent_name || '-' }}</span>
+                    <span class="user-contact" *ngIf="booking.parent_email">{{ booking.parent_email }}</span>
+                  </div>
+                </div>
+              </td>
+              <td class="td-type">
+                <div class="type-badge" [ngClass]="'type-' + booking.booking_type">
+                  <lucide-angular [img]="getTypeConfig(booking.booking_type).icon" [size]="14"></lucide-angular>
+                  <span>{{ getTypeConfig(booking.booking_type).label }}</span>
+                </div>
+                <div class="mode-indicator">
+                  <lucide-angular [img]="getModeConfig(booking.mode).icon" [size]="12"></lucide-angular>
+                  <span>{{ getModeConfig(booking.mode).label }}</span>
+                </div>
+              </td>
+              <td class="td-datetime">
+                <div class="datetime-cell">
+                  <div class="datetime-main">
+                    <lucide-angular [img]="CalendarIcon" [size]="14" class="datetime-icon"></lucide-angular>
+                    <span>{{ formatDate(booking.confirmed_start_at || booking.preferred_start_at) }}</span>
+                  </div>
+                  <div class="datetime-time">
+                    <lucide-angular [img]="ClockIcon" [size]="14" class="datetime-icon"></lucide-angular>
+                    <span>{{ formatTime(booking.confirmed_start_at || booking.preferred_start_at) }}</span>
+                    <span *ngIf="booking.confirmed_end_at || booking.preferred_end_at" class="time-range">
+                      - {{ formatTime(booking.confirmed_end_at || booking.preferred_end_at) }}
+                    </span>
+                  </div>
+                  <span
+                    class="time-badge"
+                    [ngClass]="getTimeBadgeClass(booking.confirmed_start_at || booking.preferred_start_at)"
+                  >
+                    {{ getTimeBadgeText(booking.confirmed_start_at || booking.preferred_start_at) }}
+                  </span>
+                </div>
+              </td>
+              <td class="td-status">
+                <span class="status-badge" [ngClass]="getStatusConfig(booking.status).class">
+                  {{ getStatusConfig(booking.status).label }}
+                </span>
+                <span
+                  class="payment-badge"
+                  [ngClass]="getPaymentStatusConfig(booking.payment_status).class"
+                  *ngIf="booking.payment_status && booking.payment_status !== 'not_required'"
+                >
+                  {{ getPaymentStatusConfig(booking.payment_status).label }}
+                </span>
+              </td>
+              <td class="td-therapist">
+                <div class="therapist-cell" *ngIf="booking.therapist_name">
+                  <div class="user-avatar therapist-avatar">
+                    {{ booking.therapist_name[0] }}
+                  </div>
+                  <div class="therapist-info">
+                    <span class="therapist-name">{{ booking.therapist_name }}</span>
+                    <span
+                      class="response-badge"
+                      [ngClass]="getTherapistResponseConfig(booking.therapist_response).class"
+                    >
+                      {{ getTherapistResponseConfig(booking.therapist_response).label }}
+                    </span>
+                  </div>
+                </div>
+                <span class="text-muted" *ngIf="!booking.therapist_name">Not assigned</span>
+              </td>
+              <td class="td-actions" (click)="$event.stopPropagation()">
+                <div class="action-buttons">
+                  <button
+                    class="action-btn"
+                    title="View Details"
+                    (click)="viewDetails(booking)"
+                  >
+                    <lucide-angular [img]="EyeIcon" [size]="16"></lucide-angular>
+                  </button>
+                  <a
+                    *ngIf="booking.parent_email"
+                    class="action-btn"
+                    [href]="'mailto:' + booking.parent_email"
+                    title="Email Parent"
+                  >
+                    <lucide-angular [img]="MailIcon" [size]="16"></lucide-angular>
+                  </a>
+                  <a
+                    *ngIf="booking.parent_mobile"
+                    class="action-btn"
+                    [href]="'tel:' + booking.parent_mobile"
+                    title="Call Parent"
+                  >
+                    <lucide-angular [img]="PhoneIcon" [size]="16"></lucide-angular>
+                  </a>
+                </div>
+              </td>
+            </tr>
+
+            <!-- Expanded Details Row -->
+            <tr class="expanded-row" *ngIf="expandedRowId === booking.id">
+              <td colspan="8">
+                <div class="expanded-content">
+                  <div class="detail-grid">
+                    <div class="detail-section">
+                      <h4 class="detail-title">Session Details</h4>
+                      <div class="detail-item">
+                        <span class="detail-label">Booking ID</span>
+                        <span class="detail-value">#{{ booking.id }}</span>
+                      </div>
+                      <div class="detail-item">
+                        <span class="detail-label">Type</span>
+                        <span class="detail-value">{{ booking.booking_type_name || booking.booking_type }}</span>
+                      </div>
+                      <div class="detail-item">
+                        <span class="detail-label">Mode</span>
+                        <span class="detail-value">{{ getModeConfig(booking.mode).label }}</span>
+                      </div>
+                      <div class="detail-item" *ngIf="booking.price">
+                        <span class="detail-label">Price</span>
+                        <span class="detail-value">{{ formatCurrency(booking.price, booking.currency) }}</span>
+                      </div>
+                    </div>
+
+                    <div class="detail-section">
+                      <h4 class="detail-title">Schedule</h4>
+                      <div class="detail-item">
+                        <span class="detail-label">Preferred Time</span>
+                        <span class="detail-value">{{ formatDateTime(booking.preferred_start_at) }}</span>
+                      </div>
+                      <div class="detail-item" *ngIf="booking.confirmed_start_at">
+                        <span class="detail-label">Confirmed Time</span>
+                        <span class="detail-value">{{ formatDateTime(booking.confirmed_start_at) }}</span>
+                      </div>
+                      <div class="detail-item">
+                        <span class="detail-label">Created</span>
+                        <span class="detail-value">{{ formatDateTime(booking.created_at) }}</span>
+                      </div>
+                    </div>
+
+                    <div class="detail-section">
+                      <h4 class="detail-title">Payment</h4>
+                      <div class="detail-item">
+                        <span class="detail-label">Method</span>
+                        <span class="detail-value">{{ booking.payment_method || '-' }}</span>
+                      </div>
+                      <div class="detail-item">
+                        <span class="detail-label">Status</span>
+                        <span class="detail-value">
+                          <span
+                            class="payment-badge inline"
+                            [ngClass]="getPaymentStatusConfig(booking.payment_status).class"
+                          >
+                            {{ getPaymentStatusConfig(booking.payment_status).label }}
+                          </span>
+                        </span>
+                      </div>
+                    </div>
+
+                    <div class="detail-section" *ngIf="booking.mode === 'online' && booking.online_meeting_link">
+                      <h4 class="detail-title">Meeting</h4>
+                      <div class="detail-item">
+                        <span class="detail-label">Link</span>
+                        <a [href]="booking.online_meeting_link" target="_blank" class="meeting-link">
+                          <span>{{ booking.online_meeting_link }}</span>
+                          <lucide-angular [img]="ExternalLinkIcon" [size]="14"></lucide-angular>
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="notes-section" *ngIf="booking.notes">
+                    <h4 class="detail-title">Notes</h4>
+                    <p class="notes-text">{{ booking.notes }}</p>
+                  </div>
+
+                  <div class="expanded-actions">
+                    <button class="btn btn-primary btn-sm" (click)="viewDetails(booking)">
+                      <lucide-angular [img]="EyeIcon" [size]="16"></lucide-angular>
+                      View Full Details
+                    </button>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          </ng-container>
+        </tbody>
+      </table>
+
+      <!-- Empty State -->
+      <div class="empty-state" *ngIf="bookings.length === 0">
+        <div class="empty-icon">
+          <lucide-angular [img]="CalendarIcon" [size]="64"></lucide-angular>
+        </div>
+        <h3 class="empty-title">No bookings found</h3>
+        <p class="empty-message">
+          <span *ngIf="hasActiveFilters || searchTerm">Try adjusting your filters or search term.</span>
+          <span *ngIf="!hasActiveFilters && !searchTerm">There are no bookings to display at this time.</span>
+        </p>
+        <button *ngIf="hasActiveFilters || searchTerm" class="btn btn-secondary" (click)="clearFilters()">
+          Clear Filters
+        </button>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination-wrapper" *ngIf="totalItems > 0 && !isLoading && !error">
+      <div class="pagination-info">
+        <span>Showing {{ startItem }} to {{ endItem }} of {{ totalItems }} bookings</span>
+      </div>
+
+      <div class="pagination-controls">
+        <div class="page-size-selector">
+          <label>Rows:</label>
+          <select [(ngModel)]="pageSize" (change)="onPageSizeChange()">
+            <option *ngFor="let size of pageSizeOptions" [value]="size">{{ size }}</option>
+          </select>
+        </div>
+
+        <div class="page-buttons">
+          <button
+            class="page-btn"
+            [disabled]="currentPage === 1"
+            (click)="goToPage(1)"
+            title="First Page"
+          >
+            <lucide-angular [img]="ChevronsLeftIcon" [size]="16"></lucide-angular>
+          </button>
+          <button
+            class="page-btn"
+            [disabled]="currentPage === 1"
+            (click)="goToPage(currentPage - 1)"
+            title="Previous Page"
+          >
+            <lucide-angular [img]="ChevronLeftIcon" [size]="16"></lucide-angular>
+          </button>
+
+          <ng-container *ngFor="let page of getVisiblePages()">
+            <button
+              class="page-btn page-number"
+              [class.active]="page === currentPage"
+              (click)="goToPage(page)"
+            >
+              {{ page }}
+            </button>
+          </ng-container>
+
+          <button
+            class="page-btn"
+            [disabled]="currentPage === totalPages"
+            (click)="goToPage(currentPage + 1)"
+            title="Next Page"
+          >
+            <lucide-angular [img]="ChevronRightIcon" [size]="16"></lucide-angular>
+          </button>
+          <button
+            class="page-btn"
+            [disabled]="currentPage === totalPages"
+            (click)="goToPage(totalPages)"
+            title="Last Page"
+          >
+            <lucide-angular [img]="ChevronsRightIcon" [size]="16"></lucide-angular>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Detail Modal -->
+<div class="modal-overlay" *ngIf="showDetailModal" (click)="closeDetailModal()">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2 class="modal-title">Booking Details</h2>
+      <button class="modal-close" (click)="closeDetailModal()">
+        <lucide-angular [img]="XIcon" [size]="20"></lucide-angular>
+      </button>
+    </div>
+
+    <div class="modal-body" *ngIf="selectedBooking">
+      <div class="modal-section">
+        <div class="modal-info-row">
+          <span class="info-label">Booking ID</span>
+          <span class="info-value">#{{ selectedBooking.id }}</span>
+        </div>
+        <div class="modal-info-row">
+          <span class="info-label">Status</span>
+          <span class="status-badge" [ngClass]="getStatusConfig(selectedBooking.status).class">
+            {{ getStatusConfig(selectedBooking.status).label }}
+          </span>
+        </div>
+      </div>
+
+      <div class="modal-divider"></div>
+
+      <div class="modal-section">
+        <h3 class="section-title">Child & Parent</h3>
+        <div class="modal-info-row">
+          <span class="info-label">Child Name</span>
+          <span class="info-value">{{ selectedBooking.child_name || '-' }}</span>
+        </div>
+        <div class="modal-info-row">
+          <span class="info-label">Parent Name</span>
+          <span class="info-value">{{ selectedBooking.parent_name || '-' }}</span>
+        </div>
+        <div class="modal-info-row" *ngIf="selectedBooking.parent_email">
+          <span class="info-label">Email</span>
+          <a [href]="'mailto:' + selectedBooking.parent_email" class="info-link">
+            {{ selectedBooking.parent_email }}
+          </a>
+        </div>
+        <div class="modal-info-row" *ngIf="selectedBooking.parent_mobile">
+          <span class="info-label">Phone</span>
+          <a [href]="'tel:' + selectedBooking.parent_mobile" class="info-link">
+            {{ selectedBooking.parent_mobile }}
+          </a>
+        </div>
+      </div>
+
+      <div class="modal-divider"></div>
+
+      <div class="modal-section">
+        <h3 class="section-title">Session Information</h3>
+        <div class="modal-info-row">
+          <span class="info-label">Type</span>
+          <span class="info-value">{{ selectedBooking.booking_type_name || selectedBooking.booking_type }}</span>
+        </div>
+        <div class="modal-info-row">
+          <span class="info-label">Mode</span>
+          <span class="info-value">{{ getModeConfig(selectedBooking.mode).label }}</span>
+        </div>
+        <div class="modal-info-row">
+          <span class="info-label">Preferred Time</span>
+          <span class="info-value">{{ formatDateTime(selectedBooking.preferred_start_at) }}</span>
+        </div>
+        <div class="modal-info-row" *ngIf="selectedBooking.confirmed_start_at">
+          <span class="info-label">Confirmed Time</span>
+          <span class="info-value">{{ formatDateTime(selectedBooking.confirmed_start_at) }}</span>
+        </div>
+      </div>
+
+      <div class="modal-divider"></div>
+
+      <div class="modal-section">
+        <h3 class="section-title">Therapist</h3>
+        <div class="modal-info-row" *ngIf="selectedBooking.therapist_name">
+          <span class="info-label">Assigned To</span>
+          <span class="info-value">{{ selectedBooking.therapist_name }}</span>
+        </div>
+        <div class="modal-info-row" *ngIf="selectedBooking.therapist_response">
+          <span class="info-label">Response</span>
+          <span
+            class="response-badge"
+            [ngClass]="getTherapistResponseConfig(selectedBooking.therapist_response).class"
+          >
+            {{ getTherapistResponseConfig(selectedBooking.therapist_response).label }}
+          </span>
+        </div>
+        <div class="modal-info-row" *ngIf="!selectedBooking.therapist_name">
+          <span class="info-label">Status</span>
+          <span class="info-value text-muted">Not assigned yet</span>
+        </div>
+      </div>
+
+      <div class="modal-divider"></div>
+
+      <div class="modal-section">
+        <h3 class="section-title">Payment</h3>
+        <div class="modal-info-row">
+          <span class="info-label">Amount</span>
+          <span class="info-value">{{ formatCurrency(selectedBooking.price, selectedBooking.currency) }}</span>
+        </div>
+        <div class="modal-info-row">
+          <span class="info-label">Method</span>
+          <span class="info-value">{{ selectedBooking.payment_method || '-' }}</span>
+        </div>
+        <div class="modal-info-row">
+          <span class="info-label">Status</span>
+          <span
+            class="payment-badge inline"
+            [ngClass]="getPaymentStatusConfig(selectedBooking.payment_status).class"
+          >
+            {{ getPaymentStatusConfig(selectedBooking.payment_status).label }}
+          </span>
+        </div>
+      </div>
+
+      <div class="modal-section" *ngIf="selectedBooking.mode === 'online' && selectedBooking.online_meeting_link">
+        <div class="modal-divider"></div>
+        <h3 class="section-title">Meeting Link</h3>
+        <a [href]="selectedBooking.online_meeting_link" target="_blank" class="meeting-link-btn">
+          <lucide-angular [img]="VideoIcon" [size]="18"></lucide-angular>
+          <span>Join Meeting</span>
+          <lucide-angular [img]="ExternalLinkIcon" [size]="14"></lucide-angular>
+        </a>
+      </div>
+
+      <div class="modal-section" *ngIf="selectedBooking.notes">
+        <div class="modal-divider"></div>
+        <h3 class="section-title">Notes</h3>
+        <p class="notes-text">{{ selectedBooking.notes }}</p>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="closeDetailModal()">Close</button>
+      <a
+        *ngIf="selectedBooking?.parent_email"
+        [href]="'mailto:' + selectedBooking?.parent_email"
+        class="btn btn-primary"
+      >
+        <lucide-angular [img]="MailIcon" [size]="16"></lucide-angular>
+        Contact Parent
+      </a>
+    </div>
+  </div>
+</div>

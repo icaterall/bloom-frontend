@@ -1,0 +1,179 @@
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <!-- Back Button -->
+  <button (click)="goBack()" class="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6">
+    <lucide-angular [img]="ArrowLeftIcon" size="18"></lucide-angular>
+    <span>{{ 'common.back' | translate }}</span>
+  </button>
+
+  <!-- Header -->
+  <div class="mb-6">
+    <h1 class="text-3xl font-bold text-gray-900 mb-2">{{ 'updateComposer.title' | translate }}</h1>
+    <p class="text-gray-600">{{ 'updateComposer.subtitle' | translate }}</p>
+  </div>
+
+  <!-- Success Message -->
+  <div *ngIf="successMessage" class="mb-6 bg-emerald-50 border border-emerald-200 rounded-lg p-4">
+    <div class="flex items-center gap-3">
+      <lucide-angular [img]="SendIcon" size="20" class="text-emerald-600"></lucide-angular>
+      <p class="text-emerald-800 font-medium">{{ successMessage }}</p>
+    </div>
+  </div>
+
+  <!-- Error Message -->
+  <div *ngIf="error" class="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
+    <div class="flex items-center gap-3">
+      <lucide-angular [img]="AlertCircleIcon" size="20" class="text-red-600"></lucide-angular>
+      <p class="text-red-800">{{ error }}</p>
+    </div>
+  </div>
+
+  <!-- Form -->
+  <form [formGroup]="updateForm" (ngSubmit)="publishToParent()" class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 space-y-6">
+    <!-- Child Selector -->
+    <div>
+      <label for="childId" class="block text-sm font-medium text-gray-700 mb-2">
+        <lucide-angular [img]="UserIcon" size="16" class="inline mr-1"></lucide-angular>
+        {{ 'updateComposer.child' | translate }} <span class="text-red-500">*</span>
+      </label>
+      <select
+        id="childId"
+        formControlName="childId"
+        class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2563EB] focus:border-[#2563EB] sm:text-sm"
+        [class.border-red-300]="updateForm.get('childId')?.invalid && updateForm.get('childId')?.touched"
+      >
+        <option value="">{{ 'updateComposer.selectChild' | translate }}</option>
+        <option *ngFor="let child of children" [value]="child.id">{{ child.name }}</option>
+      </select>
+      <p *ngIf="updateForm.get('childId')?.invalid && updateForm.get('childId')?.touched" class="mt-1 text-sm text-red-600">
+        {{ 'updateComposer.errors.childRequired' | translate }}
+      </p>
+    </div>
+
+    <!-- Update Type -->
+    <div>
+      <label for="updateType" class="block text-sm font-medium text-gray-700 mb-2">
+        <lucide-angular [img]="FileTextIcon" size="16" class="inline mr-1"></lucide-angular>
+        {{ 'updateComposer.updateType.label' | translate }} <span class="text-red-500">*</span>
+      </label>
+      <select
+        id="updateType"
+        formControlName="updateType"
+        class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2563EB] focus:border-[#2563EB] sm:text-sm"
+      >
+        <option *ngFor="let option of updateTypeOptions" [value]="option.value">
+          {{ option.labelKey | translate }}
+        </option>
+      </select>
+    </div>
+
+    <!-- Title (Optional) -->
+    <div>
+      <label for="title" class="block text-sm font-medium text-gray-700 mb-2">
+        {{ 'updateComposer.titleField' | translate }} ({{ 'updateComposer.optional' | translate }})
+      </label>
+      <input
+        type="text"
+        id="title"
+        formControlName="title"
+        [placeholder]="'updateComposer.titlePlaceholder' | translate"
+        class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2563EB] focus:border-[#2563EB] sm:text-sm"
+      />
+    </div>
+
+    <!-- Body Text (Required) -->
+    <div>
+      <label for="body" class="block text-sm font-medium text-gray-700 mb-2">
+        {{ 'updateComposer.body' | translate }} <span class="text-red-500">*</span>
+      </label>
+      <textarea
+        id="body"
+        formControlName="body"
+        rows="10"
+        [placeholder]="'updateComposer.bodyPlaceholder' | translate"
+        class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2563EB] focus:border-[#2563EB] sm:text-sm"
+        [class.border-red-300]="updateForm.get('body')?.invalid && updateForm.get('body')?.touched"
+      ></textarea>
+      <p *ngIf="updateForm.get('body')?.invalid && updateForm.get('body')?.touched" class="mt-1 text-sm text-red-600">
+        {{ 'updateComposer.errors.bodyRequired' | translate }}
+      </p>
+    </div>
+
+    <!-- Media Upload Area -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-2">
+        <lucide-angular [img]="UploadIcon" size="16" class="inline mr-1"></lucide-angular>
+        {{ 'updateComposer.media' | translate }} ({{ 'updateComposer.optional' | translate }})
+      </label>
+      <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-[#2563EB] transition-colors">
+        <input
+          type="file"
+          id="mediaUpload"
+          multiple
+          accept="image/jpeg,image/jpg,image/png,image/webp,video/mp4,application/pdf"
+          (change)="onFileSelected($event)"
+          class="hidden"
+        />
+        <label
+          for="mediaUpload"
+          class="cursor-pointer inline-flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+        >
+          <lucide-angular [img]="UploadIcon" size="20" class="text-gray-600"></lucide-angular>
+          <span class="text-sm font-medium text-gray-700">{{ 'updateComposer.uploadFiles' | translate }}</span>
+        </label>
+        <p class="text-xs text-gray-500 mt-2">
+          {{ 'updateComposer.mediaHint' | translate }}
+        </p>
+      </div>
+
+      <!-- File Previews -->
+      <div *ngIf="filePreviews.length > 0" class="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+        <div *ngFor="let preview of filePreviews; let i = index" class="relative group">
+          <div class="aspect-square rounded-lg overflow-hidden border border-gray-200 bg-gray-50">
+            <img *ngIf="preview.type === 'image' && preview.preview"
+                 [src]="preview.preview"
+                 [alt]="preview.file.name"
+                 class="w-full h-full object-cover">
+            <div *ngIf="preview.type !== 'image'"
+                 class="w-full h-full flex flex-col items-center justify-center p-2">
+              <lucide-angular [img]="getFileIcon(preview.type)" size="32" class="text-gray-400 mb-2"></lucide-angular>
+              <p class="text-xs text-gray-600 text-center truncate w-full">{{ preview.file.name }}</p>
+            </div>
+          </div>
+          <button
+            type="button"
+            (click)="removeFile(i)"
+            class="absolute top-2 right-2 p-1 bg-red-600 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+          >
+            <lucide-angular [img]="XIcon" size="14"></lucide-angular>
+          </button>
+          <p class="text-xs text-gray-500 mt-1 truncate">{{ preview.file.name }}</p>
+          <p class="text-xs text-gray-400">{{ formatFileSize(preview.file.size) }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="flex flex-col sm:flex-row gap-3 pt-4 border-t border-gray-200">
+      <button
+        type="button"
+        (click)="saveDraft()"
+        [disabled]="isSaving || isPublishing"
+        class="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-semibold"
+      >
+        <lucide-angular [img]="SaveIcon" size="18"></lucide-angular>
+        <span *ngIf="!isSaving">{{ 'updateComposer.saveDraft' | translate }}</span>
+        <span *ngIf="isSaving">{{ 'updateComposer.saving' | translate }}</span>
+      </button>
+      <button
+        type="submit"
+        [disabled]="updateForm.invalid || isSaving || isPublishing"
+        class="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-[#2563EB] text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-semibold"
+      >
+        <lucide-angular [img]="SendIcon" size="18"></lucide-angular>
+        <span *ngIf="!isPublishing">{{ 'updateComposer.publishToParent' | translate }}</span>
+        <span *ngIf="isPublishing">{{ 'updateComposer.publishing' | translate }}</span>
+      </button>
+    </div>
+  </form>
+</div>
+

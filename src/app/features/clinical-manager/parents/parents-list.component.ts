@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
-import { LucideAngularModule, Search, User, Mail, Phone, Calendar, Users, ChevronRight, Eye } from 'lucide-angular';
+import { RouterModule, Router } from '@angular/router';
+import { LucideAngularModule, Search, User, Mail, Phone, Calendar, Users, ChevronRight, Eye, X } from 'lucide-angular';
 import { ParentService, Parent } from '../../../core/services/parent.service';
 
 @Component({
@@ -26,6 +26,11 @@ export class ParentsListComponent implements OnInit {
   total = 0;
   totalPages = 0;
   
+  // Modal state
+  showParentModal = false;
+  selectedParent: Parent | null = null;
+  isLoadingParentDetails = false;
+  
   // Icons
   readonly SearchIcon = Search;
   readonly UserIcon = User;
@@ -35,8 +40,12 @@ export class ParentsListComponent implements OnInit {
   readonly UsersIcon = Users;
   readonly ChevronRightIcon = ChevronRight;
   readonly EyeIcon = Eye;
+  readonly XIcon = X;
 
-  constructor(private parentService: ParentService) {}
+  constructor(
+    private parentService: ParentService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
     this.loadParents();
@@ -46,16 +55,33 @@ export class ParentsListComponent implements OnInit {
     this.isLoading = true;
     this.parentService.getParents(this.searchTerm, this.currentPage, this.limit).subscribe({
       next: (response) => {
+        console.log('Parents API Response:', response);
         if (response.success) {
-          this.parents = response.data;
-          this.total = response.pagination.total;
-          this.totalPages = response.pagination.totalPages;
+          this.parents = response.data || [];
+          this.total = response.pagination?.total || 0;
+          this.totalPages = response.pagination?.totalPages || 0;
+          console.log(`Loaded ${this.parents.length} parents, total: ${this.total}`);
+        } else {
+          console.warn('API returned success: false', response);
+          this.parents = [];
+          this.total = 0;
+          this.totalPages = 0;
         }
         this.isLoading = false;
       },
       error: (error) => {
         console.error('Error loading parents:', error);
+        console.error('Error status:', error.status);
+        console.error('Error message:', error.message);
+        console.error('Error details:', error.error);
+        this.parents = [];
+        this.total = 0;
+        this.totalPages = 0;
         this.isLoading = false;
+        // Show user-friendly error message if needed
+        if (error.error?.message) {
+          console.error('Error details:', error.error.message);
+        }
       }
     });
   }
@@ -79,7 +105,7 @@ export class ParentsListComponent implements OnInit {
     }
   }
 
-  calculateAge(dateOfBirth: string): number {
+  calculateAge(dateOfBirth: string | undefined): number {
     if (!dateOfBirth) return 0;
     const today = new Date();
     const birthDate = new Date(dateOfBirth);
@@ -91,7 +117,7 @@ export class ParentsListComponent implements OnInit {
     return age;
   }
 
-  formatDate(dateString: string): string {
+  formatDate(dateString: string | undefined): string {
     if (!dateString) return 'N/A';
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
@@ -117,10 +143,33 @@ export class ParentsListComponent implements OnInit {
   }
 
   viewParentDetails(parentId: number): void {
-    // TODO: Navigate to parent detail page or open modal
-    console.log('View parent details:', parentId);
-    // For now, just show an alert
-    alert(`Parent ID: ${parentId}\n\nDetailed view coming soon!`);
+    this.isLoadingParentDetails = true;
+    this.showParentModal = true;
+    this.selectedParent = null;
+    
+    this.parentService.getParentById(parentId).subscribe({
+      next: (response) => {
+        if (response.success && response.data) {
+          this.selectedParent = response.data;
+        } else {
+          alert('Failed to load parent details');
+          this.closeParentModal();
+        }
+        this.isLoadingParentDetails = false;
+      },
+      error: (error) => {
+        console.error('Error loading parent details:', error);
+        alert(error.error?.message || 'Failed to load parent details. Please try again.');
+        this.isLoadingParentDetails = false;
+        this.closeParentModal();
+      }
+    });
+  }
+
+  closeParentModal(): void {
+    this.showParentModal = false;
+    this.selectedParent = null;
+    this.isLoadingParentDetails = false;
   }
 }
 

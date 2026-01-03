@@ -1,0 +1,168 @@
+<div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    
+    <!-- Header Section -->
+    <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 p-6 md:p-8">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <h1 class="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+            Child Cases Management
+          </h1>
+          <p class="mt-2 text-slate-600 text-lg">Manage children assigned to you and update their status</p>
+        </div>
+        <button 
+          (click)="loadChildren()"
+          class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200"
+        >
+          <lucide-angular [img]="TrendingUpIcon" size="20"></lucide-angular>
+          <span>Refresh</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="flex items-center justify-center py-16">
+      <div class="text-center">
+        <div class="inline-block w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-4"></div>
+        <p class="text-slate-600">Loading children...</p>
+      </div>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="error && !isLoading" class="bg-red-50 border border-red-200 rounded-xl p-6">
+      <div class="flex items-start gap-3">
+        <lucide-angular [img]="AlertCircleIcon" size="24" class="text-red-600 flex-shrink-0"></lucide-angular>
+        <div>
+          <h3 class="font-semibold text-red-900">Error Loading Children</h3>
+          <p class="text-sm text-red-700">{{ error }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Children List -->
+    <div *ngIf="!isLoading && !error" class="space-y-6">
+      <div *ngIf="children.length === 0" class="bg-white rounded-xl shadow-lg border border-slate-200 p-12 text-center">
+        <lucide-angular [img]="UserIcon" size="64" class="mx-auto mb-4 text-slate-300"></lucide-angular>
+        <h3 class="text-xl font-semibold text-slate-900 mb-2">No Children Assigned</h3>
+        <p class="text-slate-600">You don't have any children assigned to you yet.</p>
+      </div>
+
+      <div *ngFor="let child of children" class="bg-white rounded-xl shadow-lg border border-slate-200 p-6 hover:shadow-xl transition-all">
+        <div class="flex flex-col md:flex-row md:items-start gap-6">
+          <!-- Child Info -->
+          <div class="flex-1">
+            <div class="flex items-start justify-between mb-4">
+              <div>
+                <h2 class="text-2xl font-bold text-slate-900 mb-2">{{ child.name }}</h2>
+                <div class="flex flex-wrap gap-4 text-sm text-slate-600">
+                  <span *ngIf="child.dob">
+                    <strong>Age:</strong> {{ getAge(child.dob) }} years old
+                  </span>
+                  <span *ngIf="child.gender">
+                    <strong>Gender:</strong> {{ child.gender | titlecase }}
+                  </span>
+                  <span>
+                    <strong>Bookings:</strong> {{ child.bookings_count || 0 }}
+                  </span>
+                </div>
+              </div>
+              <!-- Current Status Badge -->
+              <div *ngIf="!editingStatus[child.id]" class="flex items-center gap-3">
+                <span 
+                  [ngClass]="'px-4 py-2 rounded-lg text-sm font-semibold border-2 ' + 
+                    (child.current_status ? 
+                      ('bg-' + getStatusColor(child.current_status) + '-50 text-' + getStatusColor(child.current_status) + '-700 border-' + getStatusColor(child.current_status) + '-300') :
+                      'bg-gray-50 text-gray-700 border-gray-300')"
+                >
+                  {{ getStatusLabel(child.current_status) }}
+                </span>
+                <button
+                  (click)="startEditingStatus(child.id)"
+                  class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                  title="Update Status"
+                >
+                  <lucide-angular [img]="EditIcon" size="20"></lucide-angular>
+                </button>
+              </div>
+            </div>
+
+            <!-- Status Update Form -->
+            <div *ngIf="editingStatus[child.id]" class="mb-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+              <div class="flex items-center gap-3">
+                <label class="text-sm font-semibold text-slate-700">Update Status:</label>
+                <select 
+                  [(ngModel)]="child.current_status"
+                  class="flex-1 px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  [disabled]="updatingStatus[child.id]"
+                >
+                  <option value="">Select Status</option>
+                  <option *ngFor="let status of statusValues" [value]="status.value">
+                    {{ status.label }}
+                  </option>
+                </select>
+                <button
+                  (click)="updateChildStatus(child.id, child.current_status || '')"
+                  [disabled]="!child.current_status || updatingStatus[child.id]"
+                  class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+                >
+                  <lucide-angular [img]="SaveIcon" size="16"></lucide-angular>
+                  <span>{{ updatingStatus[child.id] ? 'Saving...' : 'Save' }}</span>
+                </button>
+                <button
+                  (click)="cancelEditingStatus(child.id)"
+                  [disabled]="updatingStatus[child.id]"
+                  class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+                >
+                  <lucide-angular [img]="XIcon" size="16"></lucide-angular>
+                  <span>Cancel</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Parent Info -->
+            <div class="mt-4 p-4 bg-slate-50 rounded-lg">
+              <h3 class="text-sm font-semibold text-slate-700 mb-2">Parent Information</h3>
+              <div class="space-y-1 text-sm text-slate-600">
+                <p><strong>Name:</strong> {{ child.parent_name || 'N/A' }}</p>
+                <p *ngIf="child.parent_email"><strong>Email:</strong> {{ child.parent_email }}</p>
+                <p *ngIf="child.parent_mobile"><strong>Mobile:</strong> {{ child.parent_mobile }}</p>
+              </div>
+            </div>
+
+            <!-- Session Info -->
+            <div class="mt-4 flex flex-wrap gap-4 text-sm text-slate-600">
+              <div *ngIf="child.last_session_date" class="flex items-center gap-2">
+                <lucide-angular [img]="CalendarIcon" size="16"></lucide-angular>
+                <span><strong>Last Session:</strong> {{ formatDate(child.last_session_date) }}</span>
+              </div>
+              <div *ngIf="child.first_assigned_date" class="flex items-center gap-2">
+                <lucide-angular [img]="CheckCircleIcon" size="16"></lucide-angular>
+                <span><strong>Assigned:</strong> {{ formatDate(child.first_assigned_date) }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="flex flex-col gap-3">
+            <button
+              [routerLink]="['/therapist/children', child.id, 'case-updates']"
+              class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 font-semibold"
+            >
+              <lucide-angular [img]="FileTextIcon" size="18"></lucide-angular>
+              <span>View Case & Upload Media</span>
+            </button>
+            <button
+              [routerLink]="['/therapist/children', child.id, 'case-updates']"
+              class="px-6 py-3 bg-white text-blue-600 border-2 border-blue-600 rounded-lg hover:bg-blue-50 transition-colors flex items-center justify-center gap-2 font-semibold"
+            >
+              <lucide-angular [img]="TrendingUpIcon" size="18"></lucide-angular>
+              <span>Case Updates</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+

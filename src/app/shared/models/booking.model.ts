@@ -24,6 +24,15 @@ export interface Booking {
   child_name?: string;
   child_gender?: string;
   child_dob?: string;
+  parent_name?: string;
+  parent_email?: string;
+  parent_mobile?: string;
+  booking_type_name?: string;
+  therapist_id?: number;
+  therapist_name?: string;
+  online_meeting_link?: string;
+  therapist_response?: 'accepted' | 'rejected' | null;
+  therapist_response_at?: string;
 }
 
 export interface CreateBookingRequest {

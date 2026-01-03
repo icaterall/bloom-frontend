@@ -105,6 +105,34 @@ export const routes: Routes = [
         title: 'Parents & Children - Bloom Spectrum Centre'
       },
       {
+        path: 'children',
+        loadComponent: () =>
+          import('./features/clinical-manager/children/children-list.component')
+            .then(m => m.ChildrenListComponent),
+        title: 'Children - Bloom Spectrum Centre'
+      },
+      {
+        path: 'therapists',
+        loadComponent: () =>
+          import('./features/clinical-manager/therapists/therapists-list.component')
+            .then(m => m.TherapistsListComponent),
+        title: 'Therapists - Bloom Spectrum Centre'
+      },
+      {
+        path: 'waitlist',
+        loadComponent: () =>
+          import('./features/clinical-manager/waitlist/waitlist.component')
+            .then(m => m.WaitlistComponent),
+        title: 'Waitlist - Bloom Spectrum Centre'
+      },
+      {
+        path: 'reports',
+        loadComponent: () =>
+          import('./features/clinical-manager/reports/reports.component')
+            .then(m => m.ReportsComponent),
+        title: 'Reports - Bloom Spectrum Centre'
+      },
+      {
         path: 'bookings/failed',
         loadComponent: () =>
           import('./features/clinical-manager/failed-bookings/failed-bookings.component')
@@ -119,11 +147,175 @@ export const routes: Routes = [
         title: 'Contact Parent - Bloom Spectrum Centre'
       },
       {
+        path: 'bookings',
+        loadComponent: () =>
+          import('./features/clinical-manager/bookings/bookings.component')
+            .then(m => m.BookingsComponent),
+        title: 'Bookings - Bloom Spectrum Centre'
+      },
+      {
         path: 'assignments',
         loadComponent: () =>
           import('./features/clinical-manager/assignments/assignments.component')
             .then(m => m.AssignmentsComponent),
         title: 'Assign Cases - Bloom Spectrum Centre'
+      },
+      {
+        path: 'calendar',
+        loadComponent: () =>
+          import('./features/clinical-manager/calendar/calendar.component')
+            .then(m => m.ClinicalManagerCalendarComponent),
+        title: 'Sessions Calendar - Bloom Spectrum Centre'
+      },
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
+    ]
+  },
+  // Therapist routes
+  {
+    path: 'therapist',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['therapist'] },
+    loadComponent: () =>
+      import('./features/therapist/layout/therapist-layout.component')
+        .then(m => m.TherapistLayoutComponent),
+    children: [
+      {
+        path: 'dashboard',
+        loadComponent: () =>
+          import('./features/therapist/dashboard/therapist-dashboard.component')
+            .then(m => m.TherapistDashboardComponent),
+        title: 'Therapist Dashboard - Bloom Spectrum Centre'
+      },
+      {
+        path: 'bookings',
+        loadComponent: () =>
+          import('./features/therapist/bookings/therapist-bookings.component')
+            .then(m => m.TherapistBookingsComponent),
+        title: 'My Bookings - Bloom Spectrum Centre'
+      },
+      {
+        path: 'sessions',
+        loadComponent: () =>
+          import('./features/therapist/sessions/therapist-sessions.component')
+            .then(m => m.TherapistSessionsComponent),
+        title: 'My Sessions - Bloom Spectrum Centre'
+      },
+      {
+        path: 'sessions/:bookingId',
+        loadComponent: () =>
+          import('./features/therapist/sessions/session-details/session-details.component')
+            .then(m => m.SessionDetailsComponent),
+        title: 'Session Details - Bloom Spectrum Centre'
+      },
+      {
+        path: 'updates/new',
+        loadComponent: () =>
+          import('./features/therapist/updates/update-composer.component')
+            .then(m => m.UpdateComposerComponent),
+        title: 'Create Update - Bloom Spectrum Centre'
+      },
+      {
+        path: 'cases',
+        loadComponent: () =>
+          import('./features/therapist/cases/therapist-cases.component')
+            .then(m => m.TherapistCasesComponent),
+        title: 'Child Cases - Bloom Spectrum Centre'
+      },
+      {
+        path: 'children',
+        loadComponent: () =>
+          import('./features/therapist/children/therapist-children.component')
+            .then(m => m.TherapistChildrenComponent),
+        title: 'My Children - Bloom Spectrum Centre'
+      },
+      {
+        path: 'children/:childId',
+        loadComponent: () =>
+          import('./features/therapist/children/child-profile/therapist-child-profile.component')
+            .then(m => m.TherapistChildProfileComponent),
+        title: 'Child Profile - Bloom Spectrum Centre'
+      },
+      {
+        path: 'notifications',
+        loadComponent: () =>
+          import('./features/therapist/notifications/therapist-notifications.component')
+            .then(m => m.TherapistNotificationsComponent),
+        title: 'Notifications - Bloom Spectrum Centre'
+      },
+      {
+        path: 'children/:childId/case-updates',
+        loadComponent: () =>
+          import('./features/therapist/child-case-updates/child-case-updates.component')
+            .then(m => m.ChildCaseUpdatesComponent),
+        title: 'Child Case Updates - Bloom Spectrum Centre'
+      },
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
+    ]
+  },
+  // Finance routes
+  {
+    path: 'finance',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['finance', 'admin'] },
+    loadComponent: () =>
+      import('./features/finance/layout/finance-layout.component')
+        .then(m => m.FinanceLayoutComponent),
+    children: [
+      {
+        path: 'dashboard',
+        loadComponent: () =>
+          import('./features/finance/dashboard/finance-dashboard.component')
+            .then(m => m.FinanceDashboardComponent),
+        title: 'Finance Dashboard - Bloom Spectrum Centre'
+      },
+      {
+        path: 'payments',
+        loadComponent: () =>
+          import('./features/finance/payments/finance-payments.component')
+            .then(m => m.FinancePaymentsComponent),
+        title: 'Payments - Bloom Spectrum Centre'
+      },
+      {
+        path: 'cash',
+        loadComponent: () =>
+          import('./features/finance/cash/finance-cash.component')
+            .then(m => m.FinanceCashComponent),
+        title: 'Cash Desk - Bloom Spectrum Centre'
+      },
+      {
+        path: 'invoices',
+        loadComponent: () =>
+          import('./features/finance/invoices/finance-invoices.component')
+            .then(m => m.FinanceInvoicesComponent),
+        title: 'Invoices - Bloom Spectrum Centre'
+      },
+      {
+        path: 'receipts',
+        loadComponent: () =>
+          import('./features/finance/receipts/finance-receipts.component')
+            .then(m => m.FinanceReceiptsComponent),
+        title: 'Receipts - Bloom Spectrum Centre'
+      },
+      {
+        path: 'statements',
+        loadComponent: () =>
+          import('./features/finance/statements/finance-statements.component')
+            .then(m => m.FinanceStatementsComponent),
+        title: 'Statements - Bloom Spectrum Centre'
+      },
+      {
+        path: 'reports',
+        loadComponent: () =>
+          import('./features/finance/reports/finance-reports.component')
+            .then(m => m.FinanceReportsComponent),
+        title: 'Reports - Bloom Spectrum Centre'
+      },
+      {
+        path: 'settings',
+        loadComponent: () =>
+          import('./features/finance/settings/finance-settings.component')
+            .then(m => m.FinanceSettingsComponent),
+        title: 'Settings - Bloom Spectrum Centre'
       },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
     ]
@@ -145,12 +337,84 @@ export const routes: Routes = [
         title: 'Complete Your Profile - Bloom Spectrum Centre'
       },
       {
-        path: 'dashboard',
+        path: 'home',
         canActivate: [profileCompleteGuard],
         loadComponent: () =>
           import('./features/parent/dashboard/parent-dashboard.component')
             .then(m => m.ParentDashboardComponent),
         title: 'Parent Dashboard - Bloom Spectrum Centre'
+      },
+      {
+        path: 'children',
+        canActivate: [profileCompleteGuard],
+        loadComponent: () =>
+          import('./features/parent/children/children-list.component')
+            .then(m => m.ChildrenListComponent),
+        title: 'My Children - Bloom Spectrum Centre'
+      },
+      {
+        path: 'children/:childId',
+        canActivate: [profileCompleteGuard],
+        loadComponent: () =>
+          import('./features/parent/children/child-profile.component')
+            .then(m => m.ChildProfileComponent),
+        title: 'Child Profile - Bloom Spectrum Centre'
+      },
+      {
+        path: 'children/:childId/book',
+        canActivate: [profileCompleteGuard],
+        loadComponent: () =>
+          import('./features/parent/children/child-booking.component')
+            .then(m => m.ChildBookingComponent),
+        title: 'Book Session - Bloom Spectrum Centre'
+      },
+      {
+        path: 'bookings/:bookingId',
+        canActivate: [profileCompleteGuard],
+        loadComponent: () =>
+          import('./features/parent/bookings/booking-details.component')
+            .then(m => m.BookingDetailsComponent),
+        title: 'Booking Details - Bloom Spectrum Centre'
+      },
+      {
+        path: 'payments',
+        canActivate: [profileCompleteGuard],
+        loadComponent: () =>
+          import('./features/parent/payments/payments-history.component')
+            .then(m => m.PaymentsHistoryComponent),
+        title: 'Payment History - Bloom Spectrum Centre'
+      },
+      {
+        path: 'schedule',
+        canActivate: [profileCompleteGuard],
+        loadComponent: () =>
+          import('./features/parent/schedule/parent-schedule.component')
+            .then(m => m.ParentScheduleComponent),
+        title: 'Schedule - Bloom Spectrum Centre'
+      },
+      {
+        path: 'sessions',
+        canActivate: [profileCompleteGuard],
+        loadComponent: () =>
+          import('./features/parent/sessions/sessions-list.component')
+            .then(m => m.SessionsListComponent),
+        title: 'Sessions - Bloom Spectrum Centre'
+      },
+      {
+        path: 'sessions/:sessionId',
+        canActivate: [profileCompleteGuard],
+        loadComponent: () =>
+          import('./features/parent/sessions/session-details.component')
+            .then(m => m.SessionDetailsComponent),
+        title: 'Session Details - Bloom Spectrum Centre'
+      },
+      {
+        path: 'updates',
+        canActivate: [profileCompleteGuard],
+        loadComponent: () =>
+          import('./features/parent/updates/child-updates.component')
+            .then(m => m.ChildUpdatesComponent),
+        title: 'Child Updates - Bloom Spectrum Centre'
       },
       {
         path: 'settings',
@@ -176,7 +440,7 @@ export const routes: Routes = [
             .then(m => m.BookingCancelComponent),
         title: 'Payment Cancelled - Bloom Spectrum Centre'
       },
-      { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
+      { path: '', redirectTo: 'home', pathMatch: 'full' }
     ]
   },
   {

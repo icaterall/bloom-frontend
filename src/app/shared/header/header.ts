@@ -82,7 +82,7 @@ export class HeaderComponent implements OnInit {
     if (this.authService.isAuthenticatedUser()) {
       // If logged in, send parents to parent dashboard, others to their role dashboard
       if (this.currentUser?.role === 'parent') {
-        this.router.navigate(['/parent/dashboard']);
+        this.router.navigate(['/parent/home']);
       } else {
         const dashboardLink = this.getDashboardLink();
         this.router.navigate([dashboardLink]);
@@ -98,7 +98,7 @@ export class HeaderComponent implements OnInit {
     
     switch (this.currentUser.role) {
       case 'admin': return '/admin/dashboard';
-      case 'parent': return '/parent/dashboard';
+      case 'parent': return '/parent/home';
       case 'clinical_manager': return '/clinical-manager/dashboard';
       case 'therapist': return '/therapist/dashboard';
       case 'staff': return '/staff/dashboard';

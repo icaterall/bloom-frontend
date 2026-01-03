@@ -1,0 +1,346 @@
+<div class="therapists-list-container">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div>
+        <h1 class="page-title">Therapists</h1>
+        <p class="page-subtitle">View all therapists and their performance statistics</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Search Bar -->
+  <div class="search-section">
+    <div class="search-container">
+      <div class="search-icon-wrapper">
+        <lucide-angular [img]="SearchIcon" class="search-icon"></lucide-angular>
+      </div>
+      <input
+        type="text"
+        [(ngModel)]="searchTerm"
+        (keyup.enter)="onSearch()"
+        placeholder="Search by therapist name, email, or mobile..."
+        class="search-input"
+      />
+      <div class="search-actions">
+        <button
+          *ngIf="searchTerm"
+          (click)="onSearchClear()"
+          class="btn-clear"
+          type="button"
+        >
+          Clear
+        </button>
+        <button
+          (click)="onSearch()"
+          class="btn-search"
+          type="button"
+          [disabled]="isLoading"
+        >
+          Search
+        </button>
+      </div>
+    </div>
+    <div class="search-results-info" *ngIf="!isLoading">
+      <span class="results-count">{{ total }} therapist{{ total !== 1 ? 's' : '' }} found</span>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="loading-spinner"></div>
+    <p class="loading-text">Loading therapists...</p>
+  </div>
+
+  <!-- Therapists Table -->
+  <div *ngIf="!isLoading" class="table-container">
+    <div class="table-wrapper">
+      <table class="therapists-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Mobile</th>
+            <th>Status</th>
+            <th>Confirmed</th>
+            <th>Completed</th>
+            <th>Upcoming</th>
+            <th>Children</th>
+            <th>Registered</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let therapist of therapists" class="table-row">
+            <td class="name-cell">
+              <div class="name-wrapper">
+                <lucide-angular [img]="UserIcon" class="name-icon"></lucide-angular>
+                <span class="name-text">{{ therapist.name }}</span>
+              </div>
+            </td>
+            <td class="email-cell">
+              <div class="email-wrapper">
+                <lucide-angular [img]="MailIcon" class="cell-icon"></lucide-angular>
+                <span>{{ therapist.email }}</span>
+              </div>
+            </td>
+            <td class="mobile-cell">
+              <div class="mobile-wrapper" *ngIf="therapist.mobile">
+                <lucide-angular [img]="PhoneIcon" class="cell-icon"></lucide-angular>
+                <span>{{ therapist.mobile }}</span>
+              </div>
+              <span *ngIf="!therapist.mobile" class="text-muted">N/A</span>
+            </td>
+            <td class="status-cell">
+              <span [ngClass]="therapist.is_active ? 'status-badge active' : 'status-badge inactive'">
+                {{ therapist.is_active ? 'Active' : 'Inactive' }}
+              </span>
+            </td>
+            <td class="stat-cell">
+              <span class="stat-value">{{ therapist.confirmed_bookings_count || 0 }}</span>
+            </td>
+            <td class="stat-cell">
+              <span class="stat-value">{{ therapist.completed_bookings_count || 0 }}</span>
+            </td>
+            <td class="stat-cell">
+              <span class="stat-value">{{ therapist.upcoming_bookings_count || 0 }}</span>
+            </td>
+            <td class="stat-cell">
+              <span class="stat-value">{{ therapist.unique_children_count || 0 }}</span>
+            </td>
+            <td class="date-cell">
+              <span>{{ formatDate(therapist.created_at) }}</span>
+            </td>
+            <td class="actions-cell">
+              <button
+                class="btn-view-small"
+                (click)="viewTherapistDetails(therapist.id)"
+                title="View Details"
+              >
+                <lucide-angular [img]="EyeIcon" class="btn-icon-small"></lucide-angular>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Empty State -->
+      <div *ngIf="therapists.length === 0" class="empty-state">
+        <div class="empty-icon-wrapper">
+          <lucide-angular [img]="UsersIcon" class="empty-icon"></lucide-angular>
+        </div>
+        <h3 class="empty-title">No therapists found</h3>
+        <p class="empty-message">
+          <span *ngIf="searchTerm">No therapists match your search criteria.</span>
+          <span *ngIf="!searchTerm">No therapists have been registered yet.</span>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <div *ngIf="!isLoading && totalPages > 1" class="pagination">
+    <button
+      class="pagination-btn"
+      [disabled]="currentPage === 1"
+      (click)="goToPage(currentPage - 1)"
+    >
+      Previous
+    </button>
+    
+    <div class="pagination-numbers">
+      <button
+        *ngFor="let page of getPageNumbers()"
+        class="pagination-number"
+        [class.active]="page === currentPage"
+        (click)="goToPage(page)"
+      >
+        {{ page }}
+      </button>
+    </div>
+    
+    <button
+      class="pagination-btn"
+      [disabled]="currentPage === totalPages"
+      (click)="goToPage(currentPage + 1)"
+    >
+      Next
+    </button>
+  </div>
+
+  <!-- Therapist Details Modal -->
+  <div *ngIf="showTherapistModal" class="modal-overlay" (click)="closeTherapistModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2 class="modal-title">Therapist Details</h2>
+        <button class="modal-close" (click)="closeTherapistModal()">
+          <lucide-angular [img]="XIcon" class="close-icon"></lucide-angular>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Loading State -->
+        <div *ngIf="isLoadingTherapistDetails" class="loading-container">
+          <div class="loading-spinner"></div>
+          <p class="loading-text">Loading therapist details...</p>
+        </div>
+
+        <!-- Therapist Details -->
+        <div *ngIf="!isLoadingTherapistDetails && selectedTherapist" class="space-y-6">
+          <!-- Therapist Information -->
+          <div class="therapist-info-card">
+            <h3 class="card-title">Therapist Information</h3>
+            <div class="info-grid">
+              <div class="info-item">
+                <span class="info-label">Name:</span>
+                <span class="info-value">{{ selectedTherapist.name }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Email:</span>
+                <span class="info-value">{{ selectedTherapist.email }}</span>
+              </div>
+              <div class="info-item" *ngIf="selectedTherapist.mobile">
+                <span class="info-label">Mobile:</span>
+                <span class="info-value">{{ selectedTherapist.mobile }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Status:</span>
+                <span class="info-value">
+                  <span [ngClass]="selectedTherapist.is_active ? 'active-badge' : 'inactive-badge'">
+                    {{ selectedTherapist.is_active ? 'Active' : 'Inactive' }}
+                  </span>
+                </span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Email Verified:</span>
+                <span class="info-value">
+                  <span [ngClass]="selectedTherapist.email_verified ? 'verified-badge' : 'unverified-badge'">
+                    {{ selectedTherapist.email_verified ? 'Verified' : 'Not Verified' }}
+                  </span>
+                </span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Registered:</span>
+                <span class="info-value">{{ formatDate(selectedTherapist.created_at) }}</span>
+              </div>
+              <div class="info-item" *ngIf="selectedTherapist.last_login_at">
+                <span class="info-label">Last Login:</span>
+                <span class="info-value">{{ formatDate(selectedTherapist.last_login_at) }}</span>
+              </div>
+              <div class="info-item" *ngIf="selectedTherapist.preferred_language">
+                <span class="info-label">Preferred Language:</span>
+                <span class="info-value">{{ selectedTherapist.preferred_language | uppercase }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Statistics -->
+          <div class="stats-card">
+            <h3 class="card-title">Performance Statistics</h3>
+            <div class="stats-grid-detailed">
+              <div class="stat-card">
+                <div class="stat-icon confirmed">
+                  <lucide-angular [img]="CheckCircleIcon" class="stat-icon-svg"></lucide-angular>
+                </div>
+                <div class="stat-content">
+                  <div class="stat-value-large">{{ selectedTherapist.stats.confirmed_bookings }}</div>
+                  <div class="stat-label-large">Confirmed Bookings</div>
+                </div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-icon completed">
+                  <lucide-angular [img]="CheckCircleIcon" class="stat-icon-svg"></lucide-angular>
+                </div>
+                <div class="stat-content">
+                  <div class="stat-value-large">{{ selectedTherapist.stats.completed_bookings }}</div>
+                  <div class="stat-label-large">Completed Sessions</div>
+                </div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-icon upcoming">
+                  <lucide-angular [img]="ClockIcon" class="stat-icon-svg"></lucide-angular>
+                </div>
+                <div class="stat-content">
+                  <div class="stat-value-large">{{ selectedTherapist.stats.upcoming_bookings }}</div>
+                  <div class="stat-label-large">Upcoming Sessions</div>
+                </div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-icon children">
+                  <lucide-angular [img]="BabyIcon" class="stat-icon-svg"></lucide-angular>
+                </div>
+                <div class="stat-content">
+                  <div class="stat-value-large">{{ selectedTherapist.stats.children_count }}</div>
+                  <div class="stat-label-large">Children Assigned</div>
+                </div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-icon cancelled">
+                  <lucide-angular [img]="XCircleIcon" class="stat-icon-svg"></lucide-angular>
+                </div>
+                <div class="stat-content">
+                  <div class="stat-value-large">{{ selectedTherapist.stats.cancelled_bookings }}</div>
+                  <div class="stat-label-large">Cancelled</div>
+                </div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-icon no-show">
+                  <lucide-angular [img]="XCircleIcon" class="stat-icon-svg"></lucide-angular>
+                </div>
+                <div class="stat-content">
+                  <div class="stat-value-large">{{ selectedTherapist.stats.no_show_bookings }}</div>
+                  <div class="stat-label-large">No Shows</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Recent Bookings -->
+          <div *ngIf="selectedTherapist.recent_bookings && selectedTherapist.recent_bookings.length > 0" class="bookings-card">
+            <h3 class="card-title">Recent Bookings</h3>
+            <div class="bookings-list">
+              <div *ngFor="let booking of selectedTherapist.recent_bookings" class="booking-item">
+                <div class="booking-header">
+                  <div class="booking-child">{{ booking.child_name }}</div>
+                  <span class="booking-status" [ngClass]="getStatusBadgeClass(booking.status)">
+                    {{ booking.status | titlecase }}
+                  </span>
+                </div>
+                <div class="booking-details">
+                  <div class="booking-detail">
+                    <lucide-angular [img]="UserIcon" class="booking-icon"></lucide-angular>
+                    <span>{{ booking.parent_name }}</span>
+                  </div>
+                  <div class="booking-detail">
+                    <lucide-angular [img]="CalendarIcon" class="booking-icon"></lucide-angular>
+                    <span>{{ formatDateTime(booking.confirmed_start_at || booking.preferred_start_at) }}</span>
+                  </div>
+                  <div class="booking-detail" *ngIf="booking.booking_type_name">
+                    <lucide-angular [img]="ActivityIcon" class="booking-icon"></lucide-angular>
+                    <span>{{ booking.booking_type_name }}</span>
+                  </div>
+                  <div class="booking-detail">
+                    <span class="mode-badge" [ngClass]="booking.mode === 'online' ? 'mode-online' : 'mode-in-centre'">
+                      {{ booking.mode === 'online' ? 'Online' : 'In Centre' }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div *ngIf="!selectedTherapist.recent_bookings || selectedTherapist.recent_bookings.length === 0" class="no-bookings-card">
+            <p class="no-bookings-text">No recent bookings</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-cancel" (click)="closeTherapistModal()">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+

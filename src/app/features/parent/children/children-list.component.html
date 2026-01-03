@@ -1,0 +1,46 @@
+<div class="max-w-7xl mx-auto space-y-6">
+  <div class="flex items-center justify-between">
+    <h1 class="text-2xl font-bold text-gray-900">{{ 'navigation.child' | translate }}</h1>
+    <button class="inline-flex items-center gap-2 px-4 py-2 bg-[#2563EB] text-white rounded-lg hover:bg-[#1d4ed8] transition-colors">
+      <lucide-angular [img]="PlusIcon" size="18"></lucide-angular>
+      <span>{{ 'parentDashboard.addAnotherChild' | translate }}</span>
+    </button>
+  </div>
+
+  <div *ngIf="isLoading" class="flex justify-center py-12">
+    <div class="inline-flex items-center space-x-3">
+      <span class="h-6 w-6 border-2 border-[#2563EB] border-t-transparent rounded-full animate-spin"></span>
+      <span class="text-sm text-gray-600">{{ 'common.loading' | translate }}</span>
+    </div>
+  </div>
+
+  <div *ngIf="!isLoading && children.length === 0" class="text-center py-12">
+    <lucide-angular [img]="UsersIcon" size="48" class="mx-auto text-gray-400 mb-4"></lucide-angular>
+    <p class="text-gray-600 mb-4">{{ 'parentDashboard.noChildrenSubtitle' | translate }}</p>
+    <button class="inline-flex items-center gap-2 px-4 py-2 bg-[#2563EB] text-white rounded-lg hover:bg-[#1d4ed8] transition-colors">
+      <lucide-angular [img]="PlusIcon" size="18"></lucide-angular>
+      <span>{{ 'parentDashboard.addAnotherChild' | translate }}</span>
+    </button>
+  </div>
+
+  <div *ngIf="!isLoading && children.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <a *ngFor="let child of children" 
+       [routerLink]="['/parent/children', child.id]"
+       class="block p-6 bg-white rounded-lg border border-gray-200 hover:border-[#2563EB] hover:shadow-lg transition-all">
+      <div class="flex items-center gap-4 mb-4">
+        <div class="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center text-white text-2xl">
+          🧒
+        </div>
+        <div class="flex-1">
+          <h3 class="text-lg font-bold text-gray-900">{{ child.full_name }}</h3>
+          <p class="text-sm text-gray-600">{{ calculateAge(child.date_of_birth) }} {{ 'parentDashboard.childCard.yearsOld' | translate }}</p>
+        </div>
+      </div>
+      <div class="text-sm text-gray-600">
+        <p *ngIf="child.gender">{{ 'common.gender' | translate }}: {{ child.gender }}</p>
+        <p *ngIf="child.diagnosis_status">{{ 'common.diagnosis' | translate }}: {{ child.diagnosis_status }}</p>
+      </div>
+    </a>
+  </div>
+</div>
+

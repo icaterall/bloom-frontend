@@ -1,0 +1,104 @@
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <!-- Header -->
+  <div class="mb-6 flex items-center justify-between">
+    <div>
+      <h1 class="text-3xl font-bold text-gray-900 mb-2">{{ 'therapistNotifications.title' | translate }}</h1>
+      <p class="text-gray-600">{{ 'therapistNotifications.subtitle' | translate }}</p>
+    </div>
+    <div class="flex items-center gap-3">
+      <button
+        (click)="toggleFilter()"
+        [class.bg-blue-100]="filterUnread"
+        [class.text-blue-700]="filterUnread"
+        class="px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors text-sm font-semibold"
+      >
+        {{ filterUnread ? ('therapistNotifications.showAll' | translate) : ('therapistNotifications.showUnread' | translate) }}
+      </button>
+      <button
+        *ngIf="unreadCount > 0"
+        (click)="markAllAsRead()"
+        class="inline-flex items-center gap-2 px-4 py-2 bg-[#2563EB] text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-semibold"
+      >
+        <lucide-angular [img]="CheckCheckIcon" size="16"></lucide-angular>
+        <span>{{ 'therapistNotifications.markAllRead' | translate }}</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="flex justify-center py-12">
+    <div class="inline-flex items-center space-x-3">
+      <span class="h-6 w-6 border-2 border-[#2563EB] border-t-transparent rounded-full animate-spin"></span>
+      <span class="text-sm text-gray-600">{{ 'common.loading' | translate }}</span>
+    </div>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !isLoading" class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+    <p class="text-red-800">{{ error }}</p>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading && !error && notifications.length === 0" class="text-center py-12 bg-white rounded-lg shadow-sm border border-gray-200">
+    <lucide-angular [img]="BellIcon" size="48" class="mx-auto text-gray-400 mb-4"></lucide-angular>
+    <h3 class="text-lg font-semibold text-gray-900 mb-2">
+      <span *ngIf="filterUnread">{{ 'therapistNotifications.noUnread' | translate }}</span>
+      <span *ngIf="!filterUnread">{{ 'therapistNotifications.empty' | translate }}</span>
+    </h3>
+    <p class="text-sm text-gray-600">
+      <span *ngIf="filterUnread">{{ 'therapistNotifications.noUnreadDesc' | translate }}</span>
+      <span *ngIf="!filterUnread">{{ 'therapistNotifications.emptyDesc' | translate }}</span>
+    </p>
+  </div>
+
+  <!-- Notifications List -->
+  <div *ngIf="!isLoading && !error && notifications.length > 0" class="space-y-3">
+    <div
+      *ngFor="let notification of notifications"
+      [class.bg-blue-50]="!notification.read"
+      [class.border-blue-200]="!notification.read"
+      class="bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-all"
+    >
+      <div class="flex items-start gap-4">
+        <!-- Icon -->
+        <div class="flex-shrink-0">
+          <div [class.bg-blue-100]="!notification.read" [class.bg-gray-100]="notification.read" 
+               class="w-10 h-10 rounded-full flex items-center justify-center">
+            <lucide-angular [img]="getNotificationIcon(notification.type)" size="20" 
+                           [class.text-blue-600]="!notification.read"
+                           [class.text-gray-600]="notification.read"></lucide-angular>
+          </div>
+        </div>
+
+        <!-- Content -->
+        <div class="flex-1 min-w-0">
+          <div class="flex items-start justify-between gap-2 mb-1">
+            <h3 class="font-semibold text-gray-900" [class.font-bold]="!notification.read">
+              {{ notification.display_title || notification.title }}
+            </h3>
+            <button
+              *ngIf="!notification.read"
+              (click)="markAsRead(notification)"
+              class="flex-shrink-0 p-1 hover:bg-gray-200 rounded transition-colors"
+              [title]="'therapistNotifications.markAsRead' | translate"
+            >
+              <lucide-angular [img]="CheckIcon" size="16" class="text-gray-600"></lucide-angular>
+            </button>
+          </div>
+          <p class="text-sm text-gray-600 mb-2">{{ notification.message }}</p>
+          <div class="flex items-center justify-between">
+            <span class="text-xs text-gray-500">{{ formatDate(notification.created_at) }}</span>
+            <a
+              *ngIf="getNotificationRoute(notification)"
+              [routerLink]="getNotificationRoute(notification)!"
+              class="text-xs text-[#2563EB] hover:text-blue-700 font-semibold"
+            >
+              {{ 'therapistNotifications.viewDetails' | translate }} →
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+

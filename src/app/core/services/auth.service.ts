@@ -174,7 +174,7 @@ export class AuthService {
             if (!profileComplete) {
               this.router.navigate(['/parent/onboarding/profile']);
             } else {
-              this.router.navigate(['/parent/dashboard']);
+              this.router.navigate(['/parent/home']);
             }
           }
         })
@@ -314,7 +314,7 @@ export class AuthService {
         this.router.navigate(['/admin/dashboard']);
         break;
       case 'parent':
-        this.router.navigate(['/parent/dashboard']);
+        this.router.navigate(['/parent/home']);
         break;
       case 'clinical_manager':
         this.router.navigate(['/clinical-manager/dashboard']);

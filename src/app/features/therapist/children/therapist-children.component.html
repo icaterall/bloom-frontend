@@ -1,0 +1,89 @@
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <!-- Header -->
+  <div class="mb-6">
+    <h1 class="text-3xl font-bold text-gray-900 mb-2">{{ 'therapistChildren.title' | translate }}</h1>
+    <p class="text-gray-600">{{ 'therapistChildren.subtitle' | translate }}</p>
+  </div>
+
+  <!-- Search Bar -->
+  <div class="mb-6">
+    <div class="relative">
+      <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+        <lucide-angular [img]="SearchIcon" size="20" class="text-gray-400"></lucide-angular>
+      </div>
+      <input
+        type="text"
+        [(ngModel)]="searchQuery"
+        (input)="onSearchChange()"
+        [placeholder]="'therapistChildren.searchPlaceholder' | translate"
+        class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2563EB] focus:border-[#2563EB] sm:text-sm"
+      />
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="flex justify-center py-12">
+    <div class="inline-flex items-center space-x-3">
+      <span class="h-6 w-6 border-2 border-[#2563EB] border-t-transparent rounded-full animate-spin"></span>
+      <span class="text-sm text-gray-600">{{ 'common.loading' | translate }}</span>
+    </div>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !isLoading" class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+    <p class="text-red-800">{{ error }}</p>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading && !error && filteredChildren.length === 0" class="text-center py-12 bg-white rounded-lg shadow-sm border border-gray-200">
+    <lucide-angular [img]="UsersIcon" size="48" class="mx-auto text-gray-400 mb-4"></lucide-angular>
+    <h3 class="text-lg font-semibold text-gray-900 mb-2">
+      <span *ngIf="searchQuery">{{ 'therapistChildren.noResults' | translate }}</span>
+      <span *ngIf="!searchQuery">{{ 'therapistChildren.empty' | translate }}</span>
+    </h3>
+    <p class="text-sm text-gray-600">
+      <span *ngIf="searchQuery">{{ 'therapistChildren.noResultsDesc' | translate }}</span>
+      <span *ngIf="!searchQuery">{{ 'therapistChildren.emptyDesc' | translate }}</span>
+    </p>
+  </div>
+
+  <!-- Children List -->
+  <div *ngIf="!isLoading && !error && filteredChildren.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div
+      *ngFor="let child of filteredChildren"
+      [routerLink]="['/therapist/children', child.id]"
+      class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md hover:border-[#2563EB] transition-all cursor-pointer"
+    >
+      <div class="flex items-start justify-between mb-4">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center text-white text-xl font-semibold">
+            {{ child.name.charAt(0).toUpperCase() }}
+          </div>
+          <div>
+            <h3 class="text-lg font-semibold text-gray-900">{{ child.name }}</h3>
+            <p class="text-sm text-gray-600">
+              {{ calculateAge(child.dob) }} {{ 'therapistChildren.yearsOld' | translate }}
+              <span *ngIf="child.gender"> • {{ child.gender === 'male' ? ('therapistChildren.male' | translate) : ('therapistChildren.female' | translate) }}</span>
+            </p>
+          </div>
+        </div>
+        <lucide-angular [img]="ArrowRightIcon" size="20" class="text-gray-400"></lucide-angular>
+      </div>
+
+      <div class="space-y-2 text-sm text-gray-600">
+        <div class="flex items-center gap-2">
+          <lucide-angular [img]="UserIcon" size="16" class="text-gray-400"></lucide-angular>
+          <span>{{ 'therapistChildren.parent' | translate }}: {{ child.parent_name }}</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <lucide-angular [img]="CalendarIcon" size="16" class="text-gray-400"></lucide-angular>
+          <span>{{ child.bookings_count }} {{ 'therapistChildren.sessions' | translate }}</span>
+        </div>
+        <div *ngIf="child.last_session_date" class="text-xs text-gray-500 mt-2">
+          {{ 'therapistChildren.lastSession' | translate }}: {{ formatDate(child.last_session_date) }}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+

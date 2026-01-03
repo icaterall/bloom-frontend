@@ -58,13 +58,21 @@ export class AssignmentsComponent implements OnInit {
     this.assignmentService.getPendingAssignments().subscribe({
       next: (response) => {
         if (response.success) {
-          this.bookings = response.data;
+          this.bookings = response.data || [];
+        } else {
+          console.error('Failed to load pending assignments:', response);
+          this.bookings = [];
         }
         this.isLoading = false;
       },
       error: (error) => {
         console.error('Error loading pending assignments:', error);
+        this.bookings = [];
         this.isLoading = false;
+        // Show user-friendly error message if needed
+        if (error.error?.message) {
+          console.error('Error details:', error.error.message);
+        }
       }
     });
   }
@@ -119,19 +127,34 @@ export class AssignmentsComponent implements OnInit {
     if (!this.selectedBooking) return;
 
     this.isLoadingTherapists = true;
+    this.assignError = null;
+    
     const startAt = this.confirmedStartAt ? this.fromDateTimeLocal(this.confirmedStartAt) : this.selectedBooking.preferred_start_at;
     const endAt = this.confirmedEndAt ? this.fromDateTimeLocal(this.confirmedEndAt) : this.selectedBooking.preferred_end_at;
+
+    if (!startAt) {
+      this.assignError = 'Please select a start time';
+      this.isLoadingTherapists = false;
+      return;
+    }
 
     this.assignmentService.getAvailableTherapists(startAt, endAt, this.selectedBooking.id).subscribe({
       next: (response) => {
         if (response.success) {
-          this.availableTherapists = response.data.therapists;
+          this.availableTherapists = response.data?.therapists || [];
+          if (this.availableTherapists.length === 0) {
+            this.assignError = 'No therapists available for the selected time. Please try a different time.';
+          }
+        } else {
+          this.assignError = 'Failed to load available therapists';
+          this.availableTherapists = [];
         }
         this.isLoadingTherapists = false;
       },
       error: (error) => {
         console.error('Error loading available therapists:', error);
-        this.assignError = 'Failed to load available therapists';
+        this.assignError = error.error?.message || 'Failed to load available therapists. Please try again.';
+        this.availableTherapists = [];
         this.isLoadingTherapists = false;
       }
     });
@@ -140,7 +163,14 @@ export class AssignmentsComponent implements OnInit {
   onTimeChange(): void {
     // Reload available therapists when time changes
     if (this.selectedBooking && this.confirmedStartAt) {
+      // Clear previous selection if therapist becomes unavailable
+      this.selectedTherapistId = null;
       this.loadAvailableTherapists();
+    } else if (this.selectedBooking && !this.confirmedStartAt) {
+      // Clear therapists list if start time is removed
+      this.availableTherapists = [];
+      this.selectedTherapistId = null;
+      this.assignError = 'Please select a start time to see available therapists';
     }
   }
 

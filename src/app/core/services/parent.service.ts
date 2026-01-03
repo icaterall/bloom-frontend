@@ -20,6 +20,10 @@ export interface Child {
   date_of_birth: string;
   gender?: string;
   diagnosis_status?: string;
+  child_status?: string;
+  primary_language?: string;
+  diagnosis_details?: string;
+  main_concerns?: string;
   created_at: string;
 }
 

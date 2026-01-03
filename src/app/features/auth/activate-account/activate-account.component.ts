@@ -95,7 +95,7 @@ export class ActivateAccountComponent implements OnInit {
             } else if (role === 'admin') {
               this.router.navigate(['/admin/dashboard']);
             } else if (role === 'parent') {
-              this.router.navigate(['/parent/dashboard']);
+              this.router.navigate(['/parent/home']);
             } else {
               this.router.navigate(['/']);
             }

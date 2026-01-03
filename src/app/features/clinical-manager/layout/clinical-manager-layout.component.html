@@ -34,11 +34,13 @@
     <div class="flex-1 overflow-y-auto py-4 px-3 space-y-1">
       <a *ngFor="let item of menuItems" 
          [routerLink]="item.route"
-         routerLinkActive="bg-blue-50 text-blue-600"
+         routerLinkActive="bg-blue-50 text-blue-600 border-l-4 border-blue-600"
+         [routerLinkActiveOptions]="{ exact: false }"
          class="flex items-center gap-3 px-3 py-2.5 rounded text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors group relative"
-         [title]="!isSidebarOpen ? getMenuLabel(item) : ''">
+         [title]="!isSidebarOpen ? getMenuLabel(item) : ''"
+         #navLink="routerLinkActive">
         
-        <span class="text-xl flex-shrink-0">{{ item.icon }}</span>
+        <span class="text-xl flex-shrink-0" [ngClass]="{'text-blue-600': navLink.isActive}">{{ item.icon }}</span>
         
         <span class="font-medium whitespace-nowrap transition-opacity duration-200"
               [class.opacity-0]="!isSidebarOpen && !isMobile"

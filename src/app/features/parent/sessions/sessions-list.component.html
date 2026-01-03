@@ -1,0 +1,169 @@
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <!-- Header -->
+  <div class="mb-6">
+    <h1 class="text-3xl font-bold text-gray-900 mb-2 flex items-center gap-3">
+      <lucide-angular [img]="CalendarIcon" size="32" class="text-[#2563EB]"></lucide-angular>
+      {{ 'sessions.title' | translate }}
+    </h1>
+    <p class="text-gray-600">{{ 'sessions.subtitle' | translate }}</p>
+  </div>
+
+  <!-- Filters -->
+  <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <!-- Child Filter -->
+      <div *ngIf="children.length > 0">
+        <label for="child-filter" class="block text-sm font-medium text-gray-700 mb-2">
+          <lucide-angular [img]="UsersIcon" size="16" class="inline mr-1"></lucide-angular>
+          {{ 'sessions.filterByChild' | translate }}
+        </label>
+        <select 
+          id="child-filter" 
+          [(ngModel)]="selectedChildId" 
+          (change)="onFilterChange()"
+          class="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-[#2563EB] sm:text-sm"
+        >
+          <option value="all">{{ 'sessions.allChildren' | translate }}</option>
+          <option *ngFor="let child of children" [value]="child.id">{{ child.full_name }}</option>
+        </select>
+      </div>
+
+      <!-- Status Filter -->
+      <div>
+        <label for="status-filter" class="block text-sm font-medium text-gray-700 mb-2">
+          <lucide-angular [img]="FilterIcon" size="16" class="inline mr-1"></lucide-angular>
+          {{ 'sessions.filterByStatus' | translate }}
+        </label>
+        <select 
+          id="status-filter" 
+          [(ngModel)]="selectedStatus" 
+          (change)="onFilterChange()"
+          class="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-[#2563EB] sm:text-sm"
+        >
+          <option *ngFor="let option of statusOptions" [value]="option.value">
+            {{ option.labelKey | translate }}
+          </option>
+        </select>
+      </div>
+
+      <!-- Search -->
+      <div>
+        <label for="search" class="block text-sm font-medium text-gray-700 mb-2">
+          <lucide-angular [img]="SearchIcon" size="16" class="inline mr-1"></lucide-angular>
+          {{ 'sessions.search' | translate }}
+        </label>
+        <input
+          type="text"
+          id="search"
+          [(ngModel)]="searchTerm"
+          (input)="onSearchChange()"
+          [placeholder]="'sessions.searchPlaceholder' | translate"
+          class="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-[#2563EB] sm:text-sm"
+        />
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="flex items-center justify-center py-16">
+    <div class="text-center">
+      <div class="inline-block w-12 h-12 border-4 border-[#2563EB] border-t-transparent rounded-full animate-spin mb-4"></div>
+      <p class="text-gray-600">{{ 'common.loading' | translate }}</p>
+    </div>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !isLoading" class="bg-red-50 border border-red-200 rounded-lg p-6 mb-6">
+    <p class="text-red-700">{{ error }}</p>
+  </div>
+
+  <!-- Sessions Table -->
+  <div *ngIf="!isLoading && !error" class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              {{ 'sessions.table.date' | translate }}
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              {{ 'sessions.table.child' | translate }}
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              {{ 'sessions.table.service' | translate }}
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              {{ 'sessions.table.mode' | translate }}
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              {{ 'sessions.table.therapist' | translate }}
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              {{ 'sessions.table.status' | translate }}
+            </th>
+            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+              {{ 'sessions.table.actions' | translate }}
+            </th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <tr *ngFor="let booking of filteredBookings" class="hover:bg-gray-50">
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="flex items-center gap-2">
+                <lucide-angular [img]="CalendarIcon" size="16" class="text-gray-400"></lucide-angular>
+                <div>
+                  <div class="text-sm font-medium text-gray-900">
+                    {{ (booking.confirmed_start_at || booking.preferred_start_at) | date:'shortDate' }}
+                  </div>
+                  <div class="text-xs text-gray-500 flex items-center gap-1">
+                    <lucide-angular [img]="ClockIcon" size="12"></lucide-angular>
+                    {{ (booking.confirmed_start_at || booking.preferred_start_at) | date:'shortTime' }}
+                  </div>
+                </div>
+              </div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="text-sm text-gray-900">{{ booking.child_name }}</div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="text-sm text-gray-900">{{ booking.booking_type_name || booking.booking_type }}</div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="flex items-center gap-2">
+                <lucide-angular [img]="getModeIcon(booking.mode)" size="16" class="text-gray-400"></lucide-angular>
+                <span class="text-sm text-gray-900">{{ getModeLabel(booking.mode) | translate }}</span>
+              </div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="text-sm text-gray-900">
+                {{ booking.therapist_name || ('sessions.table.notAssigned' | translate) }}
+              </div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <span class="inline-block px-3 py-1 rounded-full text-xs font-semibold border" [ngClass]="getStatusColor(booking.status)">
+                {{ getStatusLabel(booking.status) | translate }}
+              </span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+              <a
+                [routerLink]="['/parent/sessions', booking.id]"
+                class="inline-flex items-center gap-2 text-[#2563EB] hover:text-blue-700 transition-colors"
+              >
+                <lucide-angular [img]="EyeIcon" size="16"></lucide-angular>
+                {{ 'sessions.viewDetails' | translate }}
+              </a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="filteredBookings.length === 0" class="text-center py-12">
+      <lucide-angular [img]="CalendarIcon" size="48" class="mx-auto text-gray-400 mb-4"></lucide-angular>
+      <h3 class="text-lg font-semibold text-gray-900 mb-2">{{ 'sessions.noSessions' | translate }}</h3>
+      <p class="text-sm text-gray-600">{{ 'sessions.noSessionsDesc' | translate }}</p>
+    </div>
+  </div>
+</div>
+

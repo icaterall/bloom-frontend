@@ -39,7 +39,7 @@ export const roleGuard: CanActivateFn = (route, state) => {
       router.navigate(['/admin/dashboard']);
       break;
     case 'parent':
-      router.navigate(['/parent/dashboard']);
+      router.navigate(['/parent/home']);
       break;
     case 'clinical_manager':
       router.navigate(['/clinical-manager/dashboard']);
@@ -49,6 +49,9 @@ export const roleGuard: CanActivateFn = (route, state) => {
       break;
     case 'staff':
       router.navigate(['/staff/dashboard']);
+      break;
+    case 'finance':
+      router.navigate(['/finance/dashboard']);
       break;
     default:
       router.navigate(['/']);

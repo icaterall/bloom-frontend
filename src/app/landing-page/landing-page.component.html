@@ -17,17 +17,13 @@
           
           <!-- CTA Buttons -->
           <div class="flex flex-wrap gap-4">
-            <a routerLink="/book-tour" class="bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white px-6 py-3 rounded font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 inline-flex items-center space-x-2">
-              <lucide-angular [img]="CalendarIcon" size="20" class="text-white"></lucide-angular>
-              <span>{{ 'landing.hero.cta.bookTour' | translate }}</span>
-            </a>
             <a routerLink="/programmes" class="btn-outline inline-flex items-center space-x-2">
               <span>See Programmes</span>
               <lucide-angular [img]="ArrowRightIcon" size="20"></lucide-angular>
             </a>
-            <a routerLink="/parent-portal-demo" class="btn-secondary inline-flex items-center space-x-2">
+            <a routerLink="/parent/home" class="btn-secondary inline-flex items-center space-x-2">
               <lucide-angular [img]="PlayIcon" size="20"></lucide-angular>
-              <span>Try Parent Portal Demo</span>
+              <span>Access Parent Portal</span>
             </a>
           </div>
         </div>
@@ -162,10 +158,6 @@
         Schedule a tour to see our facilities and meet our team
       </p>
       <div class="flex flex-wrap justify-center gap-4">
-        <a routerLink="/book-tour" class="bg-white text-primary px-8 py-4 rounded-lg font-medium hover:bg-gray-100 transition-colors duration-200 shadow-lg inline-flex items-center space-x-2">
-          <lucide-angular [img]="CalendarIcon" size="20"></lucide-angular>
-          <span>Book a Tour Today</span>
-        </a>
         <a routerLink="/contact" class="border-2 border-white text-white px-8 py-4 rounded-lg font-medium hover:bg-white hover:text-primary transition-colors duration-200 inline-flex items-center space-x-2">
           <span>Contact Us</span>
         </a>

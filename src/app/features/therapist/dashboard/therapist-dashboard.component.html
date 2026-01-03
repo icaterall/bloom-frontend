@@ -1,0 +1,161 @@
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <!-- Header -->
+  <div class="mb-6">
+    <h1 class="text-3xl font-bold text-gray-900 mb-2">{{ 'therapistDashboard.title' | translate }}</h1>
+    <p class="text-gray-600">{{ todayDate | date:'fullDate' }}</p>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="flex justify-center py-12">
+    <div class="inline-flex items-center space-x-3">
+      <span class="h-6 w-6 border-2 border-[#2563EB] border-t-transparent rounded-full animate-spin"></span>
+      <span class="text-sm text-gray-600">{{ 'common.loading' | translate }}</span>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading && dashboardData && todayBookings.length === 0 && dashboardData.overdueNotesCount === 0" 
+       class="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
+    <lucide-angular [img]="CalendarIcon" size="64" class="mx-auto text-gray-400 mb-4"></lucide-angular>
+    <h3 class="text-xl font-semibold text-gray-900 mb-2">{{ 'therapistDashboard.empty.title' | translate }}</h3>
+    <p class="text-gray-600 mb-6">{{ 'therapistDashboard.empty.description' | translate }}</p>
+    <a routerLink="/therapist/bookings" 
+       class="inline-flex items-center gap-2 px-6 py-3 bg-[#2563EB] text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold">
+      <lucide-angular [img]="CalendarIcon" size="20"></lucide-angular>
+      {{ 'therapistDashboard.empty.viewSessions' | translate }}
+    </a>
+  </div>
+
+  <!-- Dashboard Content -->
+  <div *ngIf="!isLoading && dashboardData && (todayBookings.length > 0 || dashboardData.overdueNotesCount > 0)" class="space-y-6">
+    <!-- Today's Sessions -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+      <div class="px-6 py-4 border-b border-gray-200">
+        <h2 class="text-xl font-semibold text-gray-900 flex items-center gap-2">
+          <lucide-angular [img]="CalendarIcon" size="24" class="text-[#2563EB]"></lucide-angular>
+          {{ 'therapistDashboard.todaySessions.title' | translate }}
+        </h2>
+      </div>
+      <div class="p-6">
+        <div *ngIf="todayBookings.length === 0" class="text-center py-8">
+          <lucide-angular [img]="CalendarIcon" size="48" class="mx-auto text-gray-400 mb-4"></lucide-angular>
+          <p class="text-gray-600">{{ 'therapistDashboard.todaySessions.empty' | translate }}</p>
+        </div>
+        <div *ngIf="todayBookings.length > 0" class="space-y-4">
+          <div *ngFor="let session of todayBookings" 
+               class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-all">
+            <div class="flex items-start justify-between gap-4">
+              <div class="flex-1">
+                <div class="flex items-center gap-3 mb-3">
+                  <h3 class="text-lg font-semibold text-gray-900">{{ session.child_name }}</h3>
+                  <span class="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-semibold">
+                    {{ session.booking_type_name || session.booking_type }}
+                  </span>
+                  <span class="px-2 py-1 rounded text-xs font-semibold flex items-center gap-1"
+                        [ngClass]="session.mode === 'online' ? 'bg-purple-100 text-purple-700' : 'bg-green-100 text-green-700'">
+                    <lucide-angular [img]="session.mode === 'online' ? VideoIcon : MapPinIcon" size="14"></lucide-angular>
+                    {{ session.mode === 'online' ? ('booking.mode.online' | translate) : ('booking.mode.inCentre' | translate) }}
+                  </span>
+                </div>
+                <div class="space-y-2 text-sm text-gray-600">
+                  <div class="flex items-center gap-2">
+                    <lucide-angular [img]="ClockIcon" size="16" class="text-gray-400"></lucide-angular>
+                    <span>{{ session.confirmed_start_at | date:'shortTime' }}</span>
+                    <span *ngIf="session.confirmed_end_at"> - {{ session.confirmed_end_at | date:'shortTime' }}</span>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <lucide-angular [img]="UserIcon" size="16" class="text-gray-400"></lucide-angular>
+                    <span>{{ 'therapistDashboard.todaySessions.parent' | translate }}: {{ session.parent_name }}</span>
+                  </div>
+                  <div *ngIf="session.mode === 'online' && session.online_meeting_link" class="flex items-center gap-2">
+                    <lucide-angular [img]="VideoIcon" size="16" class="text-gray-400"></lucide-angular>
+                    <a [href]="session.online_meeting_link" target="_blank" rel="noopener noreferrer" 
+                       class="text-[#2563EB] hover:underline">
+                      {{ 'therapistDashboard.todaySessions.joinLink' | translate }}
+                    </a>
+                  </div>
+                  <div *ngIf="session.mode === 'in_centre' && session.location" class="flex items-center gap-2">
+                    <lucide-angular [img]="MapPinIcon" size="16" class="text-gray-400"></lucide-angular>
+                    <span>{{ session.location }}</span>
+                  </div>
+                </div>
+              </div>
+              <div class="flex flex-col gap-2">
+                <button 
+                  *ngIf="session.child_id"
+                  [routerLink]="['/therapist/children', session.child_id, 'case-updates']"
+                  class="px-4 py-2 bg-[#2563EB] text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-semibold whitespace-nowrap">
+                  {{ 'therapistDashboard.todaySessions.addUpdate' | translate }}
+                </button>
+                <a routerLink="/therapist/bookings" 
+                   class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm font-semibold text-center whitespace-nowrap">
+                  {{ 'therapistDashboard.todaySessions.viewDetails' | translate }}
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pending Notes -->
+    <div *ngIf="dashboardData.overdueNotesCount > 0" class="bg-amber-50 border border-amber-200 rounded-lg">
+      <div class="px-6 py-4 border-b border-amber-200">
+        <h2 class="text-xl font-semibold text-gray-900 flex items-center gap-2">
+          <lucide-angular [img]="AlertCircleIcon" size="24" class="text-amber-600"></lucide-angular>
+          {{ 'therapistDashboard.pendingNotes.title' | translate }}
+        </h2>
+      </div>
+      <div class="p-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-gray-700 mb-2">{{ 'therapistDashboard.pendingNotes.description' | translate }}</p>
+            <p class="text-sm text-gray-600">
+              {{ dashboardData.overdueNotesCount }} {{ 'therapistDashboard.pendingNotes.count' | translate }}
+            </p>
+          </div>
+          <a routerLink="/therapist/bookings" 
+             class="px-6 py-3 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors font-semibold">
+            {{ 'therapistDashboard.pendingNotes.viewSessions' | translate }}
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+      <div class="px-6 py-4 border-b border-gray-200">
+        <h2 class="text-xl font-semibold text-gray-900 flex items-center gap-2">
+          <lucide-angular [img]="PlusIcon" size="24" class="text-[#2563EB]"></lucide-angular>
+          {{ 'therapistDashboard.quickActions.title' | translate }}
+        </h2>
+      </div>
+      <div class="p-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <a routerLink="/therapist/bookings" 
+             class="flex items-center gap-4 p-4 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors border border-blue-200">
+            <div class="p-3 bg-[#2563EB] rounded-lg">
+              <lucide-angular [img]="FileTextIcon" size="24" class="text-white"></lucide-angular>
+            </div>
+            <div class="flex-1">
+              <h3 class="font-semibold text-gray-900">{{ 'therapistDashboard.quickActions.addUpdate' | translate }}</h3>
+              <p class="text-sm text-gray-600">{{ 'therapistDashboard.quickActions.addUpdateDesc' | translate }}</p>
+            </div>
+            <lucide-angular [img]="ArrowRightIcon" size="20" class="text-gray-400"></lucide-angular>
+          </a>
+          <a routerLink="/therapist/bookings" 
+             class="flex items-center gap-4 p-4 bg-green-50 hover:bg-green-100 rounded-lg transition-colors border border-green-200">
+            <div class="p-3 bg-green-600 rounded-lg">
+              <lucide-angular [img]="CalendarIcon" size="24" class="text-white"></lucide-angular>
+            </div>
+            <div class="flex-1">
+              <h3 class="font-semibold text-gray-900">{{ 'therapistDashboard.quickActions.viewCalendar' | translate }}</h3>
+              <p class="text-sm text-gray-600">{{ 'therapistDashboard.quickActions.viewCalendarDesc' | translate }}</p>
+            </div>
+            <lucide-angular [img]="ArrowRightIcon" size="20" class="text-gray-400"></lucide-angular>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

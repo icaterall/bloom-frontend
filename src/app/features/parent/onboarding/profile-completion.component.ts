@@ -34,7 +34,7 @@ export class ProfileCompletionComponent implements OnInit {
 
     // Check if profile is already complete
     if (currentUser.profileComplete) {
-      this.router.navigate(['/parent/dashboard']);
+      this.router.navigate(['/parent/home']);
       return;
     }
 
@@ -77,7 +77,7 @@ export class ProfileCompletionComponent implements OnInit {
           // Check if profile is now complete
           if (response.data.user.profileComplete) {
             // Navigate to parent dashboard
-            this.router.navigate(['/parent/dashboard']);
+            this.router.navigate(['/parent/home']);
           } else {
             // Still incomplete, show message
             this.errorMessage = 'Please fill in all required fields';

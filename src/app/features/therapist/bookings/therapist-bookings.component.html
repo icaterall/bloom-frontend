@@ -1,0 +1,404 @@
+<div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+    <!-- Header -->
+    <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 p-6 md:p-8">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <h1 class="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+            My Bookings
+          </h1>
+          <p class="mt-2 text-slate-600">
+            Review your assigned bookings, adjust schedule, and approve or reject assignments.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Error message -->
+    <div *ngIf="errorMessage" class="bg-rose-50 border border-rose-200 text-rose-800 px-4 py-3 rounded-xl">
+      {{ errorMessage }}
+    </div>
+
+    <!-- Loading state -->
+    <div *ngIf="isLoading" class="bg-white rounded-2xl shadow-lg border border-slate-200 p-8 text-center">
+      <p class="text-slate-600">Loading bookings...</p>
+    </div>
+
+    <!-- Empty state -->
+    <div *ngIf="!isLoading && bookings.length === 0" class="bg-white rounded-2xl shadow-lg border border-slate-200 p-10 text-center">
+      <lucide-angular [img]="CalendarIcon" size="40" class="mx-auto mb-3 text-slate-300"></lucide-angular>
+      <h2 class="text-lg font-semibold text-slate-900 mb-1">No bookings assigned yet</h2>
+      <p class="text-slate-500 text-sm">When bookings are assigned to you, they will appear here.</p>
+    </div>
+
+    <!-- Bookings list -->
+    <div *ngIf="!isLoading && bookings.length > 0" class="bg-white rounded-2xl shadow-lg border border-slate-200 p-4 sm:p-6 space-y-4">
+      <div class="flex items-center justify-between mb-2">
+        <h2 class="text-lg font-semibold text-slate-900">Assigned bookings</h2>
+        <span class="text-sm text-slate-500">Total: {{ bookings.length }}</span>
+      </div>
+
+      <div class="space-y-3">
+        <div
+          *ngFor="let booking of bookings"
+          class="border border-slate-200 rounded-xl p-4 hover:shadow-md transition-all bg-white"
+        >
+          <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+            <!-- Left: main info -->
+            <div class="flex-1 space-y-2">
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="text-sm font-semibold text-slate-500">Booking #{{ booking.id }}</span>
+                <span class="px-2.5 py-1 rounded-full text-xs font-semibold"
+                      [ngClass]="getStatusBadgeClasses(booking.status)">
+                  {{ booking.status || 'N/A' }}
+                </span>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-slate-700">
+                <p class="flex items-center gap-2">
+                  <lucide-angular [img]="UserIcon" size="16" class="text-slate-500"></lucide-angular>
+                  <span class="font-medium">Child:</span>
+                  <span>{{ booking.child_name || 'N/A' }}</span>
+                </p>
+                <p class="flex items-center gap-2">
+                  <lucide-angular [img]="UserIcon" size="16" class="text-slate-500"></lucide-angular>
+                  <span class="font-medium">Parent:</span>
+                  <span>{{ booking.parent_name || 'N/A' }}</span>
+                </p>
+                <p class="flex items-center gap-2">
+                  <lucide-angular [img]="CalendarIcon" size="16" class="text-slate-500"></lucide-angular>
+                  <span class="font-medium">Type:</span>
+                  <span>{{ booking.booking_type_name || booking.booking_type || 'N/A' }}</span>
+                </p>
+                <p class="flex items-center gap-2">
+                  <lucide-angular [img]="ClockIcon" size="16" class="text-slate-500"></lucide-angular>
+                  <span class="font-medium">Mode:</span>
+                  <span>{{ getModeLabel(booking.mode) }}</span>
+                </p>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-slate-700 mt-2">
+                <p class="flex items-center gap-2">
+                  <lucide-angular [img]="CalendarIcon" size="16" class="text-slate-500"></lucide-angular>
+                  <span class="font-medium">Scheduled:</span>
+                  <span>
+                    {{ booking.confirmed_start_at ? formatDate(booking.confirmed_start_at) :
+                       booking.preferred_start_at ? formatDate(booking.preferred_start_at) : 'Not set' }}
+                  </span>
+                </p>
+                <p *ngIf="booking.confirmed_end_at || booking.preferred_end_at" class="flex items-center gap-2">
+                  <lucide-angular [img]="ClockIcon" size="16" class="text-slate-500"></lucide-angular>
+                  <span class="font-medium">End:</span>
+                  <span>
+                    {{ booking.confirmed_end_at ? formatDate(booking.confirmed_end_at) :
+                       booking.preferred_end_at ? formatDate(booking.preferred_end_at) : 'Not set' }}
+                  </span>
+                </p>
+                <p *ngIf="booking.mode === 'online'" class="flex items-center gap-2 col-span-full">
+                  <lucide-angular [img]="VideoIcon" size="16" class="text-purple-500"></lucide-angular>
+                  <span class="font-medium">Online link:</span>
+                  <a
+                    *ngIf="booking.online_meeting_link"
+                    [href]="booking.online_meeting_link"
+                    target="_blank"
+                    rel="noopener"
+                    class="text-blue-600 hover:text-blue-700 underline break-all"
+                  >
+                    {{ booking.online_meeting_link }}
+                  </a>
+                  <span *ngIf="!booking.online_meeting_link" class="text-slate-500">Not set yet</span>
+                </p>
+                <p *ngIf="booking.location && booking.mode !== 'online'" class="flex items-center gap-2 col-span-full">
+                  <lucide-angular [img]="MapPinIcon" size="16" class="text-emerald-500"></lucide-angular>
+                  <span class="font-medium">Location:</span>
+                  <span>{{ booking.location }}</span>
+                </p>
+              </div>
+            </div>
+
+            <!-- Right: actions -->
+            <div class="flex flex-col items-stretch gap-2 w-full md:w-56">
+              <button
+                *ngIf="canApprove(booking)"
+                class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white
+                       bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-300 disabled:cursor-not-allowed
+                       transition-colors"
+                (click)="openApproveModal(booking)"
+              >
+                <lucide-angular [img]="CheckCircleIcon" size="16"></lucide-angular>
+                <span>Review &amp; Approve</span>
+              </button>
+
+              <button
+                *ngIf="canReject(booking)"
+                class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold
+                       text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 transition-colors"
+                (click)="openRejectModal(booking)"
+              >
+                <lucide-angular [img]="XCircleIcon" size="16"></lucide-angular>
+                <span>Reject Assignment</span>
+              </button>
+
+              <!-- Show message if booking has been accepted -->
+              <div
+                *ngIf="!canApprove(booking) && !canReject(booking) && booking.status === 'confirmed'"
+                class="text-xs text-slate-500 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-center"
+              >
+                Booking accepted. Contact clinical manager for changes.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Warning Modal -->
+    <div
+      *ngIf="showWarningModal && pendingBooking"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm"
+    >
+      <div class="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-md w-full mx-4 p-6 space-y-4">
+        <div class="flex items-start gap-4">
+          <div class="flex-shrink-0">
+            <div class="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center">
+              <svg class="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+              </svg>
+            </div>
+          </div>
+          <div class="flex-1">
+            <h2 class="text-xl font-bold text-slate-900 mb-2">
+              {{ warningAction === 'approve' ? 'Confirm Approval' : 'Confirm Rejection' }}
+            </h2>
+            <div class="space-y-3">
+              <p class="text-slate-700 leading-relaxed">
+                <strong class="text-amber-700">Important:</strong> Once you {{ warningAction === 'approve' ? 'approve' : 'reject' }} this booking, 
+                you will <strong>not be able to edit or change</strong> your decision later.
+              </p>
+              <div class="bg-amber-50 border border-amber-200 rounded-lg p-3">
+                <p class="text-sm text-amber-800">
+                  <strong>Note:</strong> Only a clinical manager can make changes to {{ warningAction === 'approve' ? 'approved' : 'rejected' }} bookings. 
+                  If you need to make any changes after this action, you will need to contact the clinical manager.
+                </p>
+              </div>
+              <div class="bg-slate-50 rounded-lg p-3 text-xs text-slate-600">
+                <span class="font-semibold">Booking #{{ pendingBooking.id }}</span>
+                <span class="mx-2">•</span>
+                <span>Child: <span class="font-medium">{{ pendingBooking.child_name || 'N/A' }}</span></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-end gap-3 pt-2 border-t border-slate-200">
+          <button
+            type="button"
+            class="px-4 py-2 rounded-lg text-sm font-semibold text-slate-600 hover:bg-slate-100 transition-colors"
+            (click)="closeWarningModal()"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white
+                   transition-colors"
+            [ngClass]="warningAction === 'approve' 
+              ? 'bg-emerald-600 hover:bg-emerald-700' 
+              : 'bg-rose-600 hover:bg-rose-700'"
+            (click)="warningAction === 'approve' ? openApproveModalAfterWarning() : openRejectModalAfterWarning()"
+          >
+            <span>I understand, continue</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Approve Modal -->
+    <div
+      *ngIf="showApproveModal && selectedBooking"
+      class="fixed inset-0 z-40 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm"
+    >
+      <div class="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-xl w-full mx-4 p-6 space-y-4">
+        <div class="flex items-start justify-between gap-3">
+          <div>
+            <h2 class="text-xl font-bold text-slate-900">Review &amp; approve booking</h2>
+            <p class="text-sm text-slate-500 mt-1">
+              Adjust the scheduled time and, for online sessions, add a Google Meet link before approving.
+            </p>
+          </div>
+          <button
+            type="button"
+            class="text-slate-400 hover:text-slate-600"
+            (click)="closeApproveModal()"
+          >
+            <span class="sr-only">Close</span>
+            ✕
+          </button>
+        </div>
+
+        <div class="bg-slate-50 rounded-xl p-3 text-xs text-slate-600 space-y-1">
+          <div class="flex flex-wrap gap-3">
+            <span class="font-semibold">Booking #{{ selectedBooking.id }}</span>
+            <span>Child: <span class="font-medium">{{ selectedBooking.child_name || 'N/A' }}</span></span>
+            <span>Parent: <span class="font-medium">{{ selectedBooking.parent_name || 'N/A' }}</span></span>
+          </div>
+        </div>
+
+        <form class="space-y-4" (ngSubmit)="submitApprove()">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-slate-700 mb-1">
+                Confirmed start
+              </label>
+              <input
+                type="datetime-local"
+                class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none
+                       focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                [(ngModel)]="approveConfirmedStart"
+                name="confirmedStart"
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-slate-700 mb-1">
+                Confirmed end
+              </label>
+              <input
+                type="datetime-local"
+                class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none
+                       focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                [(ngModel)]="approveConfirmedEnd"
+                name="confirmedEnd"
+              />
+            </div>
+          </div>
+
+          <div *ngIf="selectedBooking.mode === 'online'">
+            <label class="block text-sm font-medium text-slate-700 mb-1">
+              Google Meet link <span class="text-rose-500">*</span>
+            </label>
+            <input
+              type="url"
+              class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none
+                     focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              placeholder="https://meet.google.com/xxx-xxxx-xxx"
+              [(ngModel)]="approveGoogleMeetLink"
+              name="googleMeetLink"
+              required
+            />
+            <p class="mt-1 text-xs text-slate-500">
+              This link will be included in the email and calendar invitations sent to the parent and to you.
+            </p>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">
+              Notes (optional)
+            </label>
+            <textarea
+              rows="3"
+              class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none
+                     focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              [(ngModel)]="approveNotes"
+              name="notes"
+              placeholder="Any information you want to attach to this approval..."
+            ></textarea>
+          </div>
+
+          <div *ngIf="approveError" class="text-sm text-rose-600 bg-rose-50 border border-rose-200 rounded-lg px-3 py-2">
+            {{ approveError }}
+          </div>
+
+          <div class="flex items-center justify-end gap-3 pt-2">
+            <button
+              type="button"
+              class="px-4 py-2 rounded-lg text-sm font-semibold text-slate-600 hover:bg-slate-100"
+              (click)="closeApproveModal()"
+              [disabled]="isSubmittingApprove"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white
+                     bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-300 disabled:cursor-not-allowed
+                     transition-colors"
+              [disabled]="isSubmittingApprove"
+            >
+              <span *ngIf="!isSubmittingApprove">Approve &amp; notify parent</span>
+              <span *ngIf="isSubmittingApprove">Approving...</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Reject Modal -->
+    <div
+      *ngIf="showRejectModal && selectedBooking"
+      class="fixed inset-0 z-40 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm"
+    >
+      <div class="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-md w-full mx-4 p-6 space-y-4">
+        <div class="flex items-start justify-between gap-3">
+          <div>
+            <h2 class="text-lg font-bold text-slate-900">Reject assignment</h2>
+            <p class="text-sm text-slate-500 mt-1">
+              This will send the booking back to the clinical manager for reassignment.
+            </p>
+          </div>
+          <button
+            type="button"
+            class="text-slate-400 hover:text-slate-600"
+            (click)="closeRejectModal()"
+          >
+            <span class="sr-only">Close</span>
+            ✕
+          </button>
+        </div>
+
+        <div class="bg-slate-50 rounded-xl p-3 text-xs text-slate-600">
+          <span class="font-semibold">Booking #{{ selectedBooking.id }}</span>
+          <span class="mx-2">•</span>
+          <span>Child: <span class="font-medium">{{ selectedBooking.child_name || 'N/A' }}</span></span>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">
+            Reason (optional)
+          </label>
+          <textarea
+            rows="3"
+            class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none
+                   focus:ring-2 focus:ring-rose-500 focus:border-rose-500"
+            [(ngModel)]="rejectReason"
+            name="rejectReason"
+            placeholder="Briefly explain why you are rejecting this assignment..."
+          ></textarea>
+        </div>
+
+        <div class="flex items-center justify-end gap-3 pt-2">
+          <button
+            type="button"
+            class="px-4 py-2 rounded-lg text-sm font-semibold text-slate-600 hover:bg-slate-100"
+            (click)="closeRejectModal()"
+            [disabled]="isSubmittingReject"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white
+                   bg-rose-600 hover:bg-rose-700 disabled:bg-rose-300 disabled:cursor-not-allowed
+                   transition-colors"
+            (click)="submitReject()"
+            [disabled]="isSubmittingReject"
+          >
+            <span *ngIf="!isSubmittingReject">Confirm rejection</span>
+            <span *ngIf="isSubmittingReject">Rejecting...</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+

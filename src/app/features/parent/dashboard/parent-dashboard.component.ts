@@ -1,14 +1,18 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { ChildService } from '../../../core/services/child.service';
 import { BookingService } from '../../../core/services/booking.service';
 import { ChildCaseService, ChildCaseUpdate } from '../../../core/services/child-case.service';
+import { ProgressUpdatesService, ProgressUpdate } from '../../../core/services/progress-updates.service';
+import { SocketService } from '../../../core/services/socket.service';
+import { Subscription } from 'rxjs';
 import { User } from '../../../shared/models/user.model';
 import { Child } from '../../../shared/models/child.model';
 import { Booking } from '../../../shared/models/booking.model';
-import { LucideAngularModule, Pencil, TrendingUp, Calendar, FileText, Image, Video, File } from 'lucide-angular';
+import { LucideAngularModule, Pencil, TrendingUp, Calendar, FileText, Image, Video, File, CheckCircle, Clock, MapPin, X, CalendarPlus, User as UserIcon, Eye, Trash2, Info, MessageSquare, Navigation, Folder } from 'lucide-angular';
+import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 import { AddChildModalComponent } from '../components/add-child-modal/add-child-modal.component';
 import { BookTourModalComponent } from '../components/book-tour-modal/book-tour-modal.component';
 import { BookingWizardComponent } from '../components/booking-wizard/booking-wizard.component';
@@ -20,6 +24,7 @@ import { BookingWizardComponent } from '../components/booking-wizard/booking-wiz
     CommonModule, 
     RouterModule, 
     LucideAngularModule,
+    TranslatePipe,
     AddChildModalComponent,
     BookTourModalComponent,
     BookingWizardComponent
@@ -28,6 +33,7 @@ import { BookingWizardComponent } from '../components/booking-wizard/booking-wiz
   styleUrls: ['./parent-dashboard.component.css']
 })
 export class ParentDashboardComponent implements OnInit {
+  private notificationSubscription?: Subscription;
   currentUser: User | null = null;
   children: Child[] = [];
   bookings: Booking[] = [];
@@ -47,12 +53,34 @@ export class ParentDashboardComponent implements OnInit {
   readonly ImageIcon = Image;
   readonly VideoIcon = Video;
   readonly FileIcon = File;
+  readonly CheckCircleIcon = CheckCircle;
+  readonly ClockIcon = Clock;
+  readonly MapPinIcon = MapPin;
+  readonly XIcon = X;
+  readonly CalendarPlusIcon = CalendarPlus;
+  readonly UserIcon = UserIcon;
+  readonly EyeIcon = Eye;
+  readonly TrashIcon = Trash2;
+  readonly InfoIcon = Info;
+  readonly MessageSquareIcon = MessageSquare;
+  readonly NavigationIcon = Navigation;
+  readonly FolderIcon = Folder;
+
+  // Toast properties
+  showSuccessToast = false;
+  successToastMessage = '';
 
   // Child case updates
   childCaseUpdates: { [childId: number]: ChildCaseUpdate[] } = {};
   isLoadingCaseUpdates: { [childId: number]: boolean } = {};
+  // Progress updates (new system)
+  progressUpdates: { [childId: number]: ProgressUpdate[] } = {};
+  isLoadingProgressUpdates: { [childId: number]: boolean } = {};
   selectedChildForTimeline: Child | null = null;
   showTimelineModal = false;
+
+  // Profile menu
+  isProfileMenuOpen = false;
 
   get isLoading(): boolean {
     return this.isChildrenLoading || this.isBookingsLoading;
@@ -75,13 +103,47 @@ export class ParentDashboardComponent implements OnInit {
     private authService: AuthService,
     private childService: ChildService,
     private bookingService: BookingService,
-    private childCaseService: ChildCaseService
+    private childCaseService: ChildCaseService,
+    private progressUpdatesService: ProgressUpdatesService,
+    private socketService: SocketService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
     this.currentUser = this.authService.getCurrentUser();
     this.loadChildren();
     this.loadBookings();
+    
+    // Listen for socket notifications (e.g., when admin marks cash as paid)
+    this.notificationSubscription = this.socketService.getNotifications().subscribe(notification => {
+      console.log('[ParentDashboard] Received notification:', notification);
+      
+      // If notification is about payment being marked as paid, refresh bookings
+      if (notification.type === 'cash_payment_received' || 
+          notification.type === 'payment_received' ||
+          (notification.data && notification.data.bookingId)) {
+        // Refresh bookings to get updated status
+        this.loadBookings();
+      }
+    });
+  }
+
+  ngOnDestroy(): void {
+    if (this.notificationSubscription) {
+      this.notificationSubscription.unsubscribe();
+    }
+  }
+
+  toggleProfileMenu(): void {
+    this.isProfileMenuOpen = !this.isProfileMenuOpen;
+  }
+
+  closeProfileMenu(): void {
+    this.isProfileMenuOpen = false;
+  }
+
+  logout(): void {
+    this.authService.logout();
   }
 
   loadCaseUpdates(childId: number): void {
@@ -96,10 +158,33 @@ export class ParentDashboardComponent implements OnInit {
         this.isLoadingCaseUpdates[childId] = false;
       },
       error: (error) => {
-        console.error('Error loading case updates:', error);
+        // Silently handle errors - table might not exist yet or no updates available
+        // Only log if it's not a 404 or 500 (table doesn't exist)
+        if (error.status !== 404 && error.status !== 500) {
+          console.error('Error loading case updates:', error);
+        }
         this.isLoadingCaseUpdates[childId] = false;
-        // If endpoint doesn't exist yet, just set empty array
+        // Set empty array if endpoint doesn't exist or table is empty
         this.childCaseUpdates[childId] = [];
+      }
+    });
+  }
+
+  loadProgressUpdates(childId: number): void {
+    if (this.isLoadingProgressUpdates[childId]) return;
+    
+    this.isLoadingProgressUpdates[childId] = true;
+    this.progressUpdatesService.getChildProgressUpdatesForParent(childId, 1, 5).subscribe({
+      next: (response) => {
+        if (response.success && Array.isArray(response.data)) {
+          this.progressUpdates[childId] = response.data;
+        }
+        this.isLoadingProgressUpdates[childId] = false;
+      },
+      error: (error) => {
+        console.error('Error loading progress updates:', error);
+        this.isLoadingProgressUpdates[childId] = false;
+        this.progressUpdates[childId] = [];
       }
     });
   }
@@ -112,6 +197,18 @@ export class ParentDashboardComponent implements OnInit {
   getLatestCaseUpdate(childId: number | undefined): ChildCaseUpdate | null {
     const updates = this.getCaseUpdatesForChild(childId);
     return updates.length > 0 ? updates[0] : null;
+  }
+
+  getLatestProgressUpdate(childId: number | undefined): ProgressUpdate | null {
+    if (!childId) return null;
+    const updates = this.progressUpdates[childId] || [];
+    return updates.length > 0 ? updates[0] : null;
+  }
+
+  viewAllUpdates(child: Child): void {
+    if (child.id) {
+      this.router.navigate(['/parent/updates'], { queryParams: { childId: child.id } });
+    }
   }
 
   openTimelineModal(child: Child): void {
@@ -167,16 +264,22 @@ export class ParentDashboardComponent implements OnInit {
     return this.formatDate(dateString);
   }
 
-  loadChildren(): void {
+  loadChildren(showSuccessToastIfFirst: boolean = false): void {
     this.isChildrenLoading = true;
+    const previousChildrenCount = this.children.length;
     this.childService.getChildren().subscribe({
       next: (response) => {
         if (response.success && Array.isArray(response.data)) {
           this.children = response.data;
-          // Load case updates for all children
+          // Show success toast if this was the first child added (transition from 0 to 1)
+          if (showSuccessToastIfFirst && previousChildrenCount === 0 && this.children.length === 1) {
+            this.triggerSuccessToast();
+          }
+          // Load case updates and progress updates for all children
           this.children.forEach(child => {
             if (child.id) {
               this.loadCaseUpdates(child.id);
+              this.loadProgressUpdates(child.id);
             }
           });
         }
@@ -221,7 +324,17 @@ export class ParentDashboardComponent implements OnInit {
   }
 
   onChildAdded(): void {
-    this.loadChildren();
+    // Pass flag to show success toast if this is the first child
+    this.loadChildren(true);
+  }
+
+  triggerSuccessToast(): void {
+    this.showSuccessToast = true;
+    this.successToastMessage = 'parentDashboard.successToast.childSaved';
+    // Auto-hide after 5 seconds
+    setTimeout(() => {
+      this.showSuccessToast = false;
+    }, 5000);
   }
 
   onChildUpdated(): void {
@@ -250,7 +363,7 @@ export class ParentDashboardComponent implements OnInit {
 
   getBookingForChild(childId: number | undefined): Booking | undefined {
     if (!childId) return undefined;
-    // Treat these statuses as “active” bookings that should block new session creation
+    // Treat these statuses as "active" bookings that should block new session creation
     const activeStatuses = [
       'pending',
       'awaiting_payment',
@@ -261,6 +374,35 @@ export class ParentDashboardComponent implements OnInit {
     return this.bookings.find(
       b => b.child_id === childId && b.status && activeStatuses.includes(b.status)
     );
+  }
+
+  isBookingPaid(booking: Booking | undefined): boolean {
+    if (!booking) return false;
+    // Check if payment status indicates payment was made
+    // Also check if status is awaiting_clinical_review which typically means payment was received
+    return booking.payment_status === 'paid' || 
+           (booking.status === 'awaiting_clinical_review' && booking.payment_status !== 'unpaid' && 
+            booking.payment_status !== 'failed' && booking.payment_status !== 'pending');
+  }
+
+  hasTherapistAssigned(booking: Booking | undefined): boolean {
+    if (!booking) return false;
+    // Check if therapist is assigned and session is confirmed
+    return !!(booking.therapist_id || booking.therapist_name) && 
+           !!(booking.confirmed_start_at || booking.therapist_response === 'accepted' || booking.status === 'confirmed');
+  }
+
+  isSessionCompleted(booking: Booking | undefined): boolean {
+    if (!booking) return false;
+    return booking.status === 'completed';
+  }
+
+  getBookingStatusLabel(booking: Booking | undefined): string {
+    if (!booking) return '';
+    if (this.isBookingPaid(booking) && booking.status === 'awaiting_clinical_review') {
+      return 'parentDashboard.childCard.bookingStatus.awaitingConfirmation';
+    }
+    return `parentDashboard.childCard.bookingStatus.${booking.status || 'pending'}`;
   }
 
   getUpcomingBookingForChild(childId: number | undefined): Booking | undefined {
@@ -370,6 +512,145 @@ export class ParentDashboardComponent implements OnInit {
 
   isArray(value: any): boolean {
     return Array.isArray(value);
+  }
+
+  viewBooking(booking: Booking): void {
+    // Navigate to booking details or dashboard with booking highlighted
+    // For now, just scroll to the booking card or show a message
+    // TODO: Implement booking detail view if needed
+    console.log('View booking:', booking);
+  }
+
+  /**
+   * Get the next upcoming session (within 24 hours)
+   */
+  getUpcomingSession(): Booking | null {
+    const now = new Date();
+    const tomorrow = new Date(now);
+    tomorrow.setHours(tomorrow.getHours() + 24);
+
+    // Find the next confirmed session within 24 hours
+    const upcoming = this.bookings.find(booking => {
+      if (!booking.confirmed_start_at) return false;
+      
+      const sessionDate = new Date(booking.confirmed_start_at);
+      return sessionDate >= now && sessionDate <= tomorrow && 
+             (booking.status === 'confirmed' || booking.therapist_response === 'accepted');
+    });
+
+    return upcoming || null;
+  }
+
+  /**
+   * Add session to calendar (iCal format)
+   */
+  addToCalendar(booking: Booking): void {
+    if (!booking.confirmed_start_at) return;
+
+    const startDate = new Date(booking.confirmed_start_at);
+    const endDate = booking.confirmed_end_at ? new Date(booking.confirmed_end_at) : 
+                    new Date(startDate.getTime() + 60 * 60 * 1000); // Default 1 hour
+
+    // Format dates for iCal (YYYYMMDDTHHmmssZ)
+    const formatDate = (date: Date): string => {
+      return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+    };
+
+    const title = `${booking.booking_type_name || booking.booking_type} - ${booking.child_name || 'Session'}`;
+    const description = `Session with ${booking.therapist_name || 'therapist'}`;
+    const location = booking.mode === 'in_centre' 
+      ? 'Bloom Spectrum Centre, Putrajaya'
+      : booking.online_meeting_link || 'Online';
+
+    // Create iCal content
+    const icalContent = [
+      'BEGIN:VCALENDAR',
+      'VERSION:2.0',
+      'PRODID:-//Bloom Spectrum//Session Calendar//EN',
+      'BEGIN:VEVENT',
+      `DTSTART:${formatDate(startDate)}`,
+      `DTEND:${formatDate(endDate)}`,
+      `SUMMARY:${title}`,
+      `DESCRIPTION:${description}`,
+      `LOCATION:${location}`,
+      'END:VEVENT',
+      'END:VCALENDAR'
+    ].join('\r\n');
+
+    // Create blob and download
+    const blob = new Blob([icalContent], { type: 'text/calendar;charset=utf-8' });
+    const link = document.createElement('a');
+    link.href = window.URL.createObjectURL(blob);
+    link.download = `session-${booking.id || 'upcoming'}.ics`;
+    link.click();
+  }
+
+  /**
+   * Open directions to centre (Google Maps)
+   */
+  openDirections(): void {
+    // Bloom Spectrum Centre address
+    const address = 'Bloom+Spectrum+Centre,+A-1-08,+Block+A,+Conezion+Commercial,+Persiaran+IRC+3,+IOI+Resort+City,+62502+Putrajaya';
+    const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${address}`;
+    window.open(mapsUrl, '_blank', 'noopener,noreferrer');
+  }
+
+  /**
+   * View session notes
+   */
+  viewSessionNotes(booking: Booking): void {
+    // TODO: Navigate to session notes page or open modal
+    console.log('View session notes for booking:', booking.id);
+    // This could open a modal or navigate to a notes page
+  }
+
+  /**
+   * View session documents
+   */
+  viewSessionDocuments(booking: Booking): void {
+    // TODO: Navigate to documents page or open modal
+    console.log('View session documents for booking:', booking.id);
+    // This could open a modal or navigate to a documents page
+  }
+
+  /**
+   * View instructions for cash payment
+   */
+  viewInstructions(booking: Booking): void {
+    // Show instructions for cash payment
+    // TODO: Implement instructions modal or page
+    alert('Instructions: Please pay at the centre within 24 hours. Bring this booking ID: #' + booking.id);
+  }
+
+  /**
+   * Cancel booking
+   */
+  cancelBooking(booking: Booking): void {
+    if (!booking.id) return;
+    if (confirm('Are you sure you want to cancel this booking?')) {
+      // TODO: Implement cancel booking API call
+      console.log('Cancel booking:', booking.id);
+    }
+  }
+
+  /**
+   * Join online session
+   */
+  joinSession(booking: Booking): void {
+    if (booking.mode === 'online' && booking.online_meeting_link) {
+      window.open(booking.online_meeting_link, '_blank', 'noopener,noreferrer');
+    } else {
+      console.warn('No online meeting link available for this session.');
+    }
+  }
+
+  /**
+   * Message centre
+   */
+  messageCentre(booking: Booking): void {
+    // TODO: Navigate to messages page or open message modal
+    console.log('Message centre for booking:', booking.id);
+    // This could navigate to /parent/messages or open a message modal
   }
 }
 

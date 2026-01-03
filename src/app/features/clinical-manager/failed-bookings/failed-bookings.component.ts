@@ -81,6 +81,10 @@ export class FailedBookingsComponent implements OnInit {
       error: (error) => {
         console.error('Error loading failed bookings:', error);
         this.isLoading = false;
+        // Show user-friendly error message
+        if (error.error?.message) {
+          console.error('Error details:', error.error.message);
+        }
       }
     });
   }
