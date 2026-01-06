@@ -1,7 +1,7 @@
 export const environment = {
   production: true,
   hmr: false,
-  frontendUrl:"https://bloomspectrum.my",
+  frontendUrl:"https://www.bloomspectrum.my",
   apiUrl:"https://backend.bloomspectrum.my/api/v1",
   apiSocketUrl:"https://backend.bloomspectrum.my/",
   apiDirectUrl:"https://backend.bloomspectrum.my/",
