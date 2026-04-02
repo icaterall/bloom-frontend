@@ -79,13 +79,49 @@ export const routes: Routes = [
         title: 'Admin Dashboard - Bloom Spectrum Centre'
       },
       {
+        path: 'tours',
+        loadComponent: () =>
+          import('./features/clinical-manager/tours/tours.component')
+            .then(m => m.ToursComponent),
+        title: 'Tours & Visits - Bloom Spectrum Centre'
+      },
+      {
+        path: 'leads',
+        loadComponent: () =>
+          import('./features/admin/leads/leads.component')
+            .then(m => m.LeadsComponent),
+        title: 'Leads - Bloom Spectrum Centre'
+      },
+      {
+        path: 'children',
+        loadComponent: () =>
+          import('./features/admin/children/children.component')
+            .then(m => m.AdminChildrenComponent),
+        title: 'Children Directory - Bloom Spectrum Centre'
+      },
+      {
         path: 'staff',
         loadComponent: () =>
           import('./features/admin/staff/staff-list.component')
             .then(m => m.StaffListComponent),
         title: 'Staff Management - Bloom Spectrum Centre'
       },
-      { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
+      {
+        path: 'reports',
+        loadComponent: () =>
+          import('./features/admin/reports/admin-reports.component')
+            .then(m => m.AdminReportsComponent),
+        title: 'Reports & Analytics - Bloom Spectrum Centre'
+      },
+      {
+        path: 'settings',
+        loadComponent: () =>
+          import('./features/parent/settings/settings.component')
+            .then(m => m.SettingsComponent),
+        title: 'Account Settings - Bloom Spectrum Centre'
+      },
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+      { path: '**', redirectTo: 'dashboard' }
     ]
   },
   // Clinical Manager routes
@@ -173,6 +209,13 @@ export const routes: Routes = [
           import('./features/clinical-manager/calendar/calendar.component')
             .then(m => m.ClinicalManagerCalendarComponent),
         title: 'Sessions Calendar - Bloom Spectrum Centre'
+      },
+      {
+        path: 'tours',
+        loadComponent: () =>
+          import('./features/clinical-manager/tours/tours.component')
+            .then(m => m.ToursComponent),
+        title: 'Tours & Visits - Bloom Spectrum Centre'
       },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
     ]

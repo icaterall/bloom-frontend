@@ -1,12 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { StaffService, Staff } from '../../../core/services/staff.service';
+import { SkeletonLoaderComponent } from '../../../shared/components/skeleton-loader/skeleton-loader.component';
 import { AddStaffModalComponent } from './add-staff-modal.component';
 
 @Component({
   selector: 'app-staff-list',
   standalone: true,
-  imports: [CommonModule, AddStaffModalComponent],
+  imports: [CommonModule, SkeletonLoaderComponent, AddStaffModalComponent],
   templateUrl: './staff-list.component.html',
   styleUrls: ['./staff-list.component.css']
 })

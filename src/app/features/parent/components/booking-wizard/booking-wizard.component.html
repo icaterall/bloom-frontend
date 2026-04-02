@@ -1,16 +1,17 @@
 <!-- Full-screen overlay with centered modal -->
 <div
-  class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-60"
+  @backdropAnim
+  class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 backdrop-blur-sm"
   aria-labelledby="modal-title"
   role="dialog"
   aria-modal="true"
   (click)="onClose()"
 >
   <!-- Content Container -->
-  <div class="w-full max-w-5xl max-h-[90vh] mx-4 md:mx-6 overflow-y-auto">
+  <div @modalPanelAnim class="w-full max-w-5xl max-h-[90vh] mx-4 md:mx-6 overflow-y-auto">
     <!-- Modal Panel -->
     <div
-      class="bg-white rounded-lg shadow-2xl"
+      class="bg-white rounded-xl shadow-2xl"
       (click)="$event.stopPropagation()"
     >
       

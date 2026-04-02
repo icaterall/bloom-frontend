@@ -13,6 +13,7 @@ import { Child } from '../../../shared/models/child.model';
 import { Booking } from '../../../shared/models/booking.model';
 import { LucideAngularModule, Pencil, TrendingUp, Calendar, FileText, Image, Video, File, CheckCircle, Clock, MapPin, X, CalendarPlus, User as UserIcon, Eye, Trash2, Info, MessageSquare, Navigation, Folder } from 'lucide-angular';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
+import { SkeletonLoaderComponent } from '../../../shared/components/skeleton-loader/skeleton-loader.component';
 import { AddChildModalComponent } from '../components/add-child-modal/add-child-modal.component';
 import { BookTourModalComponent } from '../components/book-tour-modal/book-tour-modal.component';
 import { BookingWizardComponent } from '../components/booking-wizard/booking-wizard.component';
@@ -21,10 +22,11 @@ import { BookingWizardComponent } from '../components/booking-wizard/booking-wiz
   selector: 'app-parent-dashboard',
   standalone: true,
   imports: [
-    CommonModule, 
-    RouterModule, 
+    CommonModule,
+    RouterModule,
     LucideAngularModule,
     TranslatePipe,
+    SkeletonLoaderComponent,
     AddChildModalComponent,
     BookTourModalComponent,
     BookingWizardComponent

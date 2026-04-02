@@ -1,1 +1,47 @@
-/* Admin Dashboard styles - using Tailwind classes in template */
+/* ═══════════════════════════════════════════
+   Bloom Spectrum – Admin Dashboard Styles
+   ═══════════════════════════════════════════ */
+
+/* Fade-in entrance animation */
+.animate-fade-in {
+  animation: fadeIn 0.35s ease-out both;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Thin scrollbar for scrollable payment/staff panels */
+.payment-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #e2e8f0 transparent;
+}
+
+.payment-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.payment-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.payment-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #e2e8f0;
+  border-radius: 9999px;
+}
+
+.payment-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: #cbd5e1;
+}
+
+/* Tabular numerals for consistent number alignment */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}

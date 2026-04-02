@@ -21,11 +21,8 @@
     </div>
 
     <!-- Loading State -->
-    <div *ngIf="isLoading" class="flex items-center justify-center py-16">
-      <div class="text-center">
-        <div class="inline-block w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-4"></div>
-        <p class="text-slate-600">Loading children...</p>
-      </div>
+    <div *ngIf="isLoading" class="py-4">
+      <app-skeleton type="card" [count]="4"></app-skeleton>
     </div>
 
     <!-- Error State -->

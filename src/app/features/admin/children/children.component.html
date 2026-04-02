@@ -1,0 +1,383 @@
+<div class="space-y-5">
+
+  <!-- ── Header ── -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+    <div>
+      <h1 class="text-2xl font-bold text-slate-800 tracking-tight">Children Directory</h1>
+      <p class="text-sm text-slate-500 mt-0.5">All registered children and their clinical profiles</p>
+    </div>
+  </div>
+
+  <!-- ── Search Bar ── -->
+  <div class="bg-white rounded-[5px] shadow-sm border border-slate-200/60 px-4 py-3
+              flex items-center justify-between gap-3">
+    <div class="relative flex-1 max-w-sm">
+      <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+        <lucide-angular [img]="SearchIcon" [size]="16" class="text-slate-400"></lucide-angular>
+      </div>
+      <input
+        type="text"
+        (input)="onSearch($event)"
+        placeholder="Search by child or parent name…"
+        class="pl-9 pr-3 py-1.5 w-full text-sm border border-slate-200 rounded-[5px]
+               bg-slate-50 focus:outline-none focus:ring-2 focus:ring-[#2663eb]/30
+               focus:border-[#2663eb] placeholder-slate-400" />
+    </div>
+    <span class="text-xs text-slate-400 font-medium tabular-nums">
+      {{ children.length }} children
+    </span>
+  </div>
+
+  <!-- ── Loading ── -->
+  @if (isLoading) {
+    <div class="bg-white rounded-[5px] shadow-sm border border-slate-200/60 p-8">
+      <div class="space-y-4 animate-pulse">
+        @for (i of [1,2,3,4,5,6]; track i) {
+          <div class="flex items-center gap-4">
+            <div class="h-4 w-28 bg-slate-200 rounded"></div>
+            <div class="h-4 w-12 bg-slate-200 rounded"></div>
+            <div class="h-4 w-24 bg-slate-200 rounded"></div>
+            <div class="h-4 w-16 bg-slate-200 rounded flex-1"></div>
+            <div class="h-4 w-16 bg-slate-200 rounded"></div>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- ── Error ── -->
+  @if (error && !isLoading) {
+    <div class="bg-red-50 border border-red-200/60 rounded-[5px] p-4 flex items-center gap-3">
+      <span class="text-sm text-red-700">{{ error }}</span>
+      <button (click)="loadChildren()" class="text-sm font-medium text-red-700 underline">Retry</button>
+    </div>
+  }
+
+  <!-- ── Data Table ── -->
+  @if (!isLoading && !error) {
+    <div class="bg-white rounded-[5px] shadow-sm border border-slate-200/60 overflow-hidden">
+      @if (children.length === 0) {
+        <div class="flex flex-col items-center justify-center py-16 text-slate-400">
+          <lucide-angular [img]="BabyIcon" [size]="40" class="mb-2"></lucide-angular>
+          <p class="text-sm font-medium">No children found</p>
+        </div>
+      } @else {
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-slate-200">
+            <thead class="bg-slate-50">
+              <tr>
+                <th class="px-5 py-3 text-left text-[0.6875rem] font-semibold text-slate-500 uppercase tracking-wider">Child Name</th>
+                <th class="px-5 py-3 text-left text-[0.6875rem] font-semibold text-slate-500 uppercase tracking-wider">Age</th>
+                <th class="px-5 py-3 text-left text-[0.6875rem] font-semibold text-slate-500 uppercase tracking-wider">Parent</th>
+                <th class="px-5 py-3 text-left text-[0.6875rem] font-semibold text-slate-500 uppercase tracking-wider">Language</th>
+                <th class="px-5 py-3 text-left text-[0.6875rem] font-semibold text-slate-500 uppercase tracking-wider">Diagnosis</th>
+                <th class="px-5 py-3 text-left text-[0.6875rem] font-semibold text-slate-500 uppercase tracking-wider">Added</th>
+                <th class="px-5 py-3 text-right text-[0.6875rem] font-semibold text-slate-500 uppercase tracking-wider">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+              @for (child of children; track child.id) {
+                <tr class="hover:bg-slate-50/60 transition-colors">
+                  <!-- Name -->
+                  <td class="px-5 py-3.5 whitespace-nowrap">
+                    <p class="text-sm font-semibold text-slate-800">{{ child.full_name }}</p>
+                    <p class="text-[0.6875rem] text-slate-400 capitalize">{{ child.gender || '–' }}</p>
+                  </td>
+
+                  <!-- Age -->
+                  <td class="px-5 py-3.5 whitespace-nowrap text-sm text-slate-600 tabular-nums">
+                    {{ calcAge(child.date_of_birth) }}
+                  </td>
+
+                  <!-- Parent -->
+                  <td class="px-5 py-3.5 whitespace-nowrap">
+                    <p class="text-sm text-slate-700">{{ child.parent_name }}</p>
+                    @if (child.parent_mobile) {
+                      <p class="text-[0.6875rem] text-slate-400">{{ child.parent_mobile }}</p>
+                    }
+                  </td>
+
+                  <!-- Language -->
+                  <td class="px-5 py-3.5 whitespace-nowrap text-sm text-slate-600 capitalize">
+                    {{ child.primary_language || '–' }}
+                  </td>
+
+                  <!-- Diagnosis Badge -->
+                  <td class="px-5 py-3.5 whitespace-nowrap">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-[5px] text-[0.6875rem] font-semibold"
+                          [ngClass]="diagnosisBadgeClass(child.diagnosis_status)">
+                      {{ diagnosisLabel(child.diagnosis_status) }}
+                    </span>
+                  </td>
+
+                  <!-- Added Date -->
+                  <td class="px-5 py-3.5 whitespace-nowrap text-xs text-slate-500 tabular-nums">
+                    {{ child.created_at | date:'d MMM yyyy' }}
+                  </td>
+
+                  <!-- Actions -->
+                  <td class="px-5 py-3.5 text-right whitespace-nowrap">
+                    <button
+                      (click)="openProfile(child)"
+                      class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium
+                             text-[#2663eb] border border-[#2663eb]/30 rounded-[5px]
+                             hover:bg-blue-50 transition-colors">
+                      <lucide-angular [img]="EyeIcon" [size]="14"></lucide-angular>
+                      View Profile
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+  }
+</div>
+
+
+<!-- ═══════════════════════════════════════════
+     360° PROFILE SLIDE-OVER
+     ═══════════════════════════════════════════ -->
+
+<!-- Backdrop -->
+@if (showPanel) {
+  <div
+    class="fixed inset-0 z-40 bg-slate-900/30 backdrop-blur-sm transition-opacity"
+    (click)="closePanel()">
+  </div>
+}
+
+<!-- Panel -->
+<div
+  class="fixed inset-y-0 right-0 z-50 w-full sm:w-[34rem] lg:w-[40rem] bg-white shadow-2xl
+         border-l border-slate-200 flex flex-col
+         transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]"
+  [class.translate-x-0]="showPanel"
+  [class.translate-x-full]="!showPanel">
+
+  <!-- Loading -->
+  @if (profileLoading) {
+    <div class="flex-1 flex items-center justify-center">
+      <div class="space-y-3 animate-pulse text-center">
+        <div class="h-5 w-40 bg-slate-200 rounded mx-auto"></div>
+        <div class="h-4 w-24 bg-slate-200 rounded mx-auto"></div>
+      </div>
+    </div>
+  }
+
+  @if (profile && !profileLoading) {
+    <!-- Header -->
+    <div class="shrink-0 px-6 py-4 border-b border-slate-200">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-lg font-bold text-slate-800">{{ profile.child.full_name }}</h2>
+          <div class="flex items-center gap-2 mt-0.5">
+            <span class="text-sm text-slate-500">{{ calcAge(profile.child.date_of_birth) }} old</span>
+            <span class="text-slate-300">·</span>
+            <span class="inline-flex items-center px-2 py-0.5 rounded-[5px] text-[0.625rem] font-semibold"
+                  [ngClass]="diagnosisBadgeClass(profile.child.diagnosis_status)">
+              {{ diagnosisLabel(profile.child.diagnosis_status) }}
+            </span>
+          </div>
+        </div>
+        <button
+          (click)="closePanel()"
+          class="p-1.5 rounded-[5px] hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors">
+          <lucide-angular [img]="XIcon" [size]="18"></lucide-angular>
+        </button>
+      </div>
+
+      <!-- Tabs -->
+      <div class="flex gap-1 mt-4">
+        <button
+          (click)="setTab('demographics')"
+          class="px-3.5 py-1.5 text-sm font-medium rounded-[5px] transition-colors"
+          [class.bg-[#2663eb]]="activeTab === 'demographics'"
+          [class.text-white]="activeTab === 'demographics'"
+          [class.text-slate-500]="activeTab !== 'demographics'"
+          [class.hover:bg-slate-100]="activeTab !== 'demographics'">
+          Demographics
+        </button>
+        <button
+          (click)="setTab('clinical')"
+          class="px-3.5 py-1.5 text-sm font-medium rounded-[5px] transition-colors"
+          [class.bg-[#2663eb]]="activeTab === 'clinical'"
+          [class.text-white]="activeTab === 'clinical'"
+          [class.text-slate-500]="activeTab !== 'clinical'"
+          [class.hover:bg-slate-100]="activeTab !== 'clinical'">
+          Clinical Progress
+          @if (profile.clinical_history.length) {
+            <span class="ml-1 text-xs opacity-70">{{ profile.clinical_history.length }}</span>
+          }
+        </button>
+      </div>
+    </div>
+
+    <!-- Tab Content -->
+    <div class="flex-1 overflow-y-auto px-6 py-5">
+
+      <!-- ═══ TAB 1: Demographics ═══ -->
+      @if (activeTab === 'demographics') {
+        <div class="space-y-6">
+
+          <!-- Child Info Section -->
+          <div>
+            <h3 class="text-[0.6875rem] font-semibold text-slate-400 uppercase tracking-wider mb-3">
+              Child Information
+            </h3>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-[0.625rem] font-semibold text-slate-400 uppercase mb-0.5">Full Name</label>
+                <p class="text-sm text-slate-800 font-medium">{{ profile.child.full_name }}</p>
+              </div>
+              <div>
+                <label class="block text-[0.625rem] font-semibold text-slate-400 uppercase mb-0.5">Date of Birth</label>
+                <p class="text-sm text-slate-800">{{ profile.child.date_of_birth | date:'d MMM yyyy' }}</p>
+              </div>
+              <div>
+                <label class="block text-[0.625rem] font-semibold text-slate-400 uppercase mb-0.5">Gender</label>
+                <p class="text-sm text-slate-800 capitalize">{{ profile.child.gender || '–' }}</p>
+              </div>
+              <div>
+                <label class="block text-[0.625rem] font-semibold text-slate-400 uppercase mb-0.5">Language</label>
+                <p class="text-sm text-slate-800 capitalize">{{ profile.child.primary_language || '–' }}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Diagnosis -->
+          <div>
+            <h3 class="text-[0.6875rem] font-semibold text-slate-400 uppercase tracking-wider mb-3">
+              Diagnosis
+            </h3>
+            <div class="bg-slate-50 rounded-[5px] border border-slate-200/60 p-4 space-y-3">
+              <div>
+                <label class="block text-[0.625rem] font-semibold text-slate-400 uppercase mb-0.5">Status</label>
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-[5px] text-[0.6875rem] font-semibold"
+                      [ngClass]="diagnosisBadgeClass(profile.child.diagnosis_status)">
+                  {{ diagnosisLabel(profile.child.diagnosis_status) }}
+                </span>
+              </div>
+              @if (profile.child.diagnosis_details) {
+                <div>
+                  <label class="block text-[0.625rem] font-semibold text-slate-400 uppercase mb-0.5">Details</label>
+                  <p class="text-sm text-slate-700 leading-relaxed whitespace-pre-wrap">{{ profile.child.diagnosis_details }}</p>
+                </div>
+              }
+            </div>
+          </div>
+
+          <!-- Main Concerns -->
+          @if (profile.child.main_concerns) {
+            <div>
+              <h3 class="text-[0.6875rem] font-semibold text-slate-400 uppercase tracking-wider mb-3">
+                Main Concerns
+              </h3>
+              <div class="bg-slate-50 rounded-[5px] border border-slate-200/60 p-4">
+                <p class="text-sm text-slate-700 leading-relaxed whitespace-pre-wrap">{{ profile.child.main_concerns }}</p>
+              </div>
+            </div>
+          }
+
+          <!-- Parent Contact -->
+          <div>
+            <h3 class="text-[0.6875rem] font-semibold text-slate-400 uppercase tracking-wider mb-3">
+              Parent / Guardian
+            </h3>
+            <div class="bg-slate-50 rounded-[5px] border border-slate-200/60 p-4 space-y-2.5">
+              <div class="flex items-center gap-2.5">
+                <lucide-angular [img]="UserIcon" [size]="15" class="text-slate-400"></lucide-angular>
+                <span class="text-sm text-slate-800 font-medium">{{ profile.parent.name }}</span>
+              </div>
+              <div class="flex items-center gap-2.5">
+                <lucide-angular [img]="MailIcon" [size]="15" class="text-slate-400"></lucide-angular>
+                <a [href]="'mailto:' + profile.parent.email"
+                   class="text-sm text-[#2663eb] hover:underline">{{ profile.parent.email }}</a>
+              </div>
+              @if (profile.parent.mobile) {
+                <div class="flex items-center gap-2.5">
+                  <lucide-angular [img]="PhoneIcon" [size]="15" class="text-slate-400"></lucide-angular>
+                  <a [href]="'tel:' + profile.parent.mobile"
+                     class="text-sm text-slate-700 hover:text-[#2663eb]">{{ profile.parent.mobile }}</a>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- ═══ TAB 2: Clinical Progress Timeline ═══ -->
+      @if (activeTab === 'clinical') {
+        @if (profile.clinical_history.length === 0) {
+          <div class="flex flex-col items-center justify-center py-16 text-slate-400">
+            <lucide-angular [img]="ActivityIcon" [size]="40" class="mb-2"></lucide-angular>
+            <p class="text-sm font-medium">No clinical updates yet</p>
+            <p class="text-xs mt-0.5">Case updates from therapists will appear here</p>
+          </div>
+        } @else {
+          <!-- Timeline -->
+          <div class="relative pl-6">
+            <!-- Vertical line -->
+            <div class="absolute left-[0.4375rem] top-2 bottom-2 w-px bg-slate-200"></div>
+
+            <div class="space-y-6">
+              @for (update of profile.clinical_history; track update.id) {
+                <div class="relative">
+                  <!-- Dot -->
+                  <div class="absolute -left-6 top-1.5 w-[0.5625rem] h-[0.5625rem] rounded-full border-2 border-white shadow-sm"
+                       [ngClass]="clinicalStatusClass(update.status)"></div>
+
+                  <div class="bg-white rounded-[5px] border border-slate-200/60 shadow-sm p-4 space-y-2.5">
+                    <!-- Header -->
+                    <div class="flex items-center justify-between">
+                      <div class="flex items-center gap-2">
+                        <span class="text-xs text-slate-400 tabular-nums">
+                          {{ update.created_at | date:'d MMM yyyy' }}
+                        </span>
+                        <span class="inline-flex items-center px-2 py-0.5 rounded-[5px] text-[0.625rem] font-semibold"
+                              [ngClass]="clinicalStatusClass(update.status)">
+                          {{ clinicalStatusLabel(update.status) }}
+                        </span>
+                      </div>
+                    </div>
+
+                    <!-- Therapist -->
+                    <p class="text-[0.6875rem] text-slate-500">
+                      by <span class="font-medium text-slate-700">{{ update.therapist_name }}</span>
+                    </p>
+
+                    <!-- Progress Summary -->
+                    @if (update.progress_summary) {
+                      <div>
+                        <label class="block text-[0.625rem] font-semibold text-slate-400 uppercase mb-0.5">Progress</label>
+                        <p class="text-sm text-slate-700 leading-relaxed">{{ update.progress_summary }}</p>
+                      </div>
+                    }
+
+                    <!-- Goals -->
+                    @if (update.goals) {
+                      <div>
+                        <label class="block text-[0.625rem] font-semibold text-slate-400 uppercase mb-0.5">Goals</label>
+                        <p class="text-sm text-slate-600 leading-relaxed">{{ update.goals }}</p>
+                      </div>
+                    }
+
+                    <!-- Next Steps -->
+                    @if (update.next_steps) {
+                      <div>
+                        <label class="block text-[0.625rem] font-semibold text-slate-400 uppercase mb-0.5">Next Steps</label>
+                        <p class="text-sm text-slate-600 leading-relaxed">{{ update.next_steps }}</p>
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      }
+    </div>
+  }
+</div>

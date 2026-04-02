@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { TherapistBookingService } from '../../../core/services/therapist-booking.service';
 import { ChildCaseService } from '../../../core/services/child-case.service';
+import { SkeletonLoaderComponent } from '../../../shared/components/skeleton-loader/skeleton-loader.component';
 import { LucideAngularModule, User, Calendar, FileText, TrendingUp, AlertCircle, CheckCircle, Edit, Save, X } from 'lucide-angular';
 
 interface AssignedChild {
@@ -24,7 +25,7 @@ interface AssignedChild {
 @Component({
   selector: 'app-therapist-cases',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, LucideAngularModule],
+  imports: [CommonModule, FormsModule, RouterModule, LucideAngularModule, SkeletonLoaderComponent],
   templateUrl: './therapist-cases.component.html',
   styleUrls: ['./therapist-cases.component.css']
 })

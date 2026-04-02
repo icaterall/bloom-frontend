@@ -18,6 +18,14 @@
     </div>
   </div>
 
+  <!-- Loading State Template -->
+  <ng-template #loadingState>
+    <div class="space-y-6 py-4">
+      <app-skeleton type="stat" [count]="4"></app-skeleton>
+      <app-skeleton type="card" [count]="3"></app-skeleton>
+    </div>
+  </ng-template>
+
   <ng-container *ngIf="!isLoading; else loadingState">
     <!-- Upcoming Session Banner -->
     <div *ngIf="getUpcomingSession() as upcomingSession" class="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg shadow-lg p-4 md:p-6 text-white">

@@ -1,2 +1,29 @@
-/* Admin layout shell: sidebar + header + main content area */
-/* Most styling is handled via Tailwind classes in the template. */
+/* ═══════════════════════════════════════════
+   Bloom Spectrum – Admin Shell Layout
+   ═══════════════════════════════════════════ */
+
+/* Ensure the shell never exceeds viewport height */
+.admin-shell {
+  height: 100vh;
+  height: 100dvh; /* safe on mobile browsers */
+}
+
+/* Smooth scrolling in main content area */
+main {
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}
+
+main::-webkit-scrollbar {
+  width: 6px;
+}
+
+main::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+main::-webkit-scrollbar-thumb {
+  background-color: #cbd5e1;
+  border-radius: 9999px;
+}

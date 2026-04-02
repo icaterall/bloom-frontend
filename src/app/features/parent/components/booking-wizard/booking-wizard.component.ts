@@ -9,11 +9,13 @@ import { CreateBookingRequest } from '../../../../shared/models/booking.model';
 import { TranslatePipe } from '../../../../shared/pipes/translate.pipe';
 import { TranslationService } from '../../../../shared/services/translation.service';
 import { AuthService } from '../../../../core/services/auth.service';
+import { backdropAnimation, modalPanelAnimation } from '../../../../shared/animations';
 
 @Component({
   selector: 'app-booking-wizard',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, LucideAngularModule, TranslatePipe],
+  animations: [backdropAnimation, modalPanelAnimation],
   templateUrl: './booking-wizard.component.html',
   styleUrls: ['./booking-wizard.component.css']
 })

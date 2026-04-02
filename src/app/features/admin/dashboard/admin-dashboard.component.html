@@ -1,297 +1,444 @@
-<div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-    
-    <!-- Welcome Header -->
-    <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 p-6 md:p-8">
-      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div>
-          <h1 class="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-            Welcome back, {{ currentUser?.name }}! 👋
-          </h1>
-          <p class="mt-2 text-slate-600 text-lg">Analytics & Insights Dashboard</p>
-        </div>
-        <button 
-          (click)="loadAnalytics()"
-          class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200"
+<!-- ═══════════════════════════════════════════════════════════════════════
+     Bloom Spectrum – Admin Dashboard
+     Enterprise SaaS aesthetic · Sensory-friendly · Bloom design tokens
+     ═══════════════════════════════════════════════════════════════════════ -->
+
+<div class="max-w-[90rem] mx-auto space-y-6 animate-fade-in">
+
+  <!-- ═══════════════════════════════════════
+       WELCOME HEADER
+       ═══════════════════════════════════════ -->
+  <section
+    class="bg-white rounded shadow-sm border border-slate-200/60
+           p-5 sm:p-6 md:p-7"
+  >
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div>
+        <h1 class="text-2xl sm:text-3xl font-bold text-slate-800 tracking-tight">
+          Welcome back, <span class="text-[#2663eb]">{{ currentUser?.name || 'Admin' }}</span>!
+        </h1>
+        <p class="mt-1 text-sm text-slate-500">
+          Here's what's happening at Bloom Spectrum today.
+        </p>
+      </div>
+      <button
+        (click)="refreshData()"
+        [disabled]="isRefreshing"
+        class="inline-flex items-center gap-2 px-5 py-2.5
+               bg-[#2663eb] text-white text-sm font-semibold rounded
+               shadow-md shadow-blue-500/20
+               hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-500/30
+               active:scale-[0.97]
+               disabled:opacity-60 disabled:cursor-not-allowed
+               transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)]
+               focus-visible:outline-none focus-visible:ring-2
+               focus-visible:ring-[#2663eb]/50 focus-visible:ring-offset-2"
+      >
+        <lucide-angular
+          [img]="RefreshCwIcon"
+          [size]="18"
+          [class.animate-spin]="isRefreshing"
+        ></lucide-angular>
+        <span>{{ isRefreshing ? 'Refreshing…' : 'Refresh' }}</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════
+       LOADING STATE
+       ═══════════════════════════════════════ -->
+  @if (isLoading && !stats) {
+    <div class="space-y-6">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+        @for (i of [1,2,3,4,5]; track i) {
+          <div class="bg-white rounded border border-slate-200/60 p-5 h-32 animate-pulse">
+            <div class="h-4 w-24 bg-slate-200 rounded mb-3"></div>
+            <div class="h-8 w-16 bg-slate-200 rounded"></div>
+          </div>
+        }
+      </div>
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        @for (i of [1,2,3]; track i) {
+          <div class="bg-white rounded border border-slate-200/60 p-5 h-28 animate-pulse">
+            <div class="h-4 w-32 bg-slate-200 rounded mb-3"></div>
+            <div class="h-7 w-24 bg-slate-200 rounded"></div>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- ═══════════════════════════════════════
+       ERROR STATE
+       ═══════════════════════════════════════ -->
+  @if (error && !isLoading) {
+    <div class="bg-red-50 border border-red-200/60 rounded p-5 flex items-start gap-3">
+      <div class="p-2 bg-red-100 rounded shrink-0">
+        <lucide-angular [img]="AlertCircleIcon" [size]="22" class="text-red-600"></lucide-angular>
+      </div>
+      <div>
+        <h3 class="font-semibold text-red-900 text-sm">Error Loading Dashboard</h3>
+        <p class="text-sm text-red-700 mt-0.5">{{ error }}</p>
+        <button
+          (click)="refreshData()"
+          class="mt-2 text-sm font-medium text-red-700 underline underline-offset-2
+                 hover:text-red-900 transition-colors"
         >
-          <lucide-angular [img]="TrendingUpIcon" size="20"></lucide-angular>
-          <span>Refresh</span>
+          Try again
         </button>
       </div>
     </div>
+  }
 
-    <!-- Loading State -->
-    <div *ngIf="isLoading" class="flex items-center justify-center py-16">
-      <div class="text-center">
-        <div class="inline-block w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-4"></div>
-        <p class="text-slate-600">Loading analytics...</p>
-      </div>
-    </div>
+  <!-- ═══════════════════════════════════════
+       DASHBOARD CONTENT
+       ═══════════════════════════════════════ -->
+  @if (!isLoading || stats) {
+    @if (stats) {
 
-    <!-- Error State -->
-    <div *ngIf="error && !isLoading" class="bg-red-50 border border-red-200 rounded-xl p-6">
-      <div class="flex items-center gap-3">
-        <lucide-angular [img]="AlertCircleIcon" size="24" class="text-red-600"></lucide-angular>
-        <div>
-          <h3 class="font-semibold text-red-900">Error Loading Analytics</h3>
-          <p class="text-sm text-red-700">{{ error }}</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Analytics Content -->
-    <ng-container *ngIf="!isLoading && !error && analytics">
-      
-      <!-- Overview Stats -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-        <!-- Total Children -->
-        <div class="bg-white rounded-xl shadow-lg border border-slate-200 p-6 hover:shadow-xl transition-all duration-200">
-          <div class="flex items-center justify-between mb-4">
-            <div class="p-3 bg-blue-100 rounded-lg">
-              <lucide-angular [img]="BabyIcon" size="24" class="text-blue-600"></lucide-angular>
+      <!-- ─── KPI CARDS GRID (5 columns desktop) ─── -->
+      <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+        @for (card of kpiCards; track card.label) {
+          <div
+            class="group bg-white rounded border border-slate-200/60
+                   shadow-sm hover:shadow-md
+                   px-4 py-3 transition-all duration-200 ease-[cubic-bezier(0.16,1,0.3,1)]"
+          >
+            <p class="text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">
+              {{ card.label }}
+            </p>
+            <div class="flex items-center gap-3">
+              <div class="p-2 rounded {{ card.iconBg }}">
+                <lucide-angular
+                  [img]="card.icon"
+                  [size]="18"
+                  class="{{ card.iconColor }}"
+                ></lucide-angular>
+              </div>
+              <p class="text-2xl font-bold text-slate-800 tabular-nums">
+                {{ card.value }}
+              </p>
             </div>
           </div>
-          <h3 class="text-sm font-medium text-slate-600 mb-1">Total Children</h3>
-          <p class="text-3xl font-bold text-slate-900">{{ analytics.overview.totalChildren }}</p>
-        </div>
+        }
+      </section>
 
-        <!-- Total Parents -->
-        <div class="bg-white rounded-xl shadow-lg border border-slate-200 p-6 hover:shadow-xl transition-all duration-200">
-          <div class="flex items-center justify-between mb-4">
-            <div class="p-3 bg-purple-100 rounded-lg">
-              <lucide-angular [img]="UsersIcon" size="24" class="text-purple-600"></lucide-angular>
-            </div>
+      <!-- ─── REVENUE ANALYTICS PANEL ─── -->
+      <section
+        class="bg-gradient-to-br from-emerald-50/80 via-teal-50/50 to-blue-50/40
+               rounded border border-emerald-200/50 shadow-sm p-5 sm:p-6"
+      >
+        <div class="flex items-center gap-3 mb-5">
+          <div class="p-2.5 bg-emerald-100 rounded">
+            <lucide-angular [img]="BanknoteIcon" [size]="22" class="text-emerald-600"></lucide-angular>
           </div>
-          <h3 class="text-sm font-medium text-slate-600 mb-1">Total Parents</h3>
-          <p class="text-3xl font-bold text-slate-900">{{ analytics.overview.totalParents }}</p>
+          <h2 class="text-lg font-bold text-slate-800">Revenue Analytics</h2>
         </div>
 
-        <!-- Total Staff -->
-        <div class="bg-white rounded-xl shadow-lg border border-slate-200 p-6 hover:shadow-xl transition-all duration-200">
-          <div class="flex items-center justify-between mb-4">
-            <div class="p-3 bg-indigo-100 rounded-lg">
-              <lucide-angular [img]="UsersIcon" size="24" class="text-indigo-600"></lucide-angular>
-            </div>
-          </div>
-          <h3 class="text-sm font-medium text-slate-600 mb-1">Active Staff</h3>
-          <p class="text-3xl font-bold text-slate-900">{{ analytics.overview.totalStaff }}</p>
-        </div>
-
-        <!-- Active Bookings -->
-        <div class="bg-white rounded-xl shadow-lg border border-slate-200 p-6 hover:shadow-xl transition-all duration-200">
-          <div class="flex items-center justify-between mb-4">
-            <div class="p-3 bg-green-100 rounded-lg">
-              <lucide-angular [img]="CheckCircleIcon" size="24" class="text-green-600"></lucide-angular>
-            </div>
-          </div>
-          <h3 class="text-sm font-medium text-slate-600 mb-1">Active Bookings</h3>
-          <p class="text-3xl font-bold text-slate-900">{{ analytics.overview.activeBookings }}</p>
-        </div>
-
-        <!-- Completed Sessions -->
-        <div class="bg-white rounded-xl shadow-lg border border-slate-200 p-6 hover:shadow-xl transition-all duration-200">
-          <div class="flex items-center justify-between mb-4">
-            <div class="p-3 bg-emerald-100 rounded-lg">
-              <lucide-angular [img]="TrendingUpIcon" size="24" class="text-emerald-600"></lucide-angular>
-            </div>
-          </div>
-          <h3 class="text-sm font-medium text-slate-600 mb-1">Completed (Month)</h3>
-          <p class="text-3xl font-bold text-slate-900">{{ analytics.overview.completedSessionsThisMonth }}</p>
-        </div>
-      </div>
-
-      <!-- Revenue Section -->
-      <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl shadow-xl border border-green-200 p-6 md:p-8">
-        <h2 class="text-2xl font-bold text-slate-900 mb-6 flex items-center gap-3">
-          <lucide-angular [img]="DollarSignIcon" size="28" class="text-green-600"></lucide-angular>
-          Revenue Analytics
-        </h2>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <!-- Total Revenue -->
-          <div class="bg-white rounded-xl p-6 shadow-lg">
-            <h3 class="text-sm font-medium text-slate-600 mb-2">Total Revenue</h3>
-            <p class="text-3xl font-bold text-green-600 mb-1">{{ formatCurrency(analytics.revenue.total) }}</p>
-            <p class="text-xs text-slate-500">{{ analytics.revenue.totalCount }} payments</p>
+          <div class="bg-white/90 backdrop-blur-sm rounded p-5 shadow-sm border border-white/60">
+            <p class="text-xs font-medium text-slate-500 uppercase tracking-wide mb-1.5">
+              Total Revenue
+            </p>
+            <p class="text-2xl sm:text-3xl font-bold text-emerald-600 tabular-nums">
+              {{ fmt(stats.revenue.total) }}
+            </p>
+            <p class="text-xs text-slate-400 mt-1">{{ stats.revenue.totalCount }} payments</p>
           </div>
 
           <!-- Today's Revenue -->
-          <div class="bg-white rounded-xl p-6 shadow-lg">
-            <h3 class="text-sm font-medium text-slate-600 mb-2">Today's Revenue</h3>
-            <p class="text-3xl font-bold text-blue-600 mb-1">{{ formatCurrency(analytics.revenue.today) }}</p>
-            <p class="text-xs text-slate-500">{{ analytics.revenue.todayCount }} payments</p>
+          <div class="bg-white/90 backdrop-blur-sm rounded p-5 shadow-sm border border-white/60">
+            <p class="text-xs font-medium text-slate-500 uppercase tracking-wide mb-1.5">
+              Today's Revenue
+            </p>
+            <p class="text-2xl sm:text-3xl font-bold text-[#2663eb] tabular-nums">
+              {{ fmt(stats.revenue.today) }}
+            </p>
+            <p class="text-xs text-slate-400 mt-1">{{ stats.revenue.todayCount }} payments</p>
           </div>
 
-          <!-- This Month's Revenue -->
-          <div class="bg-white rounded-xl p-6 shadow-lg">
-            <h3 class="text-sm font-medium text-slate-600 mb-2">This Month</h3>
-            <p class="text-3xl font-bold text-indigo-600 mb-1">{{ formatCurrency(analytics.revenue.thisMonth) }}</p>
-            <p class="text-xs text-slate-500">{{ analytics.revenue.thisMonthCount }} payments</p>
+          <!-- This Month -->
+          <div class="bg-white/90 backdrop-blur-sm rounded p-5 shadow-sm border border-white/60">
+            <p class="text-xs font-medium text-slate-500 uppercase tracking-wide mb-1.5">
+              This Month
+            </p>
+            <p class="text-2xl sm:text-3xl font-bold text-indigo-600 tabular-nums">
+              {{ fmt(stats.revenue.thisMonth) }}
+            </p>
+            <p class="text-xs text-slate-400 mt-1">{{ stats.revenue.thisMonthCount }} payments</p>
           </div>
         </div>
-      </div>
+      </section>
 
-      <!-- Cash Payments & Failed Payments -->
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <!-- Cash Payments Pending -->
-        <div class="bg-white rounded-2xl shadow-xl border border-amber-200 p-6">
-          <div class="flex items-center justify-between mb-6">
-            <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2">
-              <lucide-angular [img]="ClockIcon" size="24" class="text-amber-600"></lucide-angular>
-              Cash Payments Pending
-            </h2>
-            <span class="px-3 py-1 bg-amber-100 text-amber-800 rounded-full text-sm font-semibold">
-              {{ analytics.cashPaymentsPending.length }}
+
+      <!-- ═══════════════════════════════════
+           PAYMENT WIDGETS (Middle Section)
+           ═══════════════════════════════════ -->
+      <section class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+
+        <!-- ── Cash Payments Pending ─────── -->
+        <div class="bg-white rounded border border-amber-200/60 shadow-sm overflow-hidden">
+          <!-- Header -->
+          <div class="flex items-center justify-between px-5 py-4 border-b border-amber-100/60">
+            <div class="flex items-center gap-2.5">
+              <div class="p-2 bg-amber-50 rounded">
+                <lucide-angular [img]="ClockIcon" [size]="20" class="text-amber-600"></lucide-angular>
+              </div>
+              <h2 class="text-sm font-bold text-slate-800">Cash Payments Pending</h2>
+            </div>
+            <span class="inline-flex items-center justify-center h-6 min-w-[1.5rem] px-2
+                         rounded-full bg-amber-100 text-amber-700 text-xs font-bold">
+              {{ stats.pending_payments.length }}
             </span>
           </div>
-          
-          <div class="space-y-4 max-h-96 overflow-y-auto">
-            <div *ngFor="let payment of analytics.cashPaymentsPending" class="border border-amber-200 rounded-lg p-4 hover:bg-amber-50 transition-colors">
-              <div class="flex items-start justify-between mb-3">
-                <div>
-                  <p class="font-semibold text-slate-900">{{ payment.child_name }}</p>
-                  <p class="text-sm text-slate-600">{{ payment.parent_name }}</p>
-                </div>
-                <span class="px-2 py-1 bg-amber-100 text-amber-800 rounded text-xs font-semibold">
-                  {{ formatCurrency(payment.amount || payment.price, payment.currency || 'MYR') }}
-                </span>
+
+          <!-- List -->
+          <div class="max-h-[26rem] overflow-y-auto payment-scrollbar">
+            @if (stats.pending_payments.length === 0) {
+              <!-- Empty state -->
+              <div class="flex flex-col items-center justify-center py-12 text-slate-400">
+                <lucide-angular [img]="CheckCircle2Icon" [size]="40" class="text-emerald-400 mb-2"></lucide-angular>
+                <p class="text-sm font-medium">No pending cash payments</p>
               </div>
-              <div class="text-xs text-slate-500 mb-3 space-y-1">
-                <p>Booking: #{{ payment.id }}</p>
-                <p>Type: {{ payment.booking_type_name || payment.booking_type }}</p>
-                <p *ngIf="payment.pay_by_date">Pay by: {{ formatDate(payment.pay_by_date) }}</p>
+            } @else {
+              <div class="divide-y divide-slate-100">
+                @for (payment of stats.pending_payments; track payment.id) {
+                  <div class="px-5 py-4 hover:bg-amber-50/40 transition-colors duration-150">
+                    <!-- Top row: name + amount -->
+                    <div class="flex items-start justify-between mb-2">
+                      <div>
+                        <p class="text-sm font-semibold text-slate-800">{{ payment.parent_name }}</p>
+                        <p class="text-xs text-slate-500">{{ payment.child_name }}</p>
+                      </div>
+                      <span class="text-sm font-bold text-amber-700 tabular-nums">
+                        {{ fmt(payment.amount || payment.price, payment.currency || 'MYR') }}
+                      </span>
+                    </div>
+
+                    <!-- Meta row -->
+                    <div class="flex flex-wrap gap-x-3 gap-y-1 text-[0.6875rem] text-slate-400 mb-3">
+                      <span>{{ payment.booking_type_name || payment.booking_type }}</span>
+                      @if (payment.pay_by_date) {
+                        <span class="flex items-center gap-1">
+                          <lucide-angular [img]="ClockIcon" [size]="12"></lucide-angular>
+                          Due {{ fmtDate(payment.pay_by_date) }}
+                        </span>
+                      }
+                    </div>
+
+                    <!-- Action buttons -->
+                    <div class="flex gap-2">
+                      <button
+                        (click)="markCashPaid(payment.id)"
+                        [disabled]="markingPaidBookingId === payment.id"
+                        class="flex-1 inline-flex items-center justify-center gap-1.5
+                               px-3 py-2 bg-emerald-600 text-white text-xs font-semibold
+                               rounded shadow-sm
+                               hover:bg-emerald-700 active:scale-[0.97]
+                               disabled:opacity-50 disabled:cursor-not-allowed
+                               transition-all duration-150"
+                      >
+                        <lucide-angular [img]="CheckCircle2Icon" [size]="14"></lucide-angular>
+                        {{ markingPaidBookingId === payment.id ? 'Processing…' : 'Mark Paid' }}
+                      </button>
+                      <button
+                        (click)="notifyParent(payment.id)"
+                        [disabled]="notifyingBookingId === payment.id"
+                        class="inline-flex items-center justify-center
+                               px-3 py-2 bg-[#2663eb] text-white text-xs font-semibold
+                               rounded shadow-sm
+                               hover:bg-blue-700 active:scale-[0.97]
+                               disabled:opacity-50 disabled:cursor-not-allowed
+                               transition-all duration-150"
+                        title="Send payment reminder"
+                      >
+                        <lucide-angular [img]="BellIcon" [size]="14"></lucide-angular>
+                      </button>
+                    </div>
+                  </div>
+                }
               </div>
-              <div class="flex gap-2">
-                <button
-                  (click)="markCashPaid(payment.id)"
-                  [disabled]="markingPaidBookingId === payment.id"
-                  class="flex-1 px-3 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                >
-                  <lucide-angular [img]="CheckCircleIcon" size="16"></lucide-angular>
-                  <span>{{ markingPaidBookingId === payment.id ? 'Processing...' : 'Mark Paid' }}</span>
-                </button>
-                <button
-                  (click)="notifyParent(payment.id)"
-                  [disabled]="notifyingBookingId === payment.id"
-                  class="px-3 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                >
-                  <lucide-angular [img]="BellIcon" size="16"></lucide-angular>
-                </button>
-              </div>
-            </div>
-            <div *ngIf="analytics.cashPaymentsPending.length === 0" class="text-center py-8 text-slate-500">
-              <lucide-angular [img]="CheckCircleIcon" size="48" class="mx-auto mb-2 text-green-500"></lucide-angular>
-              <p>No pending cash payments</p>
-            </div>
+            }
           </div>
         </div>
 
-        <!-- Failed Payments -->
-        <div class="bg-white rounded-2xl shadow-xl border border-red-200 p-6">
-          <div class="flex items-center justify-between mb-6">
-            <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2">
-              <lucide-angular [img]="XCircleIcon" size="24" class="text-red-600"></lucide-angular>
-              Failed Payments
-            </h2>
-            <span class="px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm font-semibold">
-              {{ analytics.failedPayments.length }}
+        <!-- ── Failed Payments ───────────── -->
+        <div class="bg-white rounded border border-red-200/60 shadow-sm overflow-hidden">
+          <!-- Header -->
+          <div class="flex items-center justify-between px-5 py-4 border-b border-red-100/60">
+            <div class="flex items-center gap-2.5">
+              <div class="p-2 bg-red-50 rounded">
+                <lucide-angular [img]="XCircleIcon" [size]="20" class="text-red-500"></lucide-angular>
+              </div>
+              <h2 class="text-sm font-bold text-slate-800">Failed Payments</h2>
+            </div>
+            <span class="inline-flex items-center justify-center h-6 min-w-[1.5rem] px-2
+                         rounded-full bg-red-100 text-red-700 text-xs font-bold">
+              {{ stats.failed_payments.length }}
             </span>
           </div>
-          
-          <div class="space-y-4 max-h-96 overflow-y-auto">
-            <div *ngFor="let payment of analytics.failedPayments" class="border border-red-200 rounded-lg p-4 hover:bg-red-50 transition-colors">
-              <div class="flex items-start justify-between mb-3">
-                <div>
-                  <p class="font-semibold text-slate-900">{{ payment.child_name }}</p>
-                  <p class="text-sm text-slate-600">{{ payment.parent_name }}</p>
-                </div>
-                <span class="px-2 py-1 bg-red-100 text-red-800 rounded text-xs font-semibold">
-                  {{ formatCurrency(payment.amount, payment.currency || 'MYR') }}
-                </span>
+
+          <!-- List -->
+          <div class="max-h-[26rem] overflow-y-auto payment-scrollbar">
+            @if (stats.failed_payments.length === 0) {
+              <!-- Success empty state -->
+              <div class="flex flex-col items-center justify-center py-12 text-slate-400">
+                <lucide-angular [img]="CheckCircle2Icon" [size]="40" class="text-emerald-400 mb-2"></lucide-angular>
+                <p class="text-sm font-medium text-emerald-600">No failed payments</p>
+                <p class="text-xs text-slate-400 mt-0.5">All transactions processed successfully</p>
               </div>
-              <div class="text-xs text-slate-500 space-y-1">
-                <p>Booking: #{{ payment.booking_id }}</p>
-                <p>Type: {{ payment.booking_type_name || 'N/A' }}</p>
-                <p>Failed: {{ getRelativeTime(payment.created_at) }}</p>
-                <p class="text-red-600 font-medium">Contact: {{ payment.parent_email }}</p>
+            } @else {
+              <div class="divide-y divide-slate-100">
+                @for (payment of stats.failed_payments; track payment.id) {
+                  <div class="px-5 py-4 hover:bg-red-50/40 transition-colors duration-150">
+                    <div class="flex items-start justify-between mb-2">
+                      <div>
+                        <p class="text-sm font-semibold text-slate-800">{{ payment.parent_name }}</p>
+                        <p class="text-xs text-slate-500">{{ payment.child_name }}</p>
+                      </div>
+                      <span class="text-sm font-bold text-red-600 tabular-nums">
+                        {{ fmt(payment.amount, payment.currency || 'MYR') }}
+                      </span>
+                    </div>
+                    <div class="flex flex-wrap gap-x-3 gap-y-1 text-[0.6875rem] text-slate-400">
+                      <span>{{ payment.booking_type_name || 'N/A' }}</span>
+                      <span>Booking #{{ payment.booking_id }}</span>
+                      <span>{{ relTime(payment.created_at) }}</span>
+                    </div>
+                    @if (payment.parent_email) {
+                      <p class="mt-1.5 text-xs text-red-500 font-medium">
+                        Contact: {{ payment.parent_email }}
+                      </p>
+                    }
+                  </div>
+                }
               </div>
-            </div>
-            <div *ngIf="analytics.failedPayments.length === 0" class="text-center py-8 text-slate-500">
-              <lucide-angular [img]="CheckCircleIcon" size="48" class="mx-auto mb-2 text-green-500"></lucide-angular>
-              <p>No failed payments</p>
-            </div>
+            }
           </div>
         </div>
-      </div>
+      </section>
 
-      <!-- Staff Workload & Recent Updates -->
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <!-- Staff Workload -->
-        <div class="bg-white rounded-2xl shadow-xl border border-slate-200 p-6">
-          <h2 class="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
-            <lucide-angular [img]="UsersIcon" size="24" class="text-indigo-600"></lucide-angular>
-            Staff Workload
-          </h2>
-          <div class="space-y-4 max-h-96 overflow-y-auto">
-            <div *ngFor="let staff of analytics.staffWorkload" class="border border-slate-200 rounded-lg p-4 hover:bg-slate-50 transition-colors">
-              <div class="flex items-center justify-between mb-2">
-                <div>
-                  <p class="font-semibold text-slate-900">{{ staff.name }}</p>
-                  <p class="text-xs text-slate-500">{{ staff.role | titlecase }}</p>
-                </div>
-                <span class="px-2 py-1 bg-indigo-100 text-indigo-800 rounded text-xs font-semibold">
-                  {{ staff.active_bookings }} bookings
-                </span>
-              </div>
-              <div class="grid grid-cols-2 gap-2 text-xs text-slate-600">
-                <div>
-                  <span class="font-medium">Today:</span> {{ staff.today_sessions }} sessions
-                </div>
-                <div>
-                  <span class="font-medium">Updates:</span> {{ staff.case_updates_count }}
-                </div>
-              </div>
+
+      <!-- ═══════════════════════════════════
+           STAFF & ACTIVITY (Bottom Section)
+           ═══════════════════════════════════ -->
+      <section class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+
+        <!-- ── Staff Workload ────────────── -->
+        <div class="bg-white rounded border border-slate-200/60 shadow-sm overflow-hidden">
+          <!-- Header -->
+          <div class="flex items-center gap-2.5 px-5 py-4 border-b border-slate-100/60">
+            <div class="p-2 bg-indigo-50 rounded">
+              <lucide-angular [img]="BriefcaseIcon" [size]="20" class="text-indigo-600"></lucide-angular>
             </div>
-            <div *ngIf="analytics.staffWorkload.length === 0" class="text-center py-8 text-slate-500">
-              <p>No staff data available</p>
-            </div>
+            <h2 class="text-sm font-bold text-slate-800">Staff Workload</h2>
+          </div>
+
+          <!-- Scrollable list -->
+          <div class="max-h-[26rem] overflow-y-auto payment-scrollbar">
+            @if (stats.staff_workload.length === 0) {
+              <div class="flex flex-col items-center justify-center py-12 text-slate-400">
+                <lucide-angular [img]="UsersIcon" [size]="36" class="mb-2"></lucide-angular>
+                <p class="text-sm font-medium">No staff data available</p>
+              </div>
+            } @else {
+              <div class="divide-y divide-slate-100">
+                @for (staff of stats.staff_workload; track staff.id ?? staff.name) {
+                  <div class="flex items-center gap-4 px-5 py-3.5 hover:bg-slate-50/60
+                              transition-colors duration-150">
+                    <!-- Avatar -->
+                    <div class="h-9 w-9 rounded bg-gradient-to-br from-indigo-100 to-violet-100
+                                flex items-center justify-center text-xs font-bold text-indigo-600 shrink-0">
+                      {{ staff.name.charAt(0) || '?' }}
+                    </div>
+
+                    <!-- Info -->
+                    <div class="flex-1 min-w-0">
+                      <p class="text-sm font-semibold text-slate-800 truncate">{{ staff.name }}</p>
+                      <p class="text-[0.6875rem] text-slate-400">{{ staff.role | titlecase }}</p>
+                    </div>
+
+                    <!-- Sessions today -->
+                    <div class="text-center shrink-0">
+                      <p class="text-lg font-bold text-slate-800 tabular-nums leading-tight">
+                        {{ staff.today_sessions }}
+                      </p>
+                      <p class="text-[0.6rem] text-slate-400 uppercase tracking-wider">sessions</p>
+                    </div>
+
+                    <!-- Active bookings badge -->
+                    <span class="inline-flex items-center justify-center h-6 min-w-[1.5rem] px-2
+                                 rounded-full bg-indigo-50 text-indigo-700 text-[0.625rem] font-bold shrink-0"
+                          title="Active bookings">
+                      {{ staff.active_bookings }}
+                    </span>
+                  </div>
+                }
+              </div>
+            }
           </div>
         </div>
 
-        <!-- Recent Updates -->
-        <div class="bg-white rounded-2xl shadow-xl border border-slate-200 p-6">
-          <h2 class="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
-            <lucide-angular [img]="TrendingUpIcon" size="24" class="text-blue-600"></lucide-angular>
-            Recent Updates
-          </h2>
-          <div class="space-y-4 max-h-96 overflow-y-auto">
-            <div *ngFor="let update of analytics.recentUpdates" class="flex gap-4 p-4 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">
-              <div class="flex-shrink-0">
-                <div [ngClass]="getUpdateColor(update.type)" class="p-2 rounded-lg">
-                  <lucide-angular [img]="getUpdateIcon(update.type)" size="20"></lucide-angular>
-                </div>
-              </div>
-              <div class="flex-1 min-w-0">
-                <div class="flex items-center gap-2 mb-1">
-                  <span [ngClass]="getUpdateColor(update.type)" class="px-2 py-0.5 rounded text-xs font-semibold">
-                    {{ update.type | titlecase }}
-                  </span>
-                  <span class="text-xs text-slate-500">{{ getRelativeTime(update.created_at) }}</span>
-                </div>
-                <p class="text-sm font-medium text-slate-900">{{ update.child_name }}</p>
-                <p class="text-xs text-slate-600">{{ update.parent_name }}</p>
-                <p *ngIf="update.status" class="text-xs text-slate-500 mt-1">Status: {{ update.status }}</p>
-                <p *ngIf="update.amount" class="text-xs font-semibold text-green-600 mt-1">
-                  {{ formatCurrency(update.amount, update.currency || 'MYR') }}
-                </p>
-              </div>
+        <!-- ── Recent Updates (Timeline) ── -->
+        <div class="bg-white rounded border border-slate-200/60 shadow-sm overflow-hidden">
+          <!-- Header -->
+          <div class="flex items-center gap-2.5 px-5 py-4 border-b border-slate-100/60">
+            <div class="p-2 bg-blue-50 rounded">
+              <lucide-angular [img]="ActivityIcon" [size]="20" class="text-[#2663eb]"></lucide-angular>
             </div>
-            <div *ngIf="analytics.recentUpdates.length === 0" class="text-center py-8 text-slate-500">
-              <p>No recent updates</p>
-            </div>
+            <h2 class="text-sm font-bold text-slate-800">Recent Updates</h2>
+          </div>
+
+          <!-- Timeline list -->
+          <div class="max-h-[26rem] overflow-y-auto payment-scrollbar">
+            @if (stats.recent_updates.length === 0) {
+              <div class="flex flex-col items-center justify-center py-12 text-slate-400">
+                <lucide-angular [img]="ActivityIcon" [size]="36" class="mb-2"></lucide-angular>
+                <p class="text-sm font-medium">No recent updates</p>
+              </div>
+            } @else {
+              <div class="divide-y divide-slate-100">
+                @for (update of stats.recent_updates; track update.id ?? $index) {
+                  <div class="flex gap-3.5 px-5 py-3.5 hover:bg-slate-50/60
+                              transition-colors duration-150">
+                    <!-- Timeline icon -->
+                    <div class="shrink-0 mt-0.5">
+                      <div class="p-1.5 rounded {{ getUpdateColor(update.type) }}">
+                        <lucide-angular [img]="getUpdateIcon(update.type)" [size]="16"></lucide-angular>
+                      </div>
+                    </div>
+
+                    <!-- Content -->
+                    <div class="flex-1 min-w-0">
+                      <div class="flex items-center gap-2 mb-0.5">
+                        <span class="inline-flex px-1.5 py-0.5 rounded text-[0.6rem] font-semibold uppercase
+                                     tracking-wide {{ getUpdateColor(update.type) }}">
+                          {{ update.type | titlecase }}
+                        </span>
+                        <span class="text-[0.6875rem] text-slate-400">{{ relTime(update.created_at) }}</span>
+                      </div>
+                      <p class="text-sm font-medium text-slate-800 truncate">{{ update.child_name }}</p>
+                      <p class="text-xs text-slate-500">{{ update.parent_name }}</p>
+                      @if (update.status) {
+                        <p class="text-[0.6875rem] text-slate-400 mt-0.5">
+                          Status: <span class="font-medium text-slate-600">{{ update.status }}</span>
+                        </p>
+                      }
+                      @if (update.amount) {
+                        <p class="text-xs font-semibold text-emerald-600 mt-0.5">
+                          {{ fmt(update.amount, update.currency || 'MYR') }}
+                        </p>
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
+            }
           </div>
         </div>
-      </div>
+      </section>
 
-    </ng-container>
-  </div>
+    }
+  }
 </div>

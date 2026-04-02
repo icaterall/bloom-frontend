@@ -1,144 +1,88 @@
 import { Component, OnInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
+import {
+  LucideAngularModule,
+  LayoutDashboard, Bell, XCircle, UserCheck, CalendarDays,
+  Users, Baby, Stethoscope, Clock, Home, FileText,
+  LogOut, ChevronLeft
+} from 'lucide-angular';
 import { AuthService } from '../../../core/services/auth.service';
 import { TranslationService } from '../../../shared/services/translation.service';
 import { User } from '../../../shared/models/user.model';
-import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
+
+interface NavItem {
+  label: string;
+  route: string;
+  icon: any;
+  exact?: boolean;
+}
 
 @Component({
   selector: 'app-clinical-manager-layout',
   standalone: true,
-  imports: [CommonModule, RouterModule],
-  templateUrl: './clinical-manager-layout.component.html'
+  imports: [CommonModule, RouterModule, LucideAngularModule],
+  templateUrl: './clinical-manager-layout.component.html',
+  styleUrls: ['./clinical-manager-layout.component.css']
 })
 export class ClinicalManagerLayoutComponent implements OnInit {
   currentUser: User | null = null;
-  currentLanguage = 'my';
-  isSidebarOpen = true;
+  sidebarCollapsed = false;
   isMobile = false;
-  isUserMenuOpen = false;
 
-  menuItems = [
-    { 
-      labelEn: 'Dashboard', 
-      labelMy: 'Papan Pemuka', 
-      route: '/clinical-manager/dashboard',
-      icon: '📊'
-    },
-    { 
-      labelEn: 'Bookings', 
-      labelMy: 'Tempahan', 
-      route: '/clinical-manager/bookings',
-      icon: '🔔'
-    },
-    { 
-      labelEn: 'Failed Bookings', 
-      labelMy: 'Tempahan Gagal', 
-      route: '/clinical-manager/bookings/failed',
-      icon: '❌'
-    },
-    { 
-      labelEn: 'Assign Cases', 
-      labelMy: 'Tugaskan Kes', 
-      route: '/clinical-manager/assignments',
-      icon: '👤'
-    },
-    { 
-      labelEn: 'Sessions Calendar', 
-      labelMy: 'Kalendar Sesi', 
-      route: '/clinical-manager/calendar',
-      icon: '📅'
-    },
-    { 
-      labelEn: 'Parents & Children', 
-      labelMy: 'Ibu Bapa & Kanak-kanak', 
-      route: '/clinical-manager/parents',
-      icon: '👨‍👩‍👧‍👦'
-    },
-    { 
-      labelEn: 'Children', 
-      labelMy: 'Kanak-kanak', 
-      route: '/clinical-manager/children',
-      icon: '👶'
-    },
-    { 
-      labelEn: 'Therapists', 
-      labelMy: 'Ahli Terapi', 
-      route: '/clinical-manager/therapists',
-      icon: '👥'
-    },
-    { 
-      labelEn: 'Waitlist', 
-      labelMy: 'Senarai Menunggu', 
-      route: '/clinical-manager/waitlist',
-      icon: '⏳'
-    },
-    { 
-      labelEn: 'Reports', 
-      labelMy: 'Laporan', 
-      route: '/clinical-manager/reports',
-      icon: '📄'
-    }
+  // Icons
+  readonly ChevronLeftIcon = ChevronLeft;
+  readonly LogOutIcon = LogOut;
+
+  readonly navItems: NavItem[] = [
+    { label: 'Dashboard',         route: '/clinical-manager/dashboard',      icon: LayoutDashboard, exact: true },
+    { label: 'Bookings',          route: '/clinical-manager/bookings',       icon: Bell },
+    { label: 'Failed Bookings',   route: '/clinical-manager/bookings/failed', icon: XCircle },
+    { label: 'Assign Cases',      route: '/clinical-manager/assignments',    icon: UserCheck },
+    { label: 'Sessions Calendar', route: '/clinical-manager/calendar',       icon: CalendarDays },
+    { label: 'Parents & Children', route: '/clinical-manager/parents',       icon: Users },
+    { label: 'Children',          route: '/clinical-manager/children',       icon: Baby },
+    { label: 'Therapists',        route: '/clinical-manager/therapists',     icon: Stethoscope },
+    { label: 'Waitlist',          route: '/clinical-manager/waitlist',       icon: Clock },
+    { label: 'Tours & Visits',    route: '/clinical-manager/tours',         icon: Home },
+    { label: 'Reports',           route: '/clinical-manager/reports',        icon: FileText },
   ];
 
   constructor(
     private authService: AuthService,
     private translationService: TranslationService,
     private router: Router
-  ) {
-    this.translationService.currentLang$.subscribe(lang => {
-      this.currentLanguage = lang;
-    });
-  }
+  ) {}
 
   ngOnInit(): void {
     this.currentUser = this.authService.getCurrentUser();
-    this.checkScreenSize();
-    window.addEventListener('resize', () => this.checkScreenSize());
+    this.checkViewport();
   }
 
-  checkScreenSize() {
-    this.isMobile = window.innerWidth < 1024;
+  @HostListener('window:resize')
+  onResize(): void {
+    this.checkViewport();
+  }
+
+  toggleCollapse(): void {
+    this.sidebarCollapsed = !this.sidebarCollapsed;
+  }
+
+  closeMobile(): void {
     if (this.isMobile) {
-      this.isSidebarOpen = false;
-    } else {
-      this.isSidebarOpen = true;
+      this.sidebarCollapsed = true;
     }
   }
 
-  toggleSidebar(): void {
-    this.isSidebarOpen = !this.isSidebarOpen;
-  }
-
-  toggleUserMenu(): void {
-    this.isUserMenuOpen = !this.isUserMenuOpen;
+  navigateToDashboard(): void {
+    this.router.navigate(['/clinical-manager/dashboard']);
   }
 
   logout(): void {
     this.authService.logout();
-    this.isUserMenuOpen = false;
   }
 
-  @HostListener('document:click', ['$event'])
-  onDocumentClick(event: MouseEvent): void {
-    const target = event.target as HTMLElement;
-    if (!target.closest('.cm-user-menu')) {
-      this.isUserMenuOpen = false;
-    }
-  }
-
-  toggleLanguage(): void {
-    this.translationService.toggleLanguage();
-    const newLang = this.translationService.getCurrentLanguage();
-    if (this.authService.isAuthenticatedUser()) {
-      this.authService.updateProfile({ preferred_language: newLang }).subscribe({
-        error: (err) => console.error('Failed to update language preference', err)
-      });
-    }
-  }
-
-  getMenuLabel(item: any): string {
-    return this.currentLanguage === 'en' ? item.labelEn : item.labelMy;
+  private checkViewport(): void {
+    this.isMobile = typeof window !== 'undefined' && window.innerWidth < 1024;
   }
 }

@@ -1,166 +1,241 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { AuthService } from '../../../core/services/auth.service';
-import { AdminAnalyticsService, AnalyticsData } from '../../../core/services/admin-analytics.service';
+import {
+  AdminDashboardService,
+  DashboardStats,
+} from './admin-dashboard.service';
 import { User } from '../../../shared/models/user.model';
-import { LucideAngularModule, TrendingUp, Users, Baby, DollarSign, AlertCircle, Clock, CheckCircle, XCircle, Bell, CreditCard } from 'lucide-angular';
+
+import {
+  LucideAngularModule,
+  RefreshCw,
+  Baby,
+  Users,
+  UserCheck,
+  CalendarCheck,
+  TrendingUp,
+  DollarSign,
+  Banknote,
+  ArrowUpRight,
+  Clock,
+  CheckCircle2,
+  XCircle,
+  Bell,
+  CreditCard,
+  AlertCircle,
+  Briefcase,
+  Activity,
+} from 'lucide-angular';
+
+/* ═══════════════════════════════════════════
+   KPI Card Descriptor
+   ═══════════════════════════════════════════ */
+interface KpiCard {
+  label: string;
+  value: number;
+  icon: any;
+  iconBg: string;   // Tailwind bg class for the icon circle
+  iconColor: string; // Tailwind text class for the icon
+}
 
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
   imports: [CommonModule, RouterModule, LucideAngularModule],
   templateUrl: './admin-dashboard.component.html',
-  styleUrls: ['./admin-dashboard.component.css']
+  styleUrls: ['./admin-dashboard.component.css'],
 })
-export class AdminDashboardComponent implements OnInit {
+export class AdminDashboardComponent implements OnInit, OnDestroy {
   currentUser: User | null = null;
-  analytics: AnalyticsData | null = null;
+  stats: DashboardStats | null = null;
   isLoading = true;
   error: string | null = null;
 
-  // Icons
-  readonly TrendingUpIcon = TrendingUp;
-  readonly UsersIcon = Users;
-  readonly BabyIcon = Baby;
-  readonly DollarSignIcon = DollarSign;
-  readonly AlertCircleIcon = AlertCircle;
-  readonly ClockIcon = Clock;
-  readonly CheckCircleIcon = CheckCircle;
-  readonly XCircleIcon = XCircle;
-  readonly BellIcon = Bell;
-  readonly CreditCardIcon = CreditCard;
+  /* ── Icon references ────────────────── */
+  readonly RefreshCwIcon    = RefreshCw;
+  readonly DollarSignIcon   = DollarSign;
+  readonly BanknoteIcon     = Banknote;
+  readonly ArrowUpRightIcon = ArrowUpRight;
+  readonly ClockIcon        = Clock;
+  readonly CheckCircle2Icon = CheckCircle2;
+  readonly XCircleIcon      = XCircle;
+  readonly BellIcon         = Bell;
+  readonly CreditCardIcon   = CreditCard;
+  readonly AlertCircleIcon  = AlertCircle;
+  readonly BriefcaseIcon    = Briefcase;
+  readonly ActivityIcon     = Activity;
+  readonly TrendingUpIcon   = TrendingUp;
+  readonly UsersIcon        = Users;
 
-  // Notification states
+  /* ── KPI Card definitions (populated on data load) ── */
+  kpiCards: KpiCard[] = [];
+
+  /* ── Interaction state ──────────────── */
   notifyingBookingId: number | null = null;
   markingPaidBookingId: number | null = null;
+  isRefreshing = false;
+
+  private subs = new Subscription();
 
   constructor(
     private authService: AuthService,
-    private analyticsService: AdminAnalyticsService
+    public dashService: AdminDashboardService,
   ) {}
+
+  /* ═══════════════════════════════════════
+     Lifecycle
+     ═══════════════════════════════════════ */
 
   ngOnInit(): void {
     this.currentUser = this.authService.getCurrentUser();
-    this.loadAnalytics();
+
+    // Subscribe to service streams
+    this.subs.add(
+      this.dashService.stats$.subscribe((s) => {
+        this.stats = s;
+        if (s) this.buildKpiCards(s);
+      }),
+    );
+    this.subs.add(
+      this.dashService.loading$.subscribe((l) => {
+        this.isLoading = l;
+        if (!l) this.isRefreshing = false;
+      }),
+    );
+    this.subs.add(
+      this.dashService.error$.subscribe((e) => (this.error = e)),
+    );
+
+    // Initial load
+    this.dashService.loadDashboardStats();
   }
 
-  loadAnalytics(): void {
-    this.isLoading = true;
-    this.error = null;
-    
-    this.analyticsService.getAnalytics().subscribe({
-      next: (response) => {
-        if (response.success) {
-          this.analytics = response.data;
-        } else {
-          this.error = 'Failed to load analytics';
-        }
-        this.isLoading = false;
-      },
-      error: (error) => {
-        console.error('Error loading analytics:', error);
-        this.error = error.error?.message || 'Failed to load analytics';
-        this.isLoading = false;
-      }
-    });
+  ngOnDestroy(): void {
+    this.subs.unsubscribe();
+  }
+
+  /* ═══════════════════════════════════════
+     Actions
+     ═══════════════════════════════════════ */
+
+  refreshData(): void {
+    this.isRefreshing = true;
+    this.dashService.loadDashboardStats();
   }
 
   markCashPaid(bookingId: number): void {
     if (this.markingPaidBookingId === bookingId) return;
-    
     this.markingPaidBookingId = bookingId;
-    this.analyticsService.markCashPaid(bookingId).subscribe({
-      next: (response) => {
-        if (response.success) {
-          // Reload analytics
-          this.loadAnalytics();
-          alert('Cash payment marked as paid successfully!');
-        } else {
-          alert('Failed to mark payment as paid');
+
+    this.dashService.markCashPaid(bookingId).subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.dashService.loadDashboardStats();
         }
         this.markingPaidBookingId = null;
       },
-      error: (error) => {
-        console.error('Error marking cash paid:', error);
-        alert(error.error?.message || 'Failed to mark payment as paid');
+      error: () => {
         this.markingPaidBookingId = null;
-      }
+      },
     });
   }
 
-  notifyParent(bookingId: number, message?: string): void {
+  notifyParent(bookingId: number): void {
     if (this.notifyingBookingId === bookingId) return;
-    
-    const customMessage = message || prompt('Enter a custom message (optional):');
-    if (customMessage === null && message === undefined) return; // User cancelled
-    
     this.notifyingBookingId = bookingId;
-    this.analyticsService.notifyParent(bookingId, customMessage || undefined).subscribe({
-      next: (response) => {
-        if (response.success) {
-          alert('Parent notified successfully!');
-        } else {
-          alert('Failed to notify parent');
-        }
+
+    this.dashService.notifyParent(bookingId).subscribe({
+      next: () => {
         this.notifyingBookingId = null;
       },
-      error: (error) => {
-        console.error('Error notifying parent:', error);
-        alert(error.error?.message || 'Failed to notify parent');
+      error: () => {
         this.notifyingBookingId = null;
-      }
+      },
     });
   }
 
-  formatCurrency(amount: number, currency: string = 'MYR'): string {
-    return new Intl.NumberFormat('en-MY', {
-      style: 'currency',
-      currency: currency
-    }).format(amount);
+  /* ═══════════════════════════════════════
+     Helpers (delegated to service)
+     ═══════════════════════════════════════ */
+
+  fmt(amount: number, currency = 'MYR'): string {
+    return this.dashService.formatCurrency(amount, currency);
   }
 
-  formatDate(dateString: string | undefined): string {
+  relTime(date: string | undefined): string {
+    return this.dashService.getRelativeTime(date);
+  }
+
+  fmtDate(dateString: string | undefined): string {
     if (!dateString) return 'N/A';
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
-      month: 'short', 
-      day: 'numeric', 
-      year: 'numeric'
+    return new Date(dateString).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
     });
   }
 
-  getRelativeTime(dateString: string | undefined): string {
-    if (!dateString) return '';
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffMins = Math.floor(diffMs / 60000);
-    const diffHours = Math.floor(diffMs / 3600000);
-    const diffDays = Math.floor(diffMs / 86400000);
-
-    if (diffMins < 1) return 'Just now';
-    if (diffMins < 60) return `${diffMins}m ago`;
-    if (diffHours < 24) return `${diffHours}h ago`;
-    if (diffDays < 7) return `${diffDays}d ago`;
-    return this.formatDate(dateString);
-  }
+  /* ── Update type helpers ────────────── */
 
   getUpdateIcon(type: string): any {
     switch (type) {
       case 'case_update': return TrendingUp;
-      case 'booking': return Clock;
-      case 'payment': return DollarSign;
-      default: return CheckCircle;
+      case 'booking':     return CalendarCheck;
+      case 'payment':     return DollarSign;
+      default:            return Activity;
     }
   }
 
   getUpdateColor(type: string): string {
     switch (type) {
-      case 'case_update': return 'bg-blue-100 text-blue-800';
-      case 'booking': return 'bg-purple-100 text-purple-800';
-      case 'payment': return 'bg-green-100 text-green-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'case_update': return 'bg-blue-100 text-blue-700';
+      case 'booking':     return 'bg-violet-100 text-violet-700';
+      case 'payment':     return 'bg-emerald-100 text-emerald-700';
+      default:            return 'bg-slate-100 text-slate-600';
     }
+  }
+
+  /* ── Build KPI card array from stats ── */
+  private buildKpiCards(s: DashboardStats): void {
+    this.kpiCards = [
+      {
+        label: 'Total Children',
+        value: s.kpis.totalChildren,
+        icon: Baby,
+        iconBg: 'bg-blue-50',
+        iconColor: 'text-[#2663eb]',
+      },
+      {
+        label: 'Total Parents',
+        value: s.kpis.totalParents,
+        icon: Users,
+        iconBg: 'bg-violet-50',
+        iconColor: 'text-violet-600',
+      },
+      {
+        label: 'Active Staff',
+        value: s.kpis.activeStaff,
+        icon: UserCheck,
+        iconBg: 'bg-indigo-50',
+        iconColor: 'text-indigo-600',
+      },
+      {
+        label: 'Active Bookings',
+        value: s.kpis.activeBookings,
+        icon: CalendarCheck,
+        iconBg: 'bg-emerald-50',
+        iconColor: 'text-emerald-600',
+      },
+      {
+        label: 'Completed (Month)',
+        value: s.kpis.completedThisMonth,
+        icon: TrendingUp,
+        iconBg: 'bg-amber-50',
+        iconColor: 'text-amber-600',
+      },
+    ];
   }
 }

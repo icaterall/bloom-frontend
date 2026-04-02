@@ -4,12 +4,13 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { TherapistBookingService } from '../../../core/services/therapist-booking.service';
 import { Booking } from '../../../shared/models/booking.model';
+import { SkeletonLoaderComponent } from '../../../shared/components/skeleton-loader/skeleton-loader.component';
 import { LucideAngularModule, Calendar, Clock, User as UserIcon, Video, MapPin, CheckCircle, XCircle } from 'lucide-angular';
 
 @Component({
   selector: 'app-therapist-bookings',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, LucideAngularModule],
+  imports: [CommonModule, FormsModule, RouterModule, LucideAngularModule, SkeletonLoaderComponent],
   templateUrl: './therapist-bookings.component.html',
   styleUrls: ['./therapist-bookings.component.css']
 })

@@ -1,1 +1,7 @@
-/* Admin header styles - structure and spacing handled via Tailwind in template. */
+/* ═══════════════════════════════════════════
+   Bloom Spectrum – Admin Header Styles
+   ═══════════════════════════════════════════ */
+
+:host {
+  display: block;
+}

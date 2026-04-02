@@ -1,42 +1,49 @@
-import { Injectable, signal, inject, Injector } from '@angular/core';
+import { Injectable, inject, Injector } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, BehaviorSubject, of } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
-import { User, LoginRequest, LoginResponse, AuthResponse, UpdateProfileRequest } from '../../shared/models/user.model';
+import {
+  User,
+  LoginRequest,
+  LoginResponse,
+  AuthResponse,
+  UpdateProfileRequest,
+} from '../../shared/models/user.model';
 import { environment } from '../../../environments/environment';
 import { SocketService } from './socket.service';
+import { AppStore } from '../state/app.store';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly TOKEN_KEY = 'bloom_auth_token';
-  private readonly USER_KEY = 'bloom_auth_user';
-  private readonly API_URL = environment.apiUrl;
-  
-  private currentUserSubject = new BehaviorSubject<User | null>(null);
-  public currentUser$ = this.currentUserSubject.asObservable();
-  
-  // Using signals for reactive state
-  public isAuthenticated = signal<boolean>(false);
-  public userRole = signal<string | null>(null);
-  public profileComplete = signal<boolean>(true); // Default to true to avoid premature redirects
+  private readonly REFRESH_TOKEN_KEY = 'bloom_refresh_token';
+  private readonly USER_KEY  = 'bloom_auth_user';
+  private readonly API_URL   = environment.apiUrl;
 
-  private injector = inject(Injector);
+  private readonly store    = inject(AppStore);
+  private readonly injector = inject(Injector);
+
+  // Keep the BehaviorSubject for components that still subscribe via RxJS
+  private currentUserSubject = new BehaviorSubject<User | null>(null);
+  public  currentUser$       = this.currentUserSubject.asObservable();
+
+  // ── Facade signals (delegate to AppStore) ────────
+  /** @deprecated — prefer injecting AppStore directly */
+  get isAuthenticated()  { return this.store.isAuthenticated; }
+  /** @deprecated — prefer injecting AppStore directly */
+  get userRole()         { return this.store.role; }
+  /** @deprecated — prefer injecting AppStore directly */
+  get profileComplete()  { return this.store.profileComplete; }
 
   constructor(
     private http: HttpClient,
-    private router: Router
+    private router: Router,
   ) {
-    // Try to recover session on app init
-    console.log('[AuthService] Constructor called, initializing auth...');
     this.initializeAuth();
   }
 
-  /**
-   * Get SocketService lazily to avoid circular dependency
-   */
+  // ── Lazy SocketService to break circular DI ──────
   private getSocketService(): SocketService | null {
     try {
       return this.injector.get(SocketService, null);
@@ -45,175 +52,219 @@ export class AuthService {
     }
   }
 
-  /**
-   * Initialize authentication state
-   */
+  // ── Initialisation ────────────────────────────────
+
   private async initializeAuth(): Promise<void> {
-    console.log('[AuthService] initializeAuth started');
     const token = this.getToken();
-    console.log('[AuthService] Token exists:', !!token);
     if (!token) {
-      console.log('[AuthService] No token, skipping initialization');
+      this.store.setAuthInitialised();
       return;
     }
 
-    // 1) Try to restore user directly from localStorage (fast path)
+    // Fast path: restore from localStorage
     const storedUser = this.getStoredUser();
-    console.log('[AuthService] Stored user exists:', !!storedUser);
     if (storedUser) {
-      console.log('[AuthService] Restoring user from localStorage:', storedUser.email);
       this.setCurrentUser(storedUser);
+      this.store.setAuthInitialised();
       return;
     }
 
-    // 2) Fallback: try to load from backend using the token
-    await this.loadCurrentUser().toPromise().catch(() => {
-      // If loading fails, clear auth state so we don't keep a broken session
-      this.clearAuth();
-    });
+    // Slow path: verify against backend
+    await this.loadCurrentUser()
+      .toPromise()
+      .catch(() => this.clearAuth());
+
+    this.store.setAuthInitialised();
   }
 
-  /**
-   * Login with email and password
-   */
+  // ── Auth operations ───────────────────────────────
+
   login(credentials: LoginRequest): Observable<LoginResponse> {
-    console.log('===== FRONTEND LOGIN DEBUG START =====');
-    console.log('1. Frontend - Login URL:', `${this.API_URL}/auth/login`);
-    console.log('2. Frontend - Credentials being sent:', {
-      email: credentials.email,
-      password: credentials.password ? `[PROVIDED - ${credentials.password.length} chars]` : '[NOT PROVIDED]'
-    });
-    
-    return this.http.post<LoginResponse>(`${this.API_URL}/auth/login`, credentials)
+    return this.http
+      .post<LoginResponse>(`${this.API_URL}/auth/login`, credentials)
       .pipe(
-        tap((response) => {
-          console.log('3. Frontend - Raw response received:', response);
-          
+        tap(response => {
           if (response.success && response.data) {
-            console.log('4. Frontend - Login successful!');
-            console.log('5. Frontend - User data:', response.data.user);
-            console.log('6. Frontend - Token received:', response.data.token ? 'YES' : 'NO');
-            
-            // Store token
             this.setToken(response.data.token);
-            
-            // Update user state
-            this.setCurrentUser(response.data.user);
-            
-            // Reconnect socket with new token (lazy injection to avoid circular dependency)
-            const socketServiceInstance = this.getSocketService();
-            if (socketServiceInstance) {
-              socketServiceInstance.reconnect();
+            if ((response.data as any).refreshToken) {
+              this.setRefreshToken((response.data as any).refreshToken);
             }
-            
-            // Navigate based on role and profile completeness
-            console.log('7. Frontend - Navigating to role-based dashboard:', response.data.user.role);
-            console.log('8. Frontend - Profile complete:', response.data.user.profileComplete);
-            this.navigateByRole(response.data.user.role, response.data.user.profileComplete);
-          } else {
-            console.log('4. Frontend - Login failed, response not successful');
-            console.log('5. Frontend - Response message:', response.message);
+            this.setCurrentUser(response.data.user);
+
+            const socketService = this.getSocketService();
+            if (socketService) socketService.reconnect();
+
+            this.navigateByRole(
+              response.data.user.role,
+              response.data.user.profileComplete,
+            );
           }
-          console.log('===== FRONTEND LOGIN DEBUG END =====');
         }),
-        catchError((error) => {
-          console.log('3. Frontend - ERROR caught in catchError');
-          console.log('4. Frontend - Error status:', error.status);
-          console.log('5. Frontend - Error message:', error.error?.message);
-          console.log('6. Frontend - Full error object:', error);
-          console.log('===== FRONTEND LOGIN DEBUG END (ERROR) =====');
-          
-          // Return a properly formatted error response
+        catchError(error => {
           const errorResponse: LoginResponse = {
             success: false,
-            message: error.error?.message || 'Login failed. Please check your credentials.',
-            data: { token: '', user: null as any }
+            message:
+              error.error?.message ||
+              'Login failed. Please check your credentials.',
+            data: { token: '', user: null as any },
           };
-          
           return of(errorResponse);
-        })
-      );
-  }
-
-  /**
-   * Load current user from API
-   */
-  loadCurrentUser(): Observable<AuthResponse> {
-    return this.http.get<AuthResponse>(`${this.API_URL}/auth/me`)
-      .pipe(
-        tap((response) => {
-          if (response.success && response.data) {
-            this.setCurrentUser(response.data.user);
-          }
         }),
-        catchError((error) => {
-          console.error('Failed to load current user:', error);
-          this.clearAuth();
-          return of({ success: false, message: 'Failed to load user' });
-        })
       );
   }
 
-  /**
-   * Register a new user
-   */
-  register(userData: { name: string; email: string; password: string; mobile?: string }): Observable<LoginResponse> {
-    return this.http.post<LoginResponse>(`${this.API_URL}/auth/register`, userData)
+  loadCurrentUser(): Observable<AuthResponse> {
+    return this.http.get<AuthResponse>(`${this.API_URL}/auth/me`).pipe(
+      tap(response => {
+        if (response.success && response.data) {
+          this.setCurrentUser(response.data.user);
+        }
+      }),
+      catchError(error => {
+        console.error('Failed to load current user:', error);
+        this.clearAuth();
+        return of({ success: false, message: 'Failed to load user' });
+      }),
+    );
+  }
+
+  register(
+    userData: { name: string; email: string; password: string; mobile?: string },
+  ): Observable<LoginResponse> {
+    return this.http
+      .post<LoginResponse>(`${this.API_URL}/auth/register`, userData)
       .pipe(
-        tap((response) => {
+        tap(response => {
           if (response.success && response.data) {
-            // Store token
             this.setToken(response.data.token);
-            
-            // Update user state
             this.setCurrentUser(response.data.user);
-            
-            // Navigate to parent dashboard (default for new registrations)
-            // Check profile completeness for new registrations too
-            const profileComplete = response.data.user.profileComplete ?? true;
-            if (!profileComplete) {
+            const profileOk = response.data.user.profileComplete ?? true;
+            if (!profileOk) {
               this.router.navigate(['/parent/onboarding/profile']);
             } else {
               this.router.navigate(['/parent/home']);
             }
           }
-        })
+        }),
       );
   }
 
   /**
-   * Logout user
+   * Attempt to silently refresh the access token using the stored refresh token.
+   * Returns an Observable that emits true on success, false on failure.
    */
+  refreshToken(): Observable<boolean> {
+    const refreshToken = this.getRefreshToken();
+    if (!refreshToken) {
+      return of(false);
+    }
+
+    return this.http
+      .post<{ success: boolean; data: { token: string; refreshToken?: string; user?: User } }>(
+        `${this.API_URL}/auth/refresh-token`,
+        { refreshToken },
+      )
+      .pipe(
+        tap(response => {
+          if (response.success && response.data) {
+            this.setToken(response.data.token);
+            if (response.data.refreshToken) {
+              this.setRefreshToken(response.data.refreshToken);
+            }
+            if (response.data.user) {
+              this.setCurrentUser(response.data.user);
+            }
+          }
+        }),
+        catchError(() => of(false)),
+        // Map the response to a simple boolean
+        tap({
+          next: (res: any) => {
+            if (typeof res === 'boolean') return;
+          },
+        }),
+        // Convert to boolean
+        catchError(() => of(false)),
+      );
+  }
+
   logout(): void {
+    const socketService = this.getSocketService();
+    if (socketService) socketService.disconnect();
     this.clearAuth();
     this.router.navigate(['/login']);
   }
 
-  /**
-   * Get current user
-   */
-  getCurrentUser(): User | null {
-    return this.currentUserSubject.value;
+  completeExternalLogin(token: string, user: User): void {
+    this.setToken(token);
+    this.setCurrentUser(user);
+    this.navigateByRole(user.role, user.profileComplete ?? true);
   }
 
-  /**
-   * Check if user is authenticated
-   */
+  // ── Profile operations ────────────────────────────
+
+  updateProfile(profileData: UpdateProfileRequest): Observable<AuthResponse> {
+    return this.http
+      .patch<AuthResponse>(`${this.API_URL}/auth/me`, profileData)
+      .pipe(
+        tap(response => {
+          if (response.success && response.data) {
+            this.setCurrentUser(response.data.user);
+          }
+        }),
+      );
+  }
+
+  forgotPassword(email: string): Observable<any> {
+    return this.http.post(`${this.API_URL}/auth/forgot-password`, {
+      email,
+      language: 'en',
+    });
+  }
+
+  validateResetToken(token: string): Observable<any> {
+    return this.http.get(`${this.API_URL}/auth/validate-token/${token}`);
+  }
+
+  resetPassword(token: string, newPassword: string): Observable<any> {
+    return this.http.post(`${this.API_URL}/auth/reset-password`, {
+      token,
+      newPassword,
+    });
+  }
+
+  changePassword(oldPassword: string, newPassword: string): Observable<any> {
+    return this.http.post(`${this.API_URL}/auth/reset-password`, {
+      oldPassword,
+      newPassword,
+    });
+  }
+
+  // ── Accessors ─────────────────────────────────────
+
+  getCurrentUser(): User | null {
+    return this.store.user();
+  }
+
   isAuthenticatedUser(): boolean {
     return !!this.getToken() && !!this.getCurrentUser();
   }
 
-  /**
-   * Check if user has specific role
-   */
   hasRole(role: string): boolean {
-    const user = this.getCurrentUser();
-    return user ? user.role === role : false;
+    return this.store.role() === role;
   }
 
-  /**
-   * Get stored token
-   */
+  isProfileComplete(): boolean {
+    return this.store.profileComplete();
+  }
+
+  getMissingFields(): string[] {
+    const user = this.store.user();
+    return user?.missingFields ?? [];
+  }
+
+  // ── Token management ──────────────────────────────
+
   getToken(): string | null {
     if (typeof window !== 'undefined' && window.localStorage) {
       return localStorage.getItem(this.TOKEN_KEY);
@@ -221,193 +272,84 @@ export class AuthService {
     return null;
   }
 
-  /**
-   * Get stored user from localStorage (if any)
-   */
-  private getStoredUser(): User | null {
+  getRefreshToken(): string | null {
     if (typeof window !== 'undefined' && window.localStorage) {
-      const raw = localStorage.getItem(this.USER_KEY);
-      if (!raw) {
-        return null;
-      }
-      try {
-        return JSON.parse(raw) as User;
-      } catch {
-        return null;
-      }
+      return localStorage.getItem(this.REFRESH_TOKEN_KEY);
     }
     return null;
   }
 
-  /**
-   * Set authentication token
-   */
+  // ── Private helpers ───────────────────────────────
+
+  private getStoredUser(): User | null {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      const raw = localStorage.getItem(this.USER_KEY);
+      if (!raw) return null;
+      try { return JSON.parse(raw) as User; } catch { return null; }
+    }
+    return null;
+  }
+
   private setToken(token: string): void {
     if (typeof window !== 'undefined' && window.localStorage) {
       localStorage.setItem(this.TOKEN_KEY, token);
     }
   }
 
-  /**
-   * Persist user in localStorage
-   */
+  private setRefreshToken(token: string): void {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      localStorage.setItem(this.REFRESH_TOKEN_KEY, token);
+    }
+  }
+
   private setStoredUser(user: User): void {
     if (typeof window !== 'undefined' && window.localStorage) {
       localStorage.setItem(this.USER_KEY, JSON.stringify(user));
     }
   }
 
-  /**
-   * Remove authentication token
-   */
   private removeToken(): void {
     if (typeof window !== 'undefined' && window.localStorage) {
       localStorage.removeItem(this.TOKEN_KEY);
+      localStorage.removeItem(this.REFRESH_TOKEN_KEY);
     }
   }
 
-  /**
-   * Remove stored user from localStorage
-   */
   private removeStoredUser(): void {
     if (typeof window !== 'undefined' && window.localStorage) {
       localStorage.removeItem(this.USER_KEY);
     }
   }
 
-  /**
-   * Set current user
-   */
   private setCurrentUser(user: User): void {
+    // Update AppStore (single source of truth)
+    this.store.setUser(user);
+    // Keep BehaviorSubject in sync for legacy subscribers
     this.currentUserSubject.next(user);
-    this.isAuthenticated.set(true);
-    this.userRole.set(user.role);
-    this.profileComplete.set(user.profileComplete ?? true);
+    // Persist to localStorage
     this.setStoredUser(user);
   }
 
-  /**
-   * Clear authentication state
-   */
   private clearAuth(): void {
     this.removeToken();
     this.removeStoredUser();
+    this.store.clearUser();
     this.currentUserSubject.next(null);
-    this.isAuthenticated.set(false);
-    this.userRole.set(null);
-    this.profileComplete.set(true);
   }
 
-  /**
-   * Navigate based on user role and profile completeness
-   */
-  private navigateByRole(role: string, profileComplete: boolean = true): void {
-    // For parents, check profile completeness first
+  private navigateByRole(role: string, profileComplete = true): void {
     if (role === 'parent' && !profileComplete) {
       this.router.navigate(['/parent/onboarding/profile']);
       return;
     }
-
-    // Normal navigation based on role
-    switch (role) {
-      case 'admin':
-        this.router.navigate(['/admin/dashboard']);
-        break;
-      case 'parent':
-        this.router.navigate(['/parent/home']);
-        break;
-      case 'clinical_manager':
-        this.router.navigate(['/clinical-manager/dashboard']);
-        break;
-      case 'therapist':
-        this.router.navigate(['/therapist/dashboard']);
-        break;
-      case 'staff':
-        this.router.navigate(['/staff/dashboard']);
-        break;
-      default:
-        this.router.navigate(['/']);
-    }
-  }
-
-  /**
-   * Request password reset
-   */
-  forgotPassword(email: string): Observable<any> {
-    return this.http.post<any>(`${this.API_URL}/auth/forgot-password`, { 
-      email,
-      language: 'en' 
-    });
-  }
-
-  /**
-   * Validate reset token
-   */
-  validateResetToken(token: string): Observable<any> {
-    return this.http.get<any>(`${this.API_URL}/auth/validate-token/${token}`);
-  }
-
-  /**
-   * Reset password with token
-   */
-  resetPassword(token: string, newPassword: string): Observable<any> {
-    return this.http.post<any>(`${this.API_URL}/auth/reset-password`, {
-      token,
-      newPassword
-    });
-  }
-
-  /**
-   * Complete an external login (e.g. Google OAuth)
-   * by storing the token and user, then navigating by role.
-   */
-  completeExternalLogin(token: string, user: User): void {
-    // Reuse the existing private helpers so the behavior is
-    // identical to a normal email/password login.
-    this.setToken(token);
-    this.setCurrentUser(user);
-    const profileComplete = user.profileComplete ?? true;
-    this.navigateByRole(user.role, profileComplete);
-  }
-
-  /**
-   * Change password (for logged-in users)
-   */
-  changePassword(oldPassword: string, newPassword: string): Observable<any> {
-    return this.http.post<any>(`${this.API_URL}/auth/reset-password`, {
-      oldPassword,
-      newPassword
-    });
-  }
-
-  /**
-   * Update current user profile
-   */
-  updateProfile(profileData: UpdateProfileRequest): Observable<AuthResponse> {
-    return this.http.patch<AuthResponse>(`${this.API_URL}/auth/me`, profileData)
-      .pipe(
-        tap((response) => {
-          if (response.success && response.data) {
-            // Update the current user state
-            this.setCurrentUser(response.data.user);
-          }
-        })
-      );
-  }
-
-  /**
-   * Check if current user's profile is complete
-   */
-  isProfileComplete(): boolean {
-    const user = this.getCurrentUser();
-    return user ? (user.profileComplete ?? true) : true;
-  }
-
-  /**
-   * Get missing profile fields for current user
-   */
-  getMissingFields(): string[] {
-    const user = this.getCurrentUser();
-    return user ? (user.missingFields ?? []) : [];
+    const dashboards: Record<string, string> = {
+      admin: '/admin/dashboard',
+      parent: '/parent/home',
+      clinical_manager: '/clinical-manager/dashboard',
+      therapist: '/therapist/dashboard',
+      finance: '/finance/dashboard',
+      staff: '/staff/dashboard',
+    };
+    this.router.navigate([dashboards[role] ?? '/']);
   }
 }

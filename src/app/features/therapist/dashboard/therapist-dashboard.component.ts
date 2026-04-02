@@ -12,12 +12,13 @@ import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 import { User } from '../../../shared/models/user.model';
 import { Booking } from '../../../shared/models/booking.model';
 import { LucideAngularModule, Calendar, Clock, User as UserIcon, CheckCircle, XCircle, AlertCircle, Bell, Edit, Save, TrendingUp, FileText, BarChart3, Plus, ArrowRight, Video, MapPin } from 'lucide-angular';
+import { SkeletonLoaderComponent } from '../../../shared/components/skeleton-loader/skeleton-loader.component';
 import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-therapist-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, LucideAngularModule, TranslatePipe],
+  imports: [CommonModule, RouterModule, FormsModule, LucideAngularModule, TranslatePipe, SkeletonLoaderComponent],
   templateUrl: './therapist-dashboard.component.html',
   styleUrls: ['./therapist-dashboard.component.css']
 })

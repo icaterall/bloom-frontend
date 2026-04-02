@@ -4,6 +4,7 @@ import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TherapistBookingService } from '../../../core/services/therapist-booking.service';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
+import { SkeletonLoaderComponent } from '../../../shared/components/skeleton-loader/skeleton-loader.component';
 import { LucideAngularModule, Search, User, Calendar, ArrowRight, Users } from 'lucide-angular';
 
 interface TherapistChild {
@@ -23,7 +24,7 @@ interface TherapistChild {
 @Component({
   selector: 'app-therapist-children',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, TranslatePipe, LucideAngularModule],
+  imports: [CommonModule, RouterModule, FormsModule, TranslatePipe, LucideAngularModule, SkeletonLoaderComponent],
   templateUrl: './therapist-children.component.html',
   styleUrls: ['./therapist-children.component.css']
 })

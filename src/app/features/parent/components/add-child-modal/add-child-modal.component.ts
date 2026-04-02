@@ -6,6 +6,7 @@ import { LucideAngularModule, X, AlertCircle, Calendar } from 'lucide-angular';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule, provideNativeDateAdapter } from '@angular/material/core';
 import { Child } from '../../../../shared/models/child.model';
+import { backdropAnimation, modalPanelAnimation } from '../../../../shared/animations';
 
 // Custom validator for minimum age (in months)
 export function minimumAgeValidator(minMonths: number): ValidatorFn {
@@ -33,6 +34,7 @@ export function minimumAgeValidator(minMonths: number): ValidatorFn {
     MatNativeDateModule
   ],
   providers: [provideNativeDateAdapter()],
+  animations: [backdropAnimation, modalPanelAnimation],
   templateUrl: './add-child-modal.component.html',
   styleUrls: ['./add-child-modal.component.scss']
 })

@@ -3,12 +3,13 @@ import { CommonModule } from '@angular/common';
 import { BookingService } from '../../../core/services/booking.service';
 import { Booking } from '../../../shared/models/booking.model';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
+import { SkeletonLoaderComponent } from '../../../shared/components/skeleton-loader/skeleton-loader.component';
 import { LucideAngularModule, CreditCard, Calendar } from 'lucide-angular';
 
 @Component({
   selector: 'app-payments-history',
   standalone: true,
-  imports: [CommonModule, TranslatePipe, LucideAngularModule],
+  imports: [CommonModule, TranslatePipe, LucideAngularModule, SkeletonLoaderComponent],
   templateUrl: './payments-history.component.html'
 })
 export class PaymentsHistoryComponent implements OnInit {

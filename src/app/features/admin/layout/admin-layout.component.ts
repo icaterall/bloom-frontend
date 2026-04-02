@@ -9,6 +9,8 @@ import { AdminHeaderComponent } from './admin-header.component';
   standalone: true,
   imports: [CommonModule, RouterOutlet, AdminSidebarComponent, AdminHeaderComponent],
   templateUrl: './admin-layout.component.html',
-  styleUrls: ['./admin-layout.component.css']
+  styleUrls: ['./admin-layout.component.css'],
 })
-export class AdminLayoutComponent {}
+export class AdminLayoutComponent {
+  sidebarCollapsed = false;
+}

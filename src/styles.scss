@@ -6,17 +6,41 @@
 /* Angular Material Theme */
 @import '@angular/material/prebuilt-themes/indigo-pink.css';
 
-/* Brand colors for Bloom Spectrum Centre */
+/* ─────────────────────────────────────────────
+   Bloom Spectrum – Design Tokens
+   Single source of truth for brand colours.
+   Tailwind classes (bg-primary, text-accent …)
+   are the recommended way to consume these;
+   CSS custom-properties below are for edge cases.
+   ───────────────────────────────────────────── */
 :root {
-  --color-primary: #2563EB;
-  --color-secondary: #F59E0B;
-  --color-accent: #10B981;
-  --color-text: #111827;
+  /* Primary — Royal Blue */
+  --color-primary:    #2563EB;
+  --color-primary-50: #EFF6FF;
+  --color-primary-100:#DBEAFE;
+  --color-primary-700:#1D4ED8;
+  --color-primary-900:#1E3A8A;
+
+  /* Secondary — Warm Amber */
+  --color-secondary:    #F59E0B;
+  --color-secondary-50: #FFFBEB;
+  --color-secondary-700:#B45309;
+
+  /* Accent — Growth Green */
+  --color-accent:    #10B981;
+  --color-accent-50: #ECFDF5;
+  --color-accent-700:#047857;
+
+  /* Neutrals */
+  --color-text:       #111827;
   --color-background: #F9FAFB;
-  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  /* Typography */
+  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont,
+               'Segoe UI', Roboto, sans-serif;
 }
 
-/* Global styles */
+/* ── Base resets ──────────────────────────────── */
 * {
   margin: 0;
   padding: 0;
@@ -32,50 +56,100 @@ body {
   color: var(--color-text);
   background-color: var(--color-background);
   line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-h1 {
-  @apply text-4xl md:text-5xl font-bold;
+/* ── Typography hierarchy ────────────────────── */
+h1 { @apply text-4xl md:text-5xl font-bold; }
+h2 { @apply text-3xl md:text-4xl font-bold; }
+h3 { @apply text-2xl md:text-3xl font-semibold; }
+h4 { @apply text-xl md:text-2xl font-semibold; }
+h5 { @apply text-lg md:text-xl font-medium; }
+h6 { @apply text-base md:text-lg font-medium; }
+
+/* ── Standardised button components ──────────── */
+@layer components {
+  .btn-primary {
+    @apply bg-primary text-white px-6 py-3 rounded-bloom font-medium
+           hover:bg-primary-700 active:bg-primary-800
+           transition-all duration-200
+           shadow-md hover:shadow-lg
+           focus:outline-none focus:ring-2 focus:ring-primary-400 focus:ring-offset-2;
+  }
+
+  .btn-secondary {
+    @apply bg-secondary text-white px-6 py-3 rounded-bloom font-medium
+           hover:bg-secondary-600 active:bg-secondary-700
+           transition-all duration-200
+           shadow-md hover:shadow-lg
+           focus:outline-none focus:ring-2 focus:ring-secondary-400 focus:ring-offset-2;
+  }
+
+  .btn-accent {
+    @apply bg-accent text-white px-6 py-3 rounded-bloom font-medium
+           hover:bg-accent-600 active:bg-accent-700
+           transition-all duration-200
+           shadow-md hover:shadow-lg
+           focus:outline-none focus:ring-2 focus:ring-accent-400 focus:ring-offset-2;
+  }
+
+  .btn-outline {
+    @apply border-2 border-primary text-primary px-6 py-3 rounded-bloom font-medium
+           hover:bg-primary hover:text-white
+           transition-all duration-200
+           focus:outline-none focus:ring-2 focus:ring-primary-400 focus:ring-offset-2;
+  }
+
+  .btn-ghost {
+    @apply text-gray-600 px-4 py-2 rounded-bloom font-medium
+           hover:bg-gray-100 hover:text-gray-900
+           transition-all duration-200
+           focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-1;
+  }
+
+  /* ── Card component ───────────────────────── */
+  .card {
+    @apply bg-white rounded-bloom shadow-md p-6
+           hover:shadow-lg transition-shadow duration-200
+           border border-gray-100;
+  }
+
+  .card-interactive {
+    @apply card cursor-pointer
+           hover:border-primary-200 hover:shadow-primary-100/50;
+  }
+
+  /* ── Badge / pill component ────────────────── */
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-bloom text-xs font-medium;
+  }
+
+  .badge-primary { @apply badge bg-primary-50 text-primary-700; }
+  .badge-success { @apply badge bg-accent-50 text-accent-700; }
+  .badge-warning { @apply badge bg-secondary-50 text-secondary-700; }
+  .badge-danger  { @apply badge bg-red-50 text-red-700; }
+  .badge-info    { @apply badge bg-blue-50 text-blue-700; }
+
+  /* ── Active / selected state ───────────────── */
+  .active-state {
+    @apply border-primary text-primary bg-primary-50;
+  }
+
+  /* ── Form inputs (override Tailwind forms) ─── */
+  .input-field {
+    @apply w-full rounded-bloom border border-gray-300 px-4 py-2.5 text-sm
+           placeholder-gray-400
+           focus:border-primary focus:ring-2 focus:ring-primary-200 focus:outline-none
+           transition-all duration-150;
+  }
+
+  .input-error {
+    @apply border-red-300 focus:border-red-500 focus:ring-red-200;
+  }
 }
 
-h2 {
-  @apply text-3xl md:text-4xl font-bold;
-}
-
-h3 {
-  @apply text-2xl md:text-3xl font-semibold;
-}
-
-h4 {
-  @apply text-xl md:text-2xl font-semibold;
-}
-
-h5 {
-  @apply text-lg md:text-xl font-medium;
-}
-
-h6 {
-  @apply text-base md:text-lg font-medium;
-}
-
-/* Custom component styles */
-.btn-primary {
-  @apply bg-primary text-white px-6 py-3 rounded-lg font-medium hover:bg-primary-700 transition-colors duration-200 shadow-md hover:shadow-lg;
-}
-
-.btn-secondary {
-  @apply bg-secondary text-white px-6 py-3 rounded-lg font-medium hover:bg-secondary-600 transition-colors duration-200 shadow-md hover:shadow-lg;
-}
-
-.btn-outline {
-  @apply border-2 border-primary text-primary px-6 py-3 rounded-lg font-medium hover:bg-primary hover:text-white transition-colors duration-200;
-}
-
-.card {
-  @apply bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition-shadow duration-200;
-}
-
-/* Accessibility */
+/* ── Accessibility ───────────────────────────── */
 .sr-only {
   position: absolute;
   width: 1px;
@@ -86,4 +160,9 @@ h6 {
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border-width: 0;
+}
+
+/* ── Router animation host requirement ───────── */
+router-outlet + * {
+  display: block;
 }

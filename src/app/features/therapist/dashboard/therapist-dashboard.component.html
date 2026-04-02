@@ -5,12 +5,10 @@
     <p class="text-gray-600">{{ todayDate | date:'fullDate' }}</p>
   </div>
 
-  <!-- Loading State -->
-  <div *ngIf="isLoading" class="flex justify-center py-12">
-    <div class="inline-flex items-center space-x-3">
-      <span class="h-6 w-6 border-2 border-[#2563EB] border-t-transparent rounded-full animate-spin"></span>
-      <span class="text-sm text-gray-600">{{ 'common.loading' | translate }}</span>
-    </div>
+  <!-- Loading State — Skeleton Loader -->
+  <div *ngIf="isLoading" class="space-y-6 py-4">
+    <app-skeleton type="stat" [count]="4"></app-skeleton>
+    <app-skeleton type="card" [count]="3"></app-skeleton>
   </div>
 
   <!-- Empty State -->

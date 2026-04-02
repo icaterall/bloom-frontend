@@ -14,11 +14,8 @@
   </div>
 
   <!-- Loading State -->
-  <div *ngIf="isLoading" class="flex items-center justify-center py-16">
-    <div class="inline-flex items-center space-x-3">
-      <span class="h-6 w-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></span>
-      <span class="text-sm text-gray-600">Loading staff...</span>
-    </div>
+  <div *ngIf="isLoading" class="py-4">
+    <app-skeleton type="table" [rows]="6" [cols]="5"></app-skeleton>
   </div>
 
   <!-- Staff List -->

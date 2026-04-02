@@ -6,11 +6,12 @@ import { TherapistSessionsService, SessionsFilters } from '../../../core/service
 import { Booking } from '../../../shared/models/booking.model';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 import { LucideAngularModule, Calendar, Clock, User, MapPin, Video, List, Eye, AlertCircle, Filter, X } from 'lucide-angular';
+import { SkeletonLoaderComponent } from '../../../shared/components/skeleton-loader/skeleton-loader.component';
 
 @Component({
   selector: 'app-therapist-sessions',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, TranslatePipe, LucideAngularModule],
+  imports: [CommonModule, RouterModule, FormsModule, TranslatePipe, LucideAngularModule, SkeletonLoaderComponent],
   templateUrl: './therapist-sessions.component.html',
   styleUrls: ['./therapist-sessions.component.css']
 })

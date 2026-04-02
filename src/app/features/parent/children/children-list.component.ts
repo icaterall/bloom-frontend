@@ -4,12 +4,13 @@ import { RouterModule } from '@angular/router';
 import { ChildService } from '../../../core/services/child.service';
 import { Child } from '../../../shared/models/child.model';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
+import { SkeletonLoaderComponent } from '../../../shared/components/skeleton-loader/skeleton-loader.component';
 import { LucideAngularModule, Users, Plus } from 'lucide-angular';
 
 @Component({
   selector: 'app-children-list',
   standalone: true,
-  imports: [CommonModule, RouterModule, TranslatePipe, LucideAngularModule],
+  imports: [CommonModule, RouterModule, TranslatePipe, LucideAngularModule, SkeletonLoaderComponent],
   templateUrl: './children-list.component.html'
 })
 export class ChildrenListComponent implements OnInit {
