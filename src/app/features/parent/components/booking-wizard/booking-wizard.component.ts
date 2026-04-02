@@ -137,7 +137,96 @@ export class BookingWizardComponent implements OnInit {
         this.generateCalendarDays();
       }
     });
+
+    // Load saved draft if exists
+    this.loadProgress();
   }
+
+  // Local Storage Draft Methods
+
+  private getDraftKey(): string {
+    return this.child ? `booking_draft_${this.child.id}` : 'booking_draft_general';
+  }
+
+  saveProgress(): void {
+    // Only save if we are past step 1 or have selected something in step 1
+    const formValue = this.bookingForm.value;
+    const hasData = formValue.booking_type || formValue.mode || this.step1Data;
+    
+    if (!hasData) return;
+
+    const draft = {
+      currentStep: this.currentStep,
+      formValue: this.bookingForm.value,
+      step1Data: this.step1Data,
+      createdBooking: this.createdBooking,
+      timestamp: new Date().getTime()
+    };
+    
+    try {
+      localStorage.setItem(this.getDraftKey(), JSON.stringify(draft));
+      console.log('Draft saved', draft);
+    } catch (e) {
+      console.error('Error saving draft', e);
+    }
+  }
+
+  loadProgress(): void {
+    try {
+      const saved = localStorage.getItem(this.getDraftKey());
+      if (saved) {
+        const draft = JSON.parse(saved);
+        
+        // Optional: Check if draft is too old (e.g. > 24 hours)
+        const oneDay = 24 * 60 * 60 * 1000;
+        if (new Date().getTime() - draft.timestamp > oneDay) {
+          this.clearProgress();
+          return;
+        }
+
+        console.log('Restoring draft', draft);
+        
+        // Restore data
+        if (draft.step1Data) this.step1Data = draft.step1Data;
+        if (draft.createdBooking) this.createdBooking = draft.createdBooking;
+        
+        // Restore form values
+        if (draft.formValue) {
+          this.bookingForm.patchValue(draft.formValue);
+        }
+        
+        // Restore selected items based on form values
+        if (draft.formValue.booking_type) {
+           const type = this.bookingTypes.find(t => t.code === draft.formValue.booking_type);
+           this.selectedBookingType = type || null;
+        }
+        if (draft.formValue.mode) {
+          this.selectedMode = draft.formValue.mode;
+        }
+        
+        // Restore step
+        if (draft.currentStep) {
+          this.currentStep = draft.currentStep;
+        }
+        
+        // Trigger price update if needed
+        if (this.selectedBookingType && this.selectedMode) {
+          this.updatePricePreview();
+        }
+      }
+    } catch (e) {
+      console.error('Error loading draft', e);
+    }
+  }
+
+  clearProgress(): void {
+    try {
+      localStorage.removeItem(this.getDraftKey());
+    } catch (e) {
+      console.error('Error clearing draft', e);
+    }
+  }
+
 
   loadBookingTypes(): void {
     this.isLoadingTypes = true;
@@ -270,13 +359,17 @@ export class BookingWizardComponent implements OnInit {
       // Move to step 2
       this.currentStep = 2;
     } else if (this.currentStep === 2) {
-      // Step 2: Time selection - Create booking
+      // Step 2: Time selection - Move to payment step (don't create booking yet)
       if (this.bookingForm.get('date')?.invalid || this.bookingForm.get('time')?.invalid) {
         this.bookingForm.markAllAsTouched();
         return;
       }
+      
+      // Just move to next step, defer booking creation to payment action
+      this.currentStep = 3;
+      // Save draft immediately on step change
+      this.saveProgress();
 
-      this.createBooking();
     } else if (this.currentStep === 3) {
       // Step 3: Payment method selection
       if (this.bookingForm.get('payment_method')?.invalid) {
@@ -295,16 +388,77 @@ export class BookingWizardComponent implements OnInit {
       return;
     }
 
+    // Step 3 -> 4: First Create Booking, then Pay
+    
+    // We need to create the booking first since we deferred it from Step 2
     if (!this.createdBooking || !this.createdBooking.id) {
-      this.errorMessage = 'Booking not found. Please try again.';
+       this.createBookingAndPay();
+       return;
+    }
+
+    // Fallback if booking already exists (e.g. from a restored session that had a booking ID)
+    this.executePayment(this.createdBooking.id);
+  }
+
+  createBookingAndPay(): void {
+    if (!this.child || !this.child.id || !this.step1Data) {
+      this.errorMessage = 'Child information is missing. Please try again.';
       return;
     }
 
+    this.isLoadingPayment = true; // Use payment loading state
+    this.errorMessage = '';
+
+    const formValue = this.bookingForm.value;
+    const date = formValue.date;
+    const time = formValue.time;
+    
+    // Combine date and time into ISO string
+    const preferredStartAt = new Date(`${date}T${time}`).toISOString();
+    
+    // Calculate end time based on duration
+    const duration = this.step1Data.bookingType?.default_duration_min || 60;
+    const preferredEndAt = new Date(new Date(preferredStartAt).getTime() + duration * 60000).toISOString();
+
+    const bookingData: CreateBookingRequest = {
+      child_id: this.child.id,
+      booking_type: this.step1Data.booking_type,
+      mode: this.step1Data.mode,
+      preferred_start_at: preferredStartAt,
+      preferred_end_at: preferredEndAt,
+      payment_method: null, // Will be updated by payment call
+      notes: formValue.notes || null
+    };
+
+    this.bookingService.createBooking(bookingData).subscribe({
+      next: (response) => {
+        if (response.success) {
+          // Store created booking data
+          this.createdBooking = response.data.booking;
+          // Save draft with booking ID in case payment fails and user reloads
+          this.saveProgress();
+          
+          // Now proceed to payment
+          this.executePayment(this.createdBooking.id);
+        } else {
+           this.isLoadingPayment = false;
+           this.errorMessage = 'Failed to create booking record.';
+        }
+      },
+      error: (error) => {
+        console.error('Error creating booking:', error);
+        this.isLoadingPayment = false;
+        this.errorMessage = error.error?.message || 'Failed to create booking. Please try again.';
+      }
+    });
+  }
+
+  executePayment(bookingId: number): void {
     const paymentMethod = this.bookingForm.get('payment_method')?.value;
     this.isLoadingPayment = true;
     this.errorMessage = '';
     
-    this.bookingService.payBooking(this.createdBooking.id, paymentMethod).subscribe({
+    this.bookingService.payBooking(bookingId, paymentMethod).subscribe({
       next: (response) => {
         console.log('[BookingWizard] Payment response:', response);
         this.isLoadingPayment = false;
@@ -313,6 +467,7 @@ export class BookingWizardComponent implements OnInit {
           this.paymentConfirmationMessage = response.message || 
             'Booking reserved. Please pay at reception within 24 hours.';
           this.currentStep = 4;
+          this.clearProgress(); // Clear draft on success
           this.stepComplete.emit({
             step: 3,
             data: { 
@@ -329,6 +484,7 @@ export class BookingWizardComponent implements OnInit {
             // Move to step 4 (loading screen) before redirecting
             this.currentStep = 4;
             this.isLoadingPayment = true;
+            this.clearProgress(); // Clear draft before redirecting
             // Redirect after a brief moment to show loading screen
             if (response.checkout_url) {
               setTimeout(() => {
@@ -421,6 +577,7 @@ export class BookingWizardComponent implements OnInit {
   }
 
   onClose(): void {
+    this.saveProgress();
     this.close.emit();
   }
 

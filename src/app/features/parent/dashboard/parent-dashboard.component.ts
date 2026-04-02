@@ -394,15 +394,29 @@ export class ParentDashboardComponent implements OnInit {
 
   isSessionCompleted(booking: Booking | undefined): boolean {
     if (!booking) return false;
-    return booking.status === 'completed';
+    // Consider a session "completed" either when backend marks it so,
+    // or when its scheduled time has already passed.
+    if (booking.status === 'completed') {
+      return true;
+    }
+
+    return this.isSessionExpired(booking);
   }
 
   getBookingStatusLabel(booking: Booking | undefined): string {
     if (!booking) return '';
+
+    // If the session time has already passed, always show it as "completed"
+    // so parents can clearly see that the session is done.
+    const status = booking.status || 'pending';
+    if (this.isSessionExpired(booking) && ['confirmed', 'awaiting_clinical_review', 'awaiting_payment'].includes(status)) {
+      return 'parentDashboard.childCard.bookingStatus.completed';
+    }
+
     if (this.isBookingPaid(booking) && booking.status === 'awaiting_clinical_review') {
       return 'parentDashboard.childCard.bookingStatus.awaitingConfirmation';
     }
-    return `parentDashboard.childCard.bookingStatus.${booking.status || 'pending'}`;
+    return `parentDashboard.childCard.bookingStatus.${status}`;
   }
 
   getUpcomingBookingForChild(childId: number | undefined): Booking | undefined {
@@ -423,6 +437,31 @@ export class ParentDashboardComponent implements OnInit {
 
   isAwaitingCash(booking?: Booking | undefined): boolean {
     return !!booking && booking.payment_method === 'cash' && booking.status === 'awaiting_cash_payment';
+  }
+
+  /**
+   * Determine if a session's scheduled time has already passed.
+   * This is used to automatically treat old sessions as "done"/completed
+   * on the parent dashboard, even if the backend status hasn't been updated yet.
+   */
+  isSessionExpired(booking: Booking | undefined): boolean {
+    if (!booking) return false;
+
+    const now = new Date();
+
+    // Prefer explicit end times, then fall back to start times
+    const dateString =
+      booking.confirmed_end_at ||
+      booking.preferred_end_at ||
+      booking.end_at ||
+      booking.confirmed_start_at ||
+      booking.preferred_start_at ||
+      booking.start_at;
+
+    if (!dateString) return false;
+
+    const sessionDate = new Date(dateString);
+    return sessionDate.getTime() < now.getTime();
   }
 
   canRetryPayment(booking?: Booking | undefined): boolean {

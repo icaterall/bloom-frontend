@@ -278,48 +278,6 @@
 
                 <!-- Primary CTA: Book Session Button, View Booking, Cash Payment Actions, Next Session Actions, or Completed Session Actions -->
                 <div class="mt-4 relative group">
-                  <!-- Completed Session Actions -->
-                  <ng-container *ngIf="getBookingForChild(child.id) as booking">
-                    <div *ngIf="isSessionCompleted(booking)" class="space-y-3">
-                      <!-- Completed Status Badge -->
-                      <div class="bg-gradient-to-r from-emerald-50 to-green-50 border-2 border-emerald-200 rounded-lg p-4">
-                        <div class="flex items-center gap-2 mb-3">
-                          <span class="text-2xl">✅</span>
-                          <span class="text-sm font-semibold text-emerald-900">{{ 'parentDashboard.childCard.bookingStatus.completed' | translate }}</span>
-                        </div>
-                        <p class="text-xs text-emerald-700 mb-4">
-                          {{ 'parentDashboard.childCard.sessionCompletedDesc' | translate }}
-                        </p>
-                        
-                        <!-- Quick Actions -->
-                        <div class="grid grid-cols-1 gap-2">
-                          <button
-                            (click)="viewSessionNotes(booking)"
-                            class="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-white border-2 border-emerald-200 px-4 py-3 text-sm font-semibold text-emerald-900 hover:bg-emerald-50 transition-colors"
-                          >
-                            <span class="text-lg">📝</span>
-                            <span>{{ 'parentDashboard.childCard.viewNotes' | translate }}</span>
-                          </button>
-                          <button
-                            (click)="viewSessionDocuments(booking)"
-                            class="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-white border-2 border-emerald-200 px-4 py-3 text-sm font-semibold text-emerald-900 hover:bg-emerald-50 transition-colors"
-                          >
-                            <span class="text-lg">📂</span>
-                            <span>{{ 'parentDashboard.childCard.documents' | translate }}</span>
-                          </button>
-                          <button
-                            (click)="openBookSessionModal(child)"
-                            class="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-[#2563EB] px-4 py-3 text-sm font-semibold text-white shadow-sm hover:bg-[#1d4ed8] transition-colors"
-                          >
-                            <span class="text-lg">📅</span>
-                            <span>{{ 'parentDashboard.childCard.bookNextSession' | translate }}</span>
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </ng-container>
-                  
-                  
                   <!-- Show View Booking button if paid and awaiting confirmation (but no therapist assigned yet) -->
                   <ng-container *ngIf="getBookingForChild(child.id) as booking">
                     <button
@@ -394,7 +352,7 @@
                           >
                             <span *ngIf="existingBooking.status === 'completed'" class="text-xs">✅</span>
                             <span *ngIf="existingBooking.therapist_response === 'accepted' && existingBooking.status !== 'completed'" class="h-1.5 w-1.5 rounded-full bg-white"></span>
-                            <span>{{ ('parentDashboard.childCard.bookingStatus.' + existingBooking.status) | translate }}</span>
+                            <span>{{ getBookingStatusLabel(existingBooking) | translate }}</span>
                           </span>
                         </ng-template>
                       </div>
@@ -403,7 +361,7 @@
                     <!-- Booking Details Content -->
                     <div class="p-4 space-y-4">
                       <!-- Confirmed Schedule (if therapist has confirmed) -->
-                      <div *ngIf="existingBooking.confirmed_start_at || existingBooking.therapist_response === 'accepted'" 
+                      <div *ngIf="(existingBooking.confirmed_start_at || existingBooking.therapist_response === 'accepted') && !isSessionCompleted(existingBooking)" 
                            class="bg-emerald-50 border border-emerald-200 rounded-lg p-3 space-y-2">
                         <div class="flex items-center gap-2 mb-3">
                           <lucide-angular [img]="CheckCircleIcon" size="16" class="text-emerald-600"></lucide-angular>
@@ -432,7 +390,7 @@
                                class="hidden md:block w-px bg-emerald-300/50 flex-shrink-0"></div>
                           
                           <!-- Online Session Link - Same Row with Visual Division -->
-                          <div *ngIf="existingBooking.mode === 'online' && existingBooking.online_meeting_link" 
+                          <div *ngIf="existingBooking.mode === 'online' && existingBooking.online_meeting_link && !isSessionCompleted(existingBooking)" 
                                class="flex items-start gap-3 flex-1 md:pl-4 md:border-l-2 md:border-emerald-300/50">
                             <div class="flex-shrink-0">
                               <div class="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center">
@@ -492,8 +450,48 @@
                         </div>
                       </div>
 
-                      <!-- Therapist Notes (if available) -->
-                      <div *ngIf="existingBooking.notes" class="bg-slate-50 border border-slate-200 rounded-lg p-3">
+                      <!-- Compact Completed Session Block -->
+                      <div *ngIf="isSessionCompleted(existingBooking)" class="bg-emerald-50 border border-emerald-200 rounded-lg p-3 space-y-3">
+                        <div class="flex items-start justify-between gap-3">
+                          <div class="flex items-center gap-2">
+                            <span class="text-xl">✅</span>
+                            <div>
+                              <p class="text-sm font-semibold text-emerald-900">
+                                {{ 'parentDashboard.childCard.bookingStatus.completed' | translate }}
+                              </p>
+                              <p class="text-xs text-emerald-700">
+                                {{ existingBooking.confirmed_start_at || existingBooking.preferred_start_at || existingBooking.start_at | date:'medium' }}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                          <button
+                            (click)="viewSessionNotes(existingBooking)"
+                            class="inline-flex items-center gap-1.5 rounded-md bg-white border border-emerald-200 px-3 py-2 text-xs font-semibold text-emerald-900 hover:bg-emerald-50 transition-colors"
+                          >
+                            <span class="text-sm">📝</span>
+                            <span>{{ 'parentDashboard.childCard.viewNotes' | translate }}</span>
+                          </button>
+                          <button
+                            (click)="viewSessionDocuments(existingBooking)"
+                            class="inline-flex items-center gap-1.5 rounded-md bg-white border border-emerald-200 px-3 py-2 text-xs font-semibold text-emerald-900 hover:bg-emerald-50 transition-colors"
+                          >
+                            <span class="text-sm">📂</span>
+                            <span>{{ 'parentDashboard.childCard.documents' | translate }}</span>
+                          </button>
+                          <button
+                            (click)="openBookSessionModal(child)"
+                            class="inline-flex items-center gap-1.5 rounded-md bg-[#2563EB] px-3 py-2 text-xs font-semibold text-white shadow-sm hover:bg-[#1d4ed8] transition-colors"
+                          >
+                            <span class="text-sm">📅</span>
+                            <span>{{ 'parentDashboard.childCard.bookNextSession' | translate }}</span>
+                          </button>
+                        </div>
+                      </div>
+
+                      <!-- Therapist Notes (if available and not already covered by completed block) -->
+                      <div *ngIf="existingBooking.notes && !isSessionCompleted(existingBooking)" class="bg-slate-50 border border-slate-200 rounded-lg p-3">
                         <p class="text-xs font-semibold text-slate-700 mb-1">Therapist Notes:</p>
                         <p class="text-sm text-slate-600">{{ existingBooking.notes }}</p>
                       </div>
@@ -603,7 +601,7 @@
                       class="inline-flex items-center gap-1 rounded-full bg-blue-50 px-3 py-1 text-[11px] font-semibold text-blue-700 ring-1 ring-blue-100"
                     >
                       <span class="h-1.5 w-1.5 rounded-full bg-blue-400"></span>
-                      <span>{{ ('parentDashboard.childCard.bookingStatus.' + booking.status) | translate }}</span>
+                      <span>{{ getBookingStatusLabel(booking) | translate }}</span>
                     </span>
                   </div>
 
@@ -637,7 +635,7 @@
                         class="inline-flex items-center gap-1 rounded-full bg-blue-50 px-3 py-1 text-[11px] font-semibold text-blue-700 ring-1 ring-blue-100"
                       >
                         <span class="h-1.5 w-1.5 rounded-full bg-blue-400"></span>
-                        <span>{{ ('parentDashboard.childCard.bookingStatus.' + booking.status) | translate }}</span>
+                        <span>{{ getBookingStatusLabel(booking) | translate }}</span>
                       </span>
                     </div>
                   </div>

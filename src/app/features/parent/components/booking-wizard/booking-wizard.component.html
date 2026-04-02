@@ -1,12 +1,18 @@
-<!-- Full-page on mobile, modal on desktop -->
-<div class="fixed inset-0 z-50 overflow-y-auto bg-white md:bg-gray-500 md:bg-opacity-75" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-  <!-- Backdrop (desktop only) -->
-  <div class="hidden md:block fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" (click)="onClose()"></div>
-
+<!-- Full-screen overlay with centered modal -->
+<div
+  class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-60"
+  aria-labelledby="modal-title"
+  role="dialog"
+  aria-modal="true"
+  (click)="onClose()"
+>
   <!-- Content Container -->
-  <div class="min-h-screen md:flex md:items-center md:justify-center md:min-h-0 md:p-4">
+  <div class="w-full max-w-5xl max-h-[90vh] mx-4 md:mx-6 overflow-y-auto">
     <!-- Modal Panel -->
-    <div class="bg-white md:rounded-lg md:shadow-xl md:max-w-5xl md:w-full md:my-8 min-h-screen md:min-h-0">
+    <div
+      class="bg-white rounded-lg shadow-2xl"
+      (click)="$event.stopPropagation()"
+    >
       
       <!-- Top Bar: Back Arrow, Step Indicator, Language Toggle -->
       <div class="sticky top-0 z-10 bg-white border-b border-gray-200 px-4 md:px-6 py-3 flex items-center justify-between">
@@ -98,9 +104,7 @@
               </div>
             </div>
           </div>
-          <p class="mt-2 text-xs text-gray-500 text-center">
-            Step {{ currentStep }} of {{ totalSteps }}: Service → Time → Payment → Confirmation
-          </p>
+          <!-- Removed verbose step description text to save vertical space -->
         </div>
       </div>
 
@@ -174,8 +178,9 @@
             <!-- B) Choose Mode -->
             <div>
               <h3 class="text-lg font-semibold text-gray-900 mb-4">{{ 'bookingWizard.step1.chooseMode' | translate }}</h3>
-              
-              <div class="space-y-3">
+
+              <!-- Two options in a single row to save space -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <!-- In-centre Option -->
                 <label
                   [class.opacity-50]="selectedBookingType && !isModeAllowed('in_centre')"
@@ -445,39 +450,42 @@
             <div *ngIf="getBookingSummary() as summary" class="bg-[#F9FAFB] border border-gray-200 rounded-lg p-6">
               <h3 class="text-lg font-semibold text-gray-900 mb-4">{{ 'bookingWizard.step3.summary' | translate }}</h3>
               <div class="space-y-4">
-                <!-- Child -->
-                <div class="flex items-center gap-3">
-                  <span class="text-2xl">🧒</span>
-                  <div class="flex-1">
-                    <span class="text-xs text-gray-500">{{ 'bookingWizard.step3.child' | translate }}</span>
-                    <p class="text-sm font-medium text-gray-900">{{ summary.childName }}</p>
+                <!-- Grid: 2 rows, 2 columns -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <!-- Child -->
+                  <div class="flex items-center gap-3">
+                    <span class="text-2xl">🧒</span>
+                    <div class="flex-1">
+                      <span class="text-xs text-gray-500">{{ 'bookingWizard.step3.child' | translate }}</span>
+                      <p class="text-sm font-medium text-gray-900">{{ summary.childName }}</p>
+                    </div>
                   </div>
-                </div>
-                
-                <!-- Service -->
-                <div class="flex items-center gap-3">
-                  <span class="text-2xl">{{ getServiceIconFromType(summary.serviceCode) }}</span>
-                  <div class="flex-1">
-                    <span class="text-xs text-gray-500">{{ 'bookingWizard.step3.service' | translate }}</span>
-                    <p class="text-sm font-medium text-gray-900">{{ summary.service }}</p>
+                  
+                  <!-- Service -->
+                  <div class="flex items-center gap-3">
+                    <span class="text-2xl">{{ getServiceIconFromType(summary.serviceCode) }}</span>
+                    <div class="flex-1">
+                      <span class="text-xs text-gray-500">{{ 'bookingWizard.step3.service' | translate }}</span>
+                      <p class="text-sm font-medium text-gray-900">{{ summary.service }}</p>
+                    </div>
                   </div>
-                </div>
-                
-                <!-- Time -->
-                <div class="flex items-center gap-3">
-                  <span class="text-2xl">⏰</span>
-                  <div class="flex-1">
-                    <span class="text-xs text-gray-500">{{ 'bookingWizard.step3.time' | translate }}</span>
-                    <p class="text-sm font-medium text-gray-900">{{ summary.preferredTime }} ({{ summary.duration }} {{ 'bookingWizard.step1.duration' | translate }})</p>
+                  
+                  <!-- Time -->
+                  <div class="flex items-center gap-3">
+                    <span class="text-2xl">⏰</span>
+                    <div class="flex-1">
+                      <span class="text-xs text-gray-500">{{ 'bookingWizard.step3.time' | translate }}</span>
+                      <p class="text-sm font-medium text-gray-900">{{ summary.preferredTime }} ({{ summary.duration }} {{ 'bookingWizard.step1.duration' | translate }})</p>
+                    </div>
                   </div>
-                </div>
-                
-                <!-- Location -->
-                <div class="flex items-center gap-3">
-                  <span class="text-2xl">📍</span>
-                  <div class="flex-1">
-                    <span class="text-xs text-gray-500">{{ 'bookingWizard.step3.location' | translate }}</span>
-                    <p class="text-sm font-medium text-gray-900">{{ summary.location }}</p>
+                  
+                  <!-- Location -->
+                  <div class="flex items-center gap-3">
+                    <span class="text-2xl">📍</span>
+                    <div class="flex-1">
+                      <span class="text-xs text-gray-500">{{ 'bookingWizard.step3.location' | translate }}</span>
+                      <p class="text-sm font-medium text-gray-900">{{ summary.location }}</p>
+                    </div>
                   </div>
                 </div>
                 
@@ -498,8 +506,9 @@
             <div>
               <h3 class="text-lg font-semibold text-gray-900 mb-6">{{ 'bookingWizard.step3.subtitle' | translate }}</h3>
               
-              <div class="space-y-4 mb-6">
-                <!-- A) Card (Stripe) - Recommended -->
+              <!-- Responsive row of payment options -->
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <!-- A) Card (Stripe) -->
                 <div
                   class="relative p-5 border-2 rounded-lg transition-all bg-white"
                   [class.border-blue-500]="bookingForm.get('payment_method')?.value === 'card'"
@@ -510,10 +519,7 @@
                   <div class="flex items-start gap-4">
                     <span class="text-3xl">💳</span>
                     <div class="flex-1">
-                      <div class="flex items-center gap-2 mb-1">
-                        <h4 class="text-base font-semibold text-gray-900">{{ 'bookingWizard.step3.card' | translate }}</h4>
-                        <span class="px-2 py-0.5 text-xs font-medium bg-[#F59E0B] text-white rounded-full">{{ 'bookingWizard.step3.recommended' | translate }}</span>
-                      </div>
+                      <h4 class="text-base font-semibold text-gray-900 mb-1">{{ 'bookingWizard.step3.card' | translate }}</h4>
                       <p class="text-sm text-gray-600">{{ 'bookingWizard.step3.cardDesc' | translate }}</p>
                     </div>
                   </div>

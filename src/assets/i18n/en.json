@@ -303,7 +303,7 @@
       "urgency": "Any urgency?",
       "continue": "Continue"
     },
-    "step3": {
+      "step3": {
       "title": "Review & Payment",
       "subtitle": "How do you want to pay?",
       "summary": "Booking Summary",
@@ -316,7 +316,7 @@
       "price": "Price",
       "paymentMethod": "Payment Method",
       "card": "Card (Stripe)",
-      "cardDesc": "Pay securely with credit or debit card",
+      "cardDesc": "Credit / debit card",
       "onlineBanking": "Online Banking",
       "onlineBankingDesc": "Pay via FPX bank transfer",
       "cash": "Cash at Centre",
