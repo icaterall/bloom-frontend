@@ -3,10 +3,10 @@
   <div class="hidden lg:flex lg:w-1/2 xl:w-3/5 flex-col justify-between px-10 py-10 bg-white">
     <div>
       <h1 class="text-3xl font-bold text-gray-900 mb-4">
-        Start your journey with Bloom Spectrum
+        Start your journey as a parent with Bloom Spectrum
       </h1>
       <p class="text-base text-gray-700 max-w-xl">
-        Join our community of parents and educators. Track progress, manage bookings, and access resources—all in one place.
+        Create your parent account to track your child's progress, manage bookings, and access resources—all in one place.
       </p>
     </div>
 
@@ -49,11 +49,47 @@
     <div class="flex-1 flex items-center justify-center px-4 py-10 lg:px-8">
       <div class="w-full max-w-md space-y-8">
         <div>
-          <h2 class="text-3xl font-semibold text-gray-900">Create an account</h2>
+          <h2 class="text-3xl font-semibold text-gray-900">Create a parent account</h2>
           <p class="mt-2 text-sm text-gray-600">
             Already have an account?
             <a routerLink="/login" class="font-medium text-primary hover:text-primary-700">Log in</a>
           </p>
+        </div>
+
+        <!-- Google Sign Up -->
+        <div>
+          <button
+            type="button"
+            (click)="onGoogleSignup()"
+            [disabled]="!googleOAuthAvailable || googleLoading()"
+            class="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border border-gray-200 bg-white text-sm font-medium text-gray-900 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
+          >
+            @if (googleLoading()) {
+              <svg class="animate-spin h-5 w-5 text-gray-900" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              <span>Signing up...</span>
+            } @else {
+              <svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" class="w-5 h-5" width="20" height="20">
+                <g>
+                  <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"></path>
+                  <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"></path>
+                  <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"></path>
+                  <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"></path>
+                  <path fill="none" d="M0 0h48v48H0z"></path>
+                </g>
+              </svg>
+              <span>Sign up with Google</span>
+            }
+          </button>
+        </div>
+
+        <!-- Divider -->
+        <div class="flex items-center gap-3 text-xs text-gray-400">
+          <div class="h-px bg-gray-200 flex-1"></div>
+          <span>or</span>
+          <div class="h-px bg-gray-200 flex-1"></div>
         </div>
 
         <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="space-y-5">
@@ -148,7 +184,7 @@
             class="w-full flex justify-center items-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             <lucide-angular *ngIf="loading()" [img]="LoaderIcon" size="20" class="animate-spin mr-2"></lucide-angular>
-            <span>{{ loading() ? 'Creating account...' : 'Create Account' }}</span>
+            <span>{{ loading() ? 'Creating account...' : 'Create Parent Account' }}</span>
             <lucide-angular *ngIf="!loading()" [img]="ArrowRightIcon" size="20" class="ml-2"></lucide-angular>
           </button>
         </form>
