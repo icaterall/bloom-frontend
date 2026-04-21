@@ -205,12 +205,11 @@
           </button>
         </div>
         
-        <!-- Horizontal Children List -->
-        <div class="flex gap-5 overflow-x-auto pb-2">
+        <!-- Vertical Children List -->
+        <div class="flex flex-col gap-5">
           @for (child of children; track child.id) {
             <div
-              class="group relative overflow-hidden rounded-xl bg-gradient-to-br from-blue-50 via-white to-indigo-50 border border-blue-100/70 shadow-sm hover:shadow-lg hover:border-blue-300 transition-all duration-200 hover:-translate-y-0.5 flex-shrink-0"
-              [ngClass]="{'w-full': children.length === 1, 'w-[450px]': children.length > 1}"
+              class="group relative overflow-hidden rounded-xl bg-gradient-to-br from-blue-50 via-white to-indigo-50 border border-blue-100/70 shadow-sm hover:shadow-lg hover:border-blue-300 transition-all duration-200 hover:-translate-y-0.5 w-full"
             >
               <!-- Accent bar -->
               <div class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-blue-500 via-indigo-500 to-cyan-400"></div>
