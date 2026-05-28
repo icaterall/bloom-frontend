@@ -30,14 +30,20 @@ export class TherapistLayoutComponent implements OnInit, OnDestroy {
       route: '/therapist/dashboard',
       icon: '📊'
     },
-    { 
-      labelEn: 'My Bookings', 
-      labelMy: 'Tempahan Saya', 
+    {
+      labelEn: 'My Bookings',
+      labelMy: 'Tempahan Saya',
       route: '/therapist/bookings',
       icon: '📅'
     },
-    { 
-      labelEn: 'Child Cases', 
+    {
+      labelEn: 'My Availability',
+      labelMy: 'Ketersediaan Saya',
+      route: '/therapist/availability',
+      icon: '🕒'
+    },
+    {
+      labelEn: 'Child Cases',
       labelMy: 'Kes Kanak-kanak', 
       route: '/therapist/cases',
       icon: '👶'

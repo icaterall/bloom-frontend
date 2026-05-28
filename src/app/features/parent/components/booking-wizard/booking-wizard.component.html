@@ -370,6 +370,8 @@
                   <span class="text-lg">⏰</span>
                   <span>{{ 'bookingWizard.step2.selectTime' | translate }}</span>
                 </label>
+                <p *ngIf="isLoadingSlots" class="text-xs text-gray-500 mb-2">Loading available times…</p>
+                <p *ngIf="!isLoadingSlots && slotsMessage" class="text-xs text-amber-600 mb-2">{{ slotsMessage }}</p>
                 <div class="grid grid-cols-3 gap-2 max-h-64 overflow-y-auto">
                   <button
                     *ngFor="let slot of availableTimeSlots"

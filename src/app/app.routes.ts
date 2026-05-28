@@ -114,6 +114,13 @@ export const routes: Routes = [
         title: 'Reports & Analytics - Bloom Spectrum Centre'
       },
       {
+        path: 'config',
+        loadComponent: () =>
+          import('./features/admin/config/admin-config.component')
+            .then(m => m.AdminConfigComponent),
+        title: 'Configuration - Bloom Spectrum Centre'
+      },
+      {
         path: 'settings',
         loadComponent: () =>
           import('./features/parent/settings/settings.component')
@@ -139,6 +146,13 @@ export const routes: Routes = [
           import('./features/clinical-manager/dashboard/clinical-manager-dashboard.component')
             .then(m => m.ClinicalManagerDashboardComponent),
         title: 'Clinical Manager Dashboard - Bloom Spectrum Centre'
+      },
+      {
+        path: 'requests',
+        loadComponent: () =>
+          import('./features/clinical-manager/requests/requests.component')
+            .then(m => m.CmRequestsComponent),
+        title: 'Cancellation & Reschedule Requests - Bloom Spectrum Centre'
       },
       {
         path: 'parents',
@@ -235,6 +249,13 @@ export const routes: Routes = [
           import('./features/therapist/dashboard/therapist-dashboard.component')
             .then(m => m.TherapistDashboardComponent),
         title: 'Therapist Dashboard - Bloom Spectrum Centre'
+      },
+      {
+        path: 'availability',
+        loadComponent: () =>
+          import('./features/therapist/availability/therapist-availability.component')
+            .then(m => m.TherapistAvailabilityComponent),
+        title: 'My Availability - Bloom Spectrum Centre'
       },
       {
         path: 'bookings',

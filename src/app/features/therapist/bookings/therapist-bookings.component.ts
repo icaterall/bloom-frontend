@@ -32,6 +32,7 @@ export class TherapistBookingsComponent implements OnInit {
   approveConfirmedEnd = '';
   approveGoogleMeetLink = '';
   approveError = '';
+  rejectError = '';
   isSubmittingApprove = false;
 
   // Reject modal state
@@ -238,8 +239,9 @@ export class TherapistBookingsComponent implements OnInit {
     
     this.selectedBooking = this.pendingBooking;
     this.rejectReason = '';
+    this.rejectError = '';
     this.isSubmittingReject = false;
-    
+
     this.closeWarningModal();
     this.showRejectModal = true;
   }
@@ -263,6 +265,7 @@ export class TherapistBookingsComponent implements OnInit {
     }
 
     this.isSubmittingReject = true;
+    this.rejectError = '';
 
     this.bookingService.rejectBooking(this.selectedBooking.id!, this.rejectReason).subscribe({
       next: (response) => {
@@ -272,13 +275,12 @@ export class TherapistBookingsComponent implements OnInit {
           this.bookings = this.bookings.filter((b) => b.id !== this.selectedBooking!.id);
           this.closeRejectModal();
         } else {
-          // Keep simple for now; you can surface a toast here
-          console.error('Failed to reject booking:', response.message);
+          this.rejectError = response.message || 'Failed to reject booking. Please try again.';
         }
       },
       error: (error) => {
-        console.error('Error rejecting booking:', error);
         this.isSubmittingReject = false;
+        this.rejectError = error?.error?.message || 'Failed to reject booking. Please try again.';
       }
     });
   }

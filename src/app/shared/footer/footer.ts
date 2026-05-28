@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { LucideAngularModule, Phone, Mail, MapPin, FileText, Shield } from 'lucide-angular';
+import { LucideAngularModule, Phone, Mail, MapPin, FileText, Shield, Instagram } from 'lucide-angular';
 import { HttpClientModule } from '@angular/common/http';
 import { TranslatePipe } from '../pipes/translate.pipe';
 
@@ -18,6 +18,7 @@ export class FooterComponent {
   readonly MapPinIcon = MapPin;
   readonly FileTextIcon = FileText;
   readonly ShieldIcon = Shield;
+  readonly InstagramIcon = Instagram;
 
   currentYear = new Date().getFullYear();
 }

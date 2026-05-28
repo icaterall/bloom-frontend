@@ -39,6 +39,7 @@ export class ClinicalManagerLayoutComponent implements OnInit {
     { label: 'Bookings',          route: '/clinical-manager/bookings',       icon: Bell },
     { label: 'Failed Bookings',   route: '/clinical-manager/bookings/failed', icon: XCircle },
     { label: 'Assign Cases',      route: '/clinical-manager/assignments',    icon: UserCheck },
+    { label: 'Requests',          route: '/clinical-manager/requests',       icon: Bell },
     { label: 'Sessions Calendar', route: '/clinical-manager/calendar',       icon: CalendarDays },
     { label: 'Parents & Children', route: '/clinical-manager/parents',       icon: Users },
     { label: 'Children',          route: '/clinical-manager/children',       icon: Baby },

@@ -42,6 +42,8 @@ export class BookingWizardComponent implements OnInit {
   selectedDate: string = '';
   selectedTime: string = '';
   availableTimeSlots: string[] = [];
+  isLoadingSlots = false;
+  slotsMessage = '';
   isLoadingBooking = false;
   errorMessage = '';
   
@@ -137,6 +139,7 @@ export class BookingWizardComponent implements OnInit {
         this.calendarMonth = selected.getMonth();
         this.calendarYear = selected.getFullYear();
         this.generateCalendarDays();
+        this.loadAvailableSlots(date);
       }
     });
 
@@ -569,6 +572,46 @@ export class BookingWizardComponent implements OnInit {
       slots.push(`${hour.toString().padStart(2, '0')}:00`);
     }
     return slots;
+  }
+
+  /**
+   * Fetch backend-authoritative slots for the chosen date (centre hours aware).
+   * Falls back to static slots if the request fails so the wizard stays usable.
+   */
+  loadAvailableSlots(date: string): void {
+    this.isLoadingSlots = true;
+    this.slotsMessage = '';
+    const code = this.step1Data?.booking_type || this.bookingForm.get('booking_type')?.value;
+    const childId = this.child?.id;
+
+    this.bookingService.getAvailableSlots(date, code, childId).subscribe({
+      next: (response) => {
+        this.isLoadingSlots = false;
+        if (response.success && response.data) {
+          if (!response.data.is_open) {
+            this.availableTimeSlots = [];
+            this.slotsMessage = 'The centre is closed on this day. Please choose another date.';
+          } else {
+            this.availableTimeSlots = response.data.slots || [];
+            if (this.availableTimeSlots.length === 0) {
+              this.slotsMessage = 'No available times left on this day. Please choose another date.';
+            }
+          }
+          // Clear a previously selected time that is no longer offered.
+          const currentTime = this.bookingForm.get('time')?.value;
+          if (currentTime && !this.availableTimeSlots.includes(currentTime)) {
+            this.bookingForm.patchValue({ time: '' });
+          }
+        }
+      },
+      error: (error) => {
+        console.error('Error loading available slots:', error);
+        this.isLoadingSlots = false;
+        // Graceful fallback: keep the static slots so the user can still proceed;
+        // the backend re-validates on create.
+        this.availableTimeSlots = this.generateTimeSlots();
+      }
+    });
   }
 
   getLocation(): string {

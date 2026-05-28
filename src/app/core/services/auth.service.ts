@@ -150,42 +150,15 @@ export class AuthService {
   }
 
   /**
-   * Attempt to silently refresh the access token using the stored refresh token.
-   * Returns an Observable that emits true on success, false on failure.
+   * Token refresh is intentionally a no-op.
+   *
+   * The backend issues a single short-lived access token and does NOT expose a
+   * /auth/refresh-token endpoint. Calling a non-existent endpoint produced a
+   * confusing failure path, so on token expiry the interceptor logs the user
+   * out instead. This method always resolves to `false`.
    */
   refreshToken(): Observable<boolean> {
-    const refreshToken = this.getRefreshToken();
-    if (!refreshToken) {
-      return of(false);
-    }
-
-    return this.http
-      .post<{ success: boolean; data: { token: string; refreshToken?: string; user?: User } }>(
-        `${this.API_URL}/auth/refresh-token`,
-        { refreshToken },
-      )
-      .pipe(
-        tap(response => {
-          if (response.success && response.data) {
-            this.setToken(response.data.token);
-            if (response.data.refreshToken) {
-              this.setRefreshToken(response.data.refreshToken);
-            }
-            if (response.data.user) {
-              this.setCurrentUser(response.data.user);
-            }
-          }
-        }),
-        catchError(() => of(false)),
-        // Map the response to a simple boolean
-        tap({
-          next: (res: any) => {
-            if (typeof res === 'boolean') return;
-          },
-        }),
-        // Convert to boolean
-        catchError(() => of(false)),
-      );
+    return of(false);
   }
 
   logout(): void {
@@ -348,7 +321,7 @@ export class AuthService {
       clinical_manager: '/clinical-manager/dashboard',
       therapist: '/therapist/dashboard',
       finance: '/finance/dashboard',
-      staff: '/staff/dashboard',
+      // NOTE: there is no staff portal yet — staff falls through to '/' below.
     };
     this.router.navigate([dashboards[role] ?? '/']);
   }

@@ -556,10 +556,9 @@ export class ParentDashboardComponent implements OnInit {
   }
 
   viewBooking(booking: Booking): void {
-    // Navigate to booking details or dashboard with booking highlighted
-    // For now, just scroll to the booking card or show a message
-    // TODO: Implement booking detail view if needed
-    console.log('View booking:', booking);
+    if (booking?.id) {
+      this.router.navigate(['/parent/bookings', booking.id]);
+    }
   }
 
   /**
@@ -668,10 +667,18 @@ export class ParentDashboardComponent implements OnInit {
    */
   cancelBooking(booking: Booking): void {
     if (!booking.id) return;
-    if (confirm('Are you sure you want to cancel this booking?')) {
-      // TODO: Implement cancel booking API call
-      console.log('Cancel booking:', booking.id);
-    }
+    if (!confirm('Are you sure you want to cancel this booking?')) return;
+    const reason = prompt('Reason for cancellation (optional):') || undefined;
+
+    this.bookingService.cancelBooking(booking.id, reason).subscribe({
+      next: (res) => {
+        alert(res.message || 'Cancellation submitted.');
+        this.loadBookings();
+      },
+      error: (err) => {
+        alert(err?.error?.message || 'Failed to cancel booking. Please try again.');
+      }
+    });
   }
 
   /**

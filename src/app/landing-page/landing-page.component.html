@@ -125,27 +125,25 @@
     </div>
   </section>
 
-  <!-- Testimonials Section -->
+  <!-- Expert Opinions Section -->
   <section class="py-8 bg-gray-50">
     <div class="container mx-auto px-4">
       <div class="text-center mb-12">
-        <h2 class="text-3xl md:text-4xl font-bold text-text mb-4">What Parents Say</h2>
+        <h2 class="text-3xl md:text-4xl font-bold text-text mb-4">What Experts Say</h2>
         <p class="text-lg text-gray-600 max-w-3xl mx-auto">
-          Hear from families who have experienced our programmes
+          Professional perspectives on early intervention from educators and clinicians
         </p>
       </div>
 
-      <div class="grid md:grid-cols-3 gap-8">
-        <div *ngFor="let testimonial of testimonials" class="card">
-          <div class="flex mb-4">
-            <lucide-angular *ngFor="let star of [1,2,3,4,5]" [img]="StarIcon" size="20" class="text-secondary fill-current"></lucide-angular>
-          </div>
-          <p class="text-gray-600 mb-4 italic">"{{ testimonial.content }}"</p>
-          <div>
-            <p class="font-semibold">{{ testimonial.name }}</p>
-            <p class="text-sm text-gray-500">{{ testimonial.role }}</p>
-          </div>
-        </div>
+      <div class="grid md:grid-cols-3 gap-8 items-stretch">
+        <figure *ngFor="let expert of expertOpinions" class="card flex flex-col h-full">
+          <lucide-angular [img]="QuoteIcon" size="28" class="text-primary mb-4"></lucide-angular>
+          <blockquote class="text-gray-600 mb-6 italic flex-grow">"{{ expert.content }}"</blockquote>
+          <figcaption class="mt-auto border-t border-gray-100 pt-4">
+            <p class="font-semibold text-text">{{ expert.name }}</p>
+            <p *ngIf="expert.role" class="text-sm text-gray-500">{{ expert.role }}</p>
+          </figcaption>
+        </figure>
       </div>
     </div>
   </section>

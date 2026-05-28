@@ -101,7 +101,7 @@ export class HeaderComponent implements OnInit {
       case 'parent': return '/parent/home';
       case 'clinical_manager': return '/clinical-manager/dashboard';
       case 'therapist': return '/therapist/dashboard';
-      case 'staff': return '/staff/dashboard';
+      // No staff portal yet — fall through to landing.
       default: return '/';
     }
   }

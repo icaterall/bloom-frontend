@@ -25,9 +25,8 @@ export class BookTourComponent implements OnInit {
         this.router.navigate(['/parent/home']);
       } else if (user?.role === 'admin') {
         this.router.navigate(['/admin/dashboard']);
-      } else if (user?.role === 'staff') {
-        this.router.navigate(['/staff/dashboard']);
       } else {
+        // No staff portal yet — staff and any other role land on the landing page.
         this.router.navigate(['/']);
       }
     } else {

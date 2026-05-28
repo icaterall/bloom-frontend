@@ -9,6 +9,7 @@ import {
   Baby,
   Users,
   BarChart3,
+  Settings,
   LogOut,
   ChevronLeft,
   Menu,
@@ -52,6 +53,7 @@ export class AdminSidebarComponent {
     { label: 'Children',       route: '/admin/children',  icon: Baby },
     { label: 'Staff',          route: '/admin/staff',     icon: Users },
     { label: 'Reports',        route: '/admin/reports',   icon: BarChart3 },
+    { label: 'Configuration',  route: '/admin/config',    icon: Settings },
   ];
 
   constructor(

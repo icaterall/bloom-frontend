@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { LucideAngularModule, CheckCircle, Users, BookOpen, Heart, Calendar, Download, ArrowRight, Play, Star, Clock, Target } from 'lucide-angular';
+import { LucideAngularModule, CheckCircle, Users, BookOpen, Heart, Calendar, Download, ArrowRight, Play, Star, Clock, Target, Quote } from 'lucide-angular';
 import { HeaderComponent } from '../shared/header/header';
 import { FooterComponent } from '../shared/footer/footer';
 import { TranslatePipe } from '../shared/pipes/translate.pipe';
@@ -30,6 +30,7 @@ export class LandingPageComponent {
   readonly StarIcon = Star;
   readonly ClockIcon = Clock;
   readonly TargetIcon = Target;
+  readonly QuoteIcon = Quote;
 
   // Dynamic content from backend (with initial static fallbacks)
   heroContent: any | null = null;
@@ -94,24 +95,23 @@ export class LandingPageComponent {
     }
   ];
 
-  testimonials = [
+  // Professional comments / expert opinions (the centre is not yet operational,
+  // so these are NOT parent testimonials). TODO(i18n): add Malay translations.
+  expertOpinions = [
     {
-      name: 'Sarah L.',
-      role: 'Parent',
-      content: 'The progress we\'ve seen in just 6 months has been remarkable. The team truly cares about each child.',
-      rating: 5
+      name: 'DR NF',
+      role: 'Senior Lecturer',
+      content: 'Early intervention in education is essential to improve academic outcomes, build confidence and help reduce achievement gaps by providing timely and targeted support. Ultimately, it contributes to better personal development and social opportunities.'
     },
     {
-      name: 'Ahmad K.',
-      role: 'Parent',
-      content: 'The parent coaching sessions have given us tools to support our son at home. Highly recommended!',
-      rating: 5
+      name: 'Dr RY',
+      role: '',
+      content: 'Twice-exceptional (2e) children possess both high potential and hidden learning challenges. Advanced learning intervention at BSC is essential to nurture their strengths while supporting their needs—empowering them to grow into confident, future-ready global talents.'
     },
     {
-      name: 'Mei Ling T.',
-      role: 'Parent',
-      content: 'Professional, caring, and evidence-based approach. Our daughter loves going to the centre!',
-      rating: 5
+      name: 'FC',
+      role: 'Senior OT Peads',
+      content: 'Early intervention is about neuroplasticity. The structured, evidence-based approach ensures every therapeutic milestone translates into meaningful, real-world progress.'
     }
   ];
 

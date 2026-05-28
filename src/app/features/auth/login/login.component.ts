@@ -216,7 +216,8 @@ export class LoginComponent implements OnInit, OnDestroy {
         this.router.navigate(['/therapist/dashboard']);
         break;
       case 'staff':
-        this.router.navigate(['/staff/dashboard']);
+        // No staff portal exists yet — fall back to the default destination.
+        this.router.navigate([this.returnUrl]);
         break;
       default:
         this.router.navigate([this.returnUrl]);

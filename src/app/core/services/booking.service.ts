@@ -55,17 +55,18 @@ export class BookingService {
 
   /**
    * Get booking type price
-   * GET /api/booking-price?type={code}&mode={mode}&duration={min}
+   * GET /api/v1/booking-types/:code/price?mode={mode}&duration={min}
    * Returns: price, currency
    */
   getBookingTypePrice(code: string, mode: string, duration?: number): Observable<{ success: boolean; data: BookingTypePrice }> {
-    let params = new HttpParams()
-      .set('type', code)
-      .set('mode', mode);
+    let params = new HttpParams().set('mode', mode);
     if (duration) {
       params = params.set('duration', duration.toString());
     }
-    return this.http.get<{ success: boolean; data: BookingTypePrice }>(`${environment.apiUrl}/booking-price`, { params });
+    return this.http.get<{ success: boolean; data: BookingTypePrice }>(
+      `${this.bookingTypesUrl}/${encodeURIComponent(code)}/price`,
+      { params }
+    );
   }
 
   /**
@@ -79,6 +80,47 @@ export class BookingService {
     return this.http.post<{ checkout_url?: string; message?: string; status?: string }>(
       `${environment.apiUrl}/parent/bookings/${bookingId}/pay`,
       { payment_method: paymentMethod }
+    );
+  }
+
+  /**
+   * Get bookable time slots for a date (derived from centre hours, backend-authoritative).
+   * GET /api/v1/parent/bookings/available-slots?date=YYYY-MM-DD&booking_type=&child_id=
+   */
+  getAvailableSlots(date: string, bookingType?: string, childId?: number): Observable<{
+    success: boolean;
+    data: { date: string; is_open: boolean; open_time: string | null; close_time: string | null; duration_min: number; slots: string[] };
+  }> {
+    let params = new HttpParams().set('date', date);
+    if (bookingType) params = params.set('booking_type', bookingType);
+    if (childId) params = params.set('child_id', childId.toString());
+    return this.http.get<{
+      success: boolean;
+      data: { date: string; is_open: boolean; open_time: string | null; close_time: string | null; duration_min: number; slots: string[] };
+    }>(`${environment.apiUrl}/parent/bookings/available-slots`, { params });
+  }
+
+  /**
+   * Request cancellation of own booking (Phase 4).
+   * POST /api/v1/parent/bookings/:id/cancel  body { reason? }
+   * Unpaid bookings cancel immediately; paid bookings create a request for staff review.
+   */
+  cancelBooking(bookingId: number, reason?: string): Observable<{ success: boolean; message?: string; data?: Booking }> {
+    return this.http.post<{ success: boolean; message?: string; data?: Booking }>(
+      `${environment.apiUrl}/parent/bookings/${bookingId}/cancel`,
+      { reason: reason || null }
+    );
+  }
+
+  /**
+   * Request reschedule of own booking (Phase 4).
+   * POST /api/v1/parent/bookings/:id/reschedule  body { preferred_start_at, preferred_end_at?, reason? }
+   */
+  requestReschedule(bookingId: number, body: { preferred_start_at: string; preferred_end_at?: string; reason?: string }):
+    Observable<{ success: boolean; message?: string; data?: Booking }> {
+    return this.http.post<{ success: boolean; message?: string; data?: Booking }>(
+      `${environment.apiUrl}/parent/bookings/${bookingId}/reschedule`,
+      body
     );
   }
 

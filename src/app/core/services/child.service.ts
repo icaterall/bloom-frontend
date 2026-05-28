@@ -37,9 +37,10 @@ export class ChildService {
 
   /**
    * Update child profile
+   * PUT /api/v1/children/:id  (backend route is PUT, not PATCH)
    */
   updateChild(id: number, childData: Partial<Child>): Observable<ChildResponse> {
-    return this.http.patch<ChildResponse>(`${this.apiUrl}/${id}`, childData);
+    return this.http.put<ChildResponse>(`${this.apiUrl}/${id}`, childData);
   }
 
   /**

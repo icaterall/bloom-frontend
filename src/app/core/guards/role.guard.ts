@@ -48,7 +48,8 @@ export const roleGuard: CanActivateFn = (route, state) => {
       router.navigate(['/therapist/dashboard']);
       break;
     case 'staff':
-      router.navigate(['/staff/dashboard']);
+      // No staff portal exists yet — send to landing instead of a dead route.
+      router.navigate(['/']);
       break;
     case 'finance':
       router.navigate(['/finance/dashboard']);
