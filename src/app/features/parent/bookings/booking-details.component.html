@@ -61,12 +61,12 @@
     <!-- Phase 4: manage booking (cancel / reschedule) -->
     <div class="mt-6 border-t border-gray-100 pt-4 space-y-3">
       <div *ngIf="cancellationStatus" class="text-sm">
-        <span class="font-medium text-gray-700">Cancellation status:</span>
-        <span class="ml-1 capitalize">{{ cancellationStatus }}</span>
+        <span class="font-medium text-gray-700">Cancellation:</span>
+        <span class="ml-1">{{ cancellationStatus | statusLabel }}</span>
       </div>
       <div *ngIf="rescheduleStatus" class="text-sm">
-        <span class="font-medium text-gray-700">Reschedule status:</span>
-        <span class="ml-1 capitalize">{{ rescheduleStatus }}</span>
+        <span class="font-medium text-gray-700">Reschedule:</span>
+        <span class="ml-1">{{ rescheduleStatus | statusLabel }}</span>
       </div>
 
       <div *ngIf="actionMessage" class="rounded-md bg-green-50 border border-green-200 px-3 py-2 text-sm text-green-700">{{ actionMessage }}</div>

@@ -8,6 +8,7 @@ import {
   DashboardStats,
 } from './admin-dashboard.service';
 import { User } from '../../../shared/models/user.model';
+import { StatusLabelPipe } from '../../../shared/pipes/status-label.pipe';
 
 import {
   LucideAngularModule,
@@ -44,7 +45,7 @@ interface KpiCard {
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule, LucideAngularModule],
+  imports: [CommonModule, RouterModule, LucideAngularModule, StatusLabelPipe],
   templateUrl: './admin-dashboard.component.html',
   styleUrls: ['./admin-dashboard.component.css'],
 })

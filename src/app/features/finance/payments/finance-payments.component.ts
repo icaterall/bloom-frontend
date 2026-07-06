@@ -2,12 +2,13 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
+import { StatusLabelPipe } from '../../../shared/pipes/status-label.pipe';
 import { FinanceService, FinancePayment } from '../../../core/services/finance.service';
 
 @Component({
   selector: 'app-finance-payments',
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslatePipe],
+  imports: [CommonModule, FormsModule, TranslatePipe, StatusLabelPipe],
   template: `
     <div class="p-6 max-w-7xl mx-auto space-y-4">
       <div class="flex flex-wrap items-center justify-between gap-3">
@@ -72,11 +73,11 @@ import { FinanceService, FinancePayment } from '../../../core/services/finance.s
               <td class="px-4 py-3 text-gray-700">{{ p.parent_name || '—' }}</td>
               <td class="px-4 py-3 text-gray-700">{{ p.child_name || '—' }}</td>
               <td class="px-4 py-3 font-medium text-gray-900">{{ p.currency }} {{ (+p.amount).toFixed(2) }}</td>
-              <td class="px-4 py-3 text-gray-700">{{ p.method }}</td>
-              <td class="px-4 py-3 text-gray-700">{{ p.provider }}</td>
+              <td class="px-4 py-3 text-gray-700 capitalize">{{ p.method === 'online_banking' ? 'Online banking' : p.method }}</td>
+              <td class="px-4 py-3 text-gray-700 capitalize">{{ p.provider }}</td>
               <td class="px-4 py-3">
                 <span class="inline-flex rounded-full px-2 py-0.5 text-xs font-medium" [ngClass]="statusClass(p.status)">
-                  {{ p.status }}
+                  {{ p.status | statusLabel }}
                 </span>
               </td>
               <td class="px-4 py-3 text-gray-500">{{ p.created_at | date:'medium' }}</td>

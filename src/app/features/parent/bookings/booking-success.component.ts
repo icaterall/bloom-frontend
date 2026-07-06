@@ -1,10 +1,21 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { BookingService } from '../../../core/services/booking.service';
-import { LucideAngularModule, CheckCircle, ArrowRight, Calendar, Clock, MapPin, Video, Mail, AlertCircle, Info, X } from 'lucide-angular';
+import { AuthService } from '../../../core/services/auth.service';
+import { LucideAngularModule, CheckCircle, ArrowRight, Calendar, Clock, MapPin, Video, Mail, AlertCircle, Info, X, LogIn } from 'lucide-angular';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 
+// Payment-return page (Phase 7 honesty rules + Phase 10 UX):
+//  - "Paid" is only ever shown when the BACKEND confirms it (webhook or
+//    verify-by-session). The Stripe redirect alone proves nothing.
+//  - While the webhook is still confirming, we poll a limited number of times
+//    (every 2s, up to ~20s) and say so honestly.
+//  - On confirmed success the page stays visible with a visible countdown
+//    before redirecting to the booking (bank-style confirmation pause).
+//  - A 401 here must NOT log the parent out (the interceptor exempts the
+//    by-session endpoint); we show a gentle re-login prompt with returnUrl.
 @Component({
   selector: 'app-booking-success',
   standalone: true,
@@ -13,29 +24,29 @@ import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
     <div class="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center px-4 py-12 relative">
       <!-- Toast Notification -->
       <div *ngIf="showToast" class="fixed top-6 right-6 z-50 transition-all duration-300 transform translate-y-0 opacity-100">
-        <div [class]="'rounded-lg shadow-xl p-4 flex items-center gap-3 border-l-4 min-w-[320px] max-w-md ' + 
-          (toastType === 'success' ? 'bg-white border-green-500 text-gray-800' : 
-           toastType === 'error' ? 'bg-white border-red-500 text-gray-800' : 
+        <div [class]="'rounded-lg shadow-xl p-4 flex items-center gap-3 border-l-4 min-w-[320px] max-w-md ' +
+          (toastType === 'success' ? 'bg-white border-green-500 text-gray-800' :
+           toastType === 'error' ? 'bg-white border-red-500 text-gray-800' :
            'bg-white border-blue-500 text-gray-800')">
-          
-          <div [class]="'flex-shrink-0 p-1 rounded-full ' + 
-            (toastType === 'success' ? 'bg-green-100 text-green-600' : 
-             toastType === 'error' ? 'bg-red-100 text-red-600' : 
+
+          <div [class]="'flex-shrink-0 p-1 rounded-full ' +
+            (toastType === 'success' ? 'bg-green-100 text-green-600' :
+             toastType === 'error' ? 'bg-red-100 text-red-600' :
              'bg-blue-100 text-blue-600')">
             <lucide-angular [img]="toastType === 'success' ? CheckCircleIcon : toastType === 'error' ? AlertCircleIcon : InfoIcon" size="20"></lucide-angular>
           </div>
-          
+
           <div class="flex-1">
-            <p [class]="'text-sm font-bold ' + 
-              (toastType === 'success' ? 'text-green-800' : 
-               toastType === 'error' ? 'text-red-800' : 
+            <p [class]="'text-sm font-bold ' +
+              (toastType === 'success' ? 'text-green-800' :
+               toastType === 'error' ? 'text-red-800' :
                'text-blue-800')">
               {{ toastTitle }}
             </p>
             <p class="text-sm text-gray-600 mt-0.5 leading-tight">{{ toastMessage }}</p>
           </div>
-          
-          <button (click)="showToast = false" class="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-md hover:bg-gray-100">
+
+          <button (click)="showToast = false" class="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-md hover:bg-gray-100" aria-label="Dismiss notification">
             <lucide-angular [img]="XIcon" size="18"></lucide-angular>
           </button>
         </div>
@@ -44,19 +55,45 @@ import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
       <div class="max-w-2xl w-full">
         <!-- Success Card -->
         <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
-          <!-- Success Header -->
-          <div class="bg-gradient-to-r from-green-500 to-emerald-500 px-6 py-8 text-center">
+          <!-- Header — colour + copy reflect the BACKEND-confirmed payment state -->
+          <div class="px-6 py-8 text-center"
+               [ngClass]="isPaymentUnpaidOrFailed ? 'bg-gradient-to-r from-amber-500 to-orange-500'
+                          : 'bg-gradient-to-r from-green-500 to-emerald-500'">
             <div class="mx-auto w-16 h-16 bg-white rounded-full flex items-center justify-center mb-4 shadow-lg">
-              <lucide-angular [img]="CheckCircleIcon" size="40" class="text-green-500"></lucide-angular>
+              <lucide-angular [img]="isConfirmedPaid ? CheckCircleIcon : (isPaymentUnpaidOrFailed ? AlertCircleIcon : InfoIcon)"
+                              size="40"
+                              [ngClass]="isPaymentUnpaidOrFailed ? 'text-amber-500' : 'text-green-500'"></lucide-angular>
             </div>
-            <h1 class="text-2xl font-bold text-white mb-2">✅</h1>
-            <p class="text-green-50">{{ 'bookingWizard.step4.paymentReceived' | translate }}</p>
+            <h1 class="text-2xl font-bold text-white mb-2">{{ isConfirmedPaid ? '✅' : (isPaymentUnpaidOrFailed ? '⚠️' : '⏳') }}</h1>
+            <p class="text-white/90">
+              {{ isConfirmedPaid ? ('bookingWizard.step4.paymentReceived' | translate)
+                 : (isPaymentUnpaidOrFailed ? ('paymentResult.notCompleted' | translate)
+                    : ('paymentResult.confirming' | translate)) }}
+            </p>
           </div>
 
           <!-- Content -->
           <div class="px-6 py-8">
+            <!-- Auth expired: show a gentle re-login prompt, never a blank logout -->
+            <div *ngIf="authExpired" class="space-y-6">
+              <div class="bg-blue-50 rounded-lg p-5 border border-blue-200">
+                <p class="text-sm text-blue-800 text-center">
+                  {{ 'paymentResult.sessionExpired' | translate }}
+                </p>
+              </div>
+              <div class="flex justify-center">
+                <button
+                  (click)="goToLogin()"
+                  class="inline-flex items-center justify-center gap-2 rounded-lg bg-[#2563EB] px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-[#1d4ed8] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+                >
+                  <lucide-angular [img]="LogInIcon" size="18"></lucide-angular>
+                  <span>{{ 'paymentResult.logIn' | translate }}</span>
+                </button>
+              </div>
+            </div>
+
             <!-- Payment Verification Status Alert -->
-            <div *ngIf="verificationDetails" class="mb-6">
+            <div *ngIf="!authExpired && verificationDetails" class="mb-6">
               <div *ngIf="verificationDetails.error" class="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
                 <div class="flex items-start">
                   <div class="flex-shrink-0">
@@ -72,7 +109,7 @@ import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
                   </div>
                 </div>
               </div>
-              
+
               <div *ngIf="!verificationDetails.error && verificationDetails.stripe_status" class="bg-blue-50 border border-blue-200 rounded-lg p-4">
                 <div class="flex">
                   <div class="flex-shrink-0">
@@ -91,20 +128,48 @@ import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
               </div>
             </div>
 
-            <div *ngIf="isLoading" class="text-center py-8">
+            <div *ngIf="!authExpired && isLoading" class="text-center py-8">
               <div class="inline-flex items-center space-x-3">
                 <span class="h-6 w-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></span>
-                <span class="text-sm text-gray-600">Verifying your payment...</span>
+                <span class="text-sm text-gray-600">{{ 'paymentResult.checking' | translate }}</span>
               </div>
             </div>
 
-            <div *ngIf="!isLoading && booking" class="space-y-6">
-              <!-- Payment Success Badge - Always show success since Stripe redirected here -->
+            <div *ngIf="!authExpired && !isLoading && booking" class="space-y-6">
+              <!-- Payment Badge — reflects the backend-confirmed state, not the redirect -->
               <div class="flex items-center justify-center">
-                <span class="inline-flex items-center gap-2 rounded-full bg-green-100 px-5 py-2.5 text-sm font-bold text-green-800 ring-2 ring-green-300">
+                <span *ngIf="isConfirmedPaid" class="inline-flex items-center gap-2 rounded-full bg-green-100 px-5 py-2.5 text-sm font-bold text-green-800 ring-2 ring-green-300">
                   <span class="text-lg">✅</span>
                   <span>{{ 'bookingWizard.step4.paymentReceivedDesc' | translate }}</span>
                 </span>
+                <span *ngIf="!isConfirmedPaid && !isPaymentUnpaidOrFailed" class="inline-flex items-center gap-2 rounded-full bg-blue-100 px-5 py-2.5 text-sm font-bold text-blue-800 ring-2 ring-blue-300">
+                  <span class="h-2 w-2 rounded-full bg-blue-400 animate-pulse"></span>
+                  <span>{{ 'paymentResult.confirming' | translate }}</span>
+                </span>
+                <span *ngIf="isPaymentUnpaidOrFailed" class="inline-flex items-center gap-2 rounded-full bg-amber-100 px-5 py-2.5 text-sm font-bold text-amber-800 ring-2 ring-amber-300">
+                  <span class="text-lg">⚠️</span>
+                  <span>{{ 'paymentResult.notCompleted' | translate }}</span>
+                </span>
+              </div>
+
+              <!-- Bank-style confirmation pause: visible countdown before redirect -->
+              <div *ngIf="isConfirmedPaid && autoRedirectActive"
+                   class="rounded-lg border border-green-200 bg-green-50 p-4 text-center"
+                   role="status" aria-live="polite">
+                <p class="text-sm text-green-800 mb-1">{{ 'paymentResult.successNotice' | translate }}</p>
+                <p class="text-sm font-semibold text-green-900">
+                  {{ 'paymentResult.redirectPrefix' | translate }} {{ redirectSeconds }} {{ 'paymentResult.redirectSuffix' | translate }}
+                </p>
+                <button (click)="cancelAutoRedirect()"
+                        class="mt-2 text-sm font-medium text-green-700 underline hover:no-underline focus:outline-none focus:ring-2 focus:ring-green-500 rounded">
+                  {{ 'paymentResult.stay' | translate }}
+                </button>
+              </div>
+
+              <!-- Still processing after limited polling: honest, no false 'paid' -->
+              <div *ngIf="pollingExhausted && !isConfirmedPaid && !isPaymentUnpaidOrFailed"
+                   class="rounded-lg border border-blue-200 bg-blue-50 p-4 text-center">
+                <p class="text-sm text-blue-800">{{ 'paymentResult.stillProcessing' | translate }}</p>
               </div>
 
               <!-- Booking Details -->
@@ -224,18 +289,18 @@ import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
                 </div>
               </div>
 
-              <!-- Booking Status Badge -->
-              <div class="flex items-center justify-center">
+              <!-- Booking Status Badge — only when the booking is actually paid/confirmed -->
+              <div *ngIf="isConfirmedPaid" class="flex items-center justify-center">
                 <span class="inline-flex items-center gap-2 rounded-full bg-green-50 px-4 py-2 text-sm font-semibold text-green-700 ring-1 ring-green-200">
                   <span class="h-2 w-2 rounded-full bg-green-400"></span>
                   Booking Confirmed - Awaiting Schedule Confirmation
                 </span>
               </div>
-              
+
               <!-- Next Steps Notice -->
               <div class="bg-green-50 rounded-lg p-4 border border-green-200">
                 <p class="text-sm text-green-800">
-                  <strong>What's next?</strong> Our team will review your booking and confirm the exact appointment time. 
+                  <strong>What's next?</strong> Our team will review your booking and confirm the exact appointment time.
                   You'll receive a confirmation email with all the details shortly.
                 </p>
               </div>
@@ -243,32 +308,33 @@ import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
               <!-- Actions -->
               <div class="flex flex-col sm:flex-row gap-3 pt-4">
                 <button
-                  (click)="goToDashboard()"
+                  *ngIf="booking?.id"
+                  (click)="goToBooking()"
                   class="flex-1 inline-flex items-center justify-center gap-2 rounded-lg bg-[#2563EB] px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-[#1d4ed8] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
                 >
-                  <span>Go to Dashboard</span>
+                  <span>{{ 'paymentResult.goToBooking' | translate }}</span>
                   <lucide-angular [img]="ArrowRightIcon" size="18"></lucide-angular>
                 </button>
                 <button
-                  (click)="viewBookings()"
+                  (click)="goToDashboard()"
                   class="flex-1 inline-flex items-center justify-center rounded-lg border-2 border-gray-300 bg-white px-6 py-3 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
                 >
-                  View All Bookings
+                  {{ 'paymentResult.goToDashboard' | translate }}
                 </button>
               </div>
             </div>
 
-            <!-- Fallback Success State (booking not found but payment was successful) -->
-            <div *ngIf="!isLoading && !booking && !errorMessage" class="space-y-6">
+            <!-- Fallback State (booking not yet retrievable) — do NOT assert success -->
+            <div *ngIf="!authExpired && !isLoading && !booking && !errorMessage" class="space-y-6">
               <div class="flex items-center justify-center">
-                <span class="inline-flex items-center gap-2 rounded-full bg-green-100 px-5 py-2.5 text-sm font-bold text-green-800 ring-2 ring-green-300">
-                  <lucide-angular [img]="CheckCircleIcon" size="18" class="text-green-600"></lucide-angular>
-                  Payment Successful!
+                <span class="inline-flex items-center gap-2 rounded-full bg-blue-100 px-5 py-2.5 text-sm font-bold text-blue-800 ring-2 ring-blue-300">
+                  <span class="h-2 w-2 rounded-full bg-blue-400 animate-pulse"></span>
+                  {{ 'paymentResult.confirming' | translate }}
                 </span>
               </div>
-              <div class="bg-green-50 rounded-lg p-5 border border-green-200">
-                <p class="text-sm text-green-800 text-center">
-                  Your payment was processed successfully. Your booking is being confirmed and you'll receive an email with the details shortly.
+              <div class="bg-blue-50 rounded-lg p-5 border border-blue-200">
+                <p class="text-sm text-blue-800 text-center">
+                  {{ 'paymentResult.stillProcessing' | translate }}
                 </p>
               </div>
               <div class="flex justify-center pt-4">
@@ -276,14 +342,14 @@ import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
                   (click)="goToDashboard()"
                   class="inline-flex items-center justify-center gap-2 rounded-lg bg-[#2563EB] px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-[#1d4ed8] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
                 >
-                  <span>Go to Dashboard</span>
+                  <span>{{ 'paymentResult.goToDashboard' | translate }}</span>
                   <lucide-angular [img]="ArrowRightIcon" size="18"></lucide-angular>
                 </button>
               </div>
             </div>
 
             <!-- Error State -->
-            <div *ngIf="!isLoading && errorMessage" class="text-center py-8">
+            <div *ngIf="!authExpired && !isLoading && errorMessage" class="text-center py-8">
               <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
                 <p class="text-sm text-red-800">{{ errorMessage }}</p>
               </div>
@@ -291,7 +357,7 @@ import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
                 (click)="goToDashboard()"
                 class="inline-flex items-center justify-center rounded-lg bg-[#2563EB] px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-[#1d4ed8] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
               >
-                Go to Dashboard
+                {{ 'paymentResult.goToDashboard' | translate }}
               </button>
             </div>
           </div>
@@ -300,12 +366,36 @@ import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
     </div>
   `
 })
-export class BookingSuccessComponent implements OnInit {
+export class BookingSuccessComponent implements OnInit, OnDestroy {
   sessionId: string | null = null;
   booking: any = null;
   isLoading = true;
   errorMessage = '';
   verificationDetails: any = null;
+
+  // Limited polling while the webhook confirms (client asked for ~2s x ~20s).
+  private static readonly MAX_POLLS = 10;
+  private static readonly POLL_INTERVAL_MS = 2000;
+  private pollCount = 0;
+  private pollTimer: ReturnType<typeof setTimeout> | null = null;
+  pollingExhausted = false;
+
+  // The in-flight verify/fallback HTTP subscription. Tracked so ngOnDestroy can
+  // cancel it — otherwise a late response could re-arm polling or force a
+  // redirect after the parent has already navigated away.
+  private verifySub: Subscription | null = null;
+  private destroyed = false;
+
+  // Bank-style pause: stay on the confirmation ~6s with a visible countdown.
+  private static readonly REDIRECT_SECONDS = 6;
+  redirectSeconds = BookingSuccessComponent.REDIRECT_SECONDS;
+  autoRedirectActive = false;
+  private countdownTimer: ReturnType<typeof setInterval> | null = null;
+
+  // Auth token invalid on return from Stripe → re-login prompt (no forced logout).
+  authExpired = false;
+
+  private finalToastShown = false;
 
   // Toast properties
   showToast = false;
@@ -324,28 +414,50 @@ export class BookingSuccessComponent implements OnInit {
   AlertCircleIcon = AlertCircle;
   InfoIcon = Info;
   XIcon = X;
+  LogInIcon = LogIn;
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private bookingService: BookingService
+    private bookingService: BookingService,
+    private authService: AuthService
   ) {}
 
+  // Backend-confirmed payment? Only then do we tell the parent "Payment received".
+  // The webhook (or backend verify) is the source of truth — never the redirect alone.
+  get isConfirmedPaid(): boolean {
+    return this.booking?.payment_status === 'paid'
+      || this.booking?.status === 'awaiting_clinical_review'
+      || this.verificationDetails?.stripe_status === 'paid';
+  }
+
+  // Stripe reported the payment is not completed (declined / abandoned / unpaid).
+  get isPaymentUnpaidOrFailed(): boolean {
+    const s = this.verificationDetails?.stripe_status;
+    return s === 'unpaid' || s === 'failed' || this.booking?.payment_status === 'failed';
+  }
 
   ngOnInit(): void {
-    console.log('[BookingSuccess] Component MOUNTED - ngOnInit called');
-    console.log('[BookingSuccess] Current URL:', window.location.href);
     this.sessionId = this.route.snapshot.queryParamMap.get('session_id');
-    console.log('[BookingSuccess] Initialized with session_id:', this.sessionId);
-    
+
     if (!this.sessionId) {
       this.errorMessage = 'Invalid session. Please contact support if you believe this is an error.';
       this.isLoading = false;
       return;
     }
 
-    // Verify payment and get booking details
-    this.verifyPayment();
+    // Verify against the backend (short first delay so the webhook has a head start).
+    this.scheduleVerify(300);
+  }
+
+  ngOnDestroy(): void {
+    this.destroyed = true;
+    this.clearPollTimer();
+    this.clearCountdownTimer();
+    // Abort any in-flight verify/fallback request so its callback can't run on
+    // the destroyed component (which would re-arm polling or redirect the user).
+    this.verifySub?.unsubscribe();
+    this.verifySub = null;
   }
 
   triggerToast(type: 'success' | 'error' | 'info', title: string, message: string) {
@@ -360,122 +472,152 @@ export class BookingSuccessComponent implements OnInit {
     }, 8000);
   }
 
-  verifyPayment(retryCount: number = 0): void {
-    if (!this.sessionId) {
-      // No session ID but we're on success page - show generic success
+  private scheduleVerify(delayMs: number): void {
+    this.clearPollTimer();
+    this.pollTimer = setTimeout(() => this.verifyPayment(), delayMs);
+  }
+
+  private verifyPayment(): void {
+    if (!this.sessionId || this.destroyed) {
       this.isLoading = false;
       return;
     }
+    this.pollCount++;
 
-    // Reduced delay - fetch immediately on first try, small delay on retries
-    const delay = retryCount === 0 ? 500 : 2000;
-    
-    console.log(`[BookingSuccess] Verifying payment for session ${this.sessionId} (attempt ${retryCount + 1})`);
+    this.verifySub?.unsubscribe();
+    this.verifySub = this.bookingService.getBookingBySession(this.sessionId).subscribe({
+      next: (response) => {
+        if (this.destroyed) return;
+        if (response.success && response.data) {
+          this.booking = response.data;
+          this.verificationDetails = response.verification;
+          this.isLoading = false;
 
-    setTimeout(() => {
-      this.bookingService.getBookingBySession(this.sessionId!).subscribe({
-        next: (response) => {
-          console.log('[BookingSuccess] Verification response:', response);
-          if (response.success && response.data) {
-            this.booking = response.data;
-            this.verificationDetails = response.verification;
-            
-            // Trigger toast based on verification status
-            if (this.verificationDetails) {
-              if (this.verificationDetails.error) {
-                 this.triggerToast('error', 'Verification Warning', 'Payment processed but verification had issues: ' + this.verificationDetails.error);
-              } else if (this.verificationDetails.stripe_status === 'paid') {
-                 this.triggerToast('success', 'Payment Verified', 'Stripe confirmed your payment was successful.');
-              } else if (this.verificationDetails.stripe_status === 'unpaid') {
-                 this.triggerToast('error', 'Payment Unpaid', 'Stripe reports this payment is still unpaid.');
-              } else {
-                 this.triggerToast('info', 'Payment Status', `Stripe status: ${this.verificationDetails.stripe_status}`);
-              }
-            } else {
-              // Fallback if no verification object but we have data
-              this.triggerToast('success', 'Booking Confirmed', 'Your booking has been successfully retrieved.');
-            }
-
-            // If booking status is still not updated after backend verification, show success anyway
-            // (payment was successful, status update might be delayed)
-            if (this.booking.payment_status !== 'paid' && this.booking.status !== 'awaiting_clinical_review') {
-              console.warn('Payment successful but booking status not yet updated. Showing success message.');
-              // Still show success - payment was completed, status will update soon
-            }
-            
-            this.isLoading = false;
-          } else {
-            // Retry up to 2 times
-            if (retryCount < 2) {
-              console.log(`Retrying payment verification (attempt ${retryCount + 1})...`);
-              this.verifyPayment(retryCount + 1);
-            } else {
-              // Final fallback: try fetching all bookings
-              this.bookingService.getBookings().subscribe({
-                next: (bookingsResponse) => {
-                  if (bookingsResponse.success && Array.isArray(bookingsResponse.data)) {
-                    const recentBookings = bookingsResponse.data
-                      .sort(
-                        (a: any, b: any) => new Date(b.updated_at || b.created_at).getTime() - 
-                                          new Date(a.updated_at || a.created_at).getTime()
-                      );
-                    
-                    if (recentBookings.length > 0) {
-                      // Show the most recent booking (likely the one just paid)
-                      this.booking = recentBookings[0];
-                      this.triggerToast('success', 'Booking Retrieved', 'We found your recent booking, though direct verification timed out.');
-                    } else {
-                       this.triggerToast('info', 'Status Unknown', 'Payment processed, but we could not find the booking details yet.');
-                    }
-                  }
-                  this.isLoading = false;
-                },
-                error: () => {
-                  console.error('[BookingSuccess] Failed to load bookings after payment success');
-                  this.triggerToast('error', 'Retrieval Failed', 'Payment processed, but failed to load booking details.');
-                  this.isLoading = false;
-                }
-              });
-            }
+          if (this.isConfirmedPaid) {
+            this.onConfirmedPaid();
+            return;
           }
-        },
-        error: (error) => {
-          console.error('Error fetching booking by session:', error);
-          
-          // Retry up to 2 times
-          if (retryCount < 2) {
-            console.log(`Retrying payment verification after error (attempt ${retryCount + 1})...`);
-            this.verifyPayment(retryCount + 1);
-          } else {
-            // Final fallback: try fetching all bookings
-            this.bookingService.getBookings().subscribe({
-              next: (bookingsResponse) => {
-                if (bookingsResponse.success && Array.isArray(bookingsResponse.data)) {
-                  const recentBookings = bookingsResponse.data
-                    .sort(
-                      (a: any, b: any) => new Date(b.updated_at || b.created_at).getTime() - 
-                                        new Date(a.updated_at || a.created_at).getTime()
-                    );
-                  
-                  if (recentBookings.length > 0) {
-                    this.booking = recentBookings[0];
-                    this.triggerToast('success', 'Booking Retrieved', 'We found your recent booking, though direct verification encountered an error.');
-                  } else {
-                    this.triggerToast('info', 'Status Unknown', 'Payment processed, but we could not find the booking details yet.');
-                  }
-                }
-                this.isLoading = false;
-              },
-              error: () => {
-                console.error('[BookingSuccess] Failed to load bookings after payment verification error');
-                this.triggerToast('error', 'Retrieval Failed', 'Payment processed, but failed to load booking details.');
-                this.isLoading = false;
-              }
-            });
+          if (this.isPaymentUnpaidOrFailed) {
+            this.showFinalToast('error', 'Payment Not Completed',
+              'Stripe reports this payment was not completed. You can try again from your booking.');
+            return;
+          }
+          // Still pending — keep polling (limited), stay honest.
+          this.continueOrExhaustPolling();
+        } else {
+          this.handleVerifyFailure(null);
+        }
+      },
+      error: (error) => {
+        if (this.destroyed) return;
+        if (error?.status === 401) {
+          // Token invalid after the Stripe round-trip. Do NOT blank the page or
+          // log the user out — offer a re-login that returns right here.
+          this.authExpired = true;
+          this.isLoading = false;
+          this.clearPollTimer();
+          return;
+        }
+        this.handleVerifyFailure(error);
+      }
+    });
+  }
+
+  private continueOrExhaustPolling(): void {
+    if (this.pollCount < BookingSuccessComponent.MAX_POLLS) {
+      this.scheduleVerify(BookingSuccessComponent.POLL_INTERVAL_MS);
+    } else {
+      this.pollingExhausted = true;
+      this.showFinalToast('info', 'Payment Processing',
+        'Your payment is still being processed. Check your dashboard in a little while.');
+    }
+  }
+
+  private handleVerifyFailure(error: any): void {
+    if (this.destroyed) return;
+    if (this.pollCount < BookingSuccessComponent.MAX_POLLS) {
+      this.scheduleVerify(BookingSuccessComponent.POLL_INTERVAL_MS);
+      return;
+    }
+    // Final fallback: show the most recent booking so the parent has SOMETHING
+    // actionable — but the paid badge still keys off backend-confirmed state.
+    this.pollingExhausted = true;
+    this.verifySub?.unsubscribe();
+    this.verifySub = this.bookingService.getBookings().subscribe({
+      next: (bookingsResponse) => {
+        if (this.destroyed) return;
+        if (bookingsResponse.success && Array.isArray(bookingsResponse.data)) {
+          const recentBookings = bookingsResponse.data.sort(
+            (a: any, b: any) => new Date(b.updated_at || b.created_at).getTime() -
+                                new Date(a.updated_at || a.created_at).getTime()
+          );
+          if (recentBookings.length > 0) {
+            this.booking = recentBookings[0];
+            if (this.isConfirmedPaid) {
+              this.onConfirmedPaid();
+            }
           }
         }
-      });
-    }, delay);
+        this.isLoading = false;
+      },
+      error: () => {
+        if (this.destroyed) return;
+        this.showFinalToast('error', 'Retrieval Failed',
+          'We could not load your booking details. Please check your dashboard.');
+        this.isLoading = false;
+      }
+    });
+  }
+
+  private onConfirmedPaid(): void {
+    if (this.destroyed) return;
+    this.clearPollTimer();
+    this.showFinalToast('success', 'Payment Verified', 'Your payment was confirmed successfully.');
+    this.startRedirectCountdown();
+  }
+
+  private showFinalToast(type: 'success' | 'error' | 'info', title: string, message: string): void {
+    if (this.finalToastShown) return;
+    this.finalToastShown = true;
+    this.triggerToast(type, title, message);
+  }
+
+  private startRedirectCountdown(): void {
+    if (this.autoRedirectActive || this.countdownTimer) return;
+    this.autoRedirectActive = true;
+    this.redirectSeconds = BookingSuccessComponent.REDIRECT_SECONDS;
+
+    this.countdownTimer = setInterval(() => {
+      this.redirectSeconds--;
+      if (this.redirectSeconds <= 0) {
+        this.clearCountdownTimer();
+        this.autoRedirectActive = false;
+        if (this.booking?.id) {
+          this.goToBooking();
+        } else {
+          this.goToDashboard();
+        }
+      }
+    }, 1000);
+  }
+
+  cancelAutoRedirect(): void {
+    this.clearCountdownTimer();
+    this.autoRedirectActive = false;
+  }
+
+  private clearPollTimer(): void {
+    if (this.pollTimer) {
+      clearTimeout(this.pollTimer);
+      this.pollTimer = null;
+    }
+  }
+
+  private clearCountdownTimer(): void {
+    if (this.countdownTimer) {
+      clearInterval(this.countdownTimer);
+      this.countdownTimer = null;
+    }
   }
 
   formatDate(dateString: string): string {
@@ -506,6 +648,23 @@ export class BookingSuccessComponent implements OnInit {
     return statusMap[status] || status || 'Pending';
   }
 
+  goToLogin(): void {
+    // The by-session 401 intentionally did NOT log the parent out (the page
+    // stayed visible). Now that they've chosen to re-login, clear the dead
+    // token/user so the login form actually renders (isAuthenticatedUser()
+    // would otherwise be a false positive and bounce them to the dashboard),
+    // and preserve the payment returnUrl so login brings them straight back.
+    this.authService.logout(`/parent/bookings/success?session_id=${this.sessionId}`);
+  }
+
+  goToBooking(): void {
+    if (this.booking?.id) {
+      this.router.navigate(['/parent/bookings', this.booking.id]);
+    } else {
+      this.goToDashboard();
+    }
+  }
+
   goToDashboard(): void {
     this.router.navigate(['/parent/home']);
   }
@@ -515,4 +674,3 @@ export class BookingSuccessComponent implements OnInit {
     this.router.navigate(['/parent/home']);
   }
 }
-

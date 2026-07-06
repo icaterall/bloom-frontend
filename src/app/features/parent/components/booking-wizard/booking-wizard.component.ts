@@ -293,7 +293,26 @@ export class BookingWizardComponent implements OnInit {
     }
   }
 
+  private bookingIdempotencyKey: string | null = null;
+
+  // Stable per-attempt key so a retried / double-submitted create is de-duplicated
+  // server-side. Reset to null once a booking is successfully created.
+  private ensureBookingIdempotencyKey(): string {
+    if (!this.bookingIdempotencyKey) {
+      const c: any = (globalThis as any).crypto;
+      this.bookingIdempotencyKey = (c && typeof c.randomUUID === 'function')
+        ? c.randomUUID()
+        : `bk-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    }
+    return this.bookingIdempotencyKey as string;
+  }
+
   createBooking(): void {
+    // Re-entry guard: block a double-clicked "Create booking" before the button
+    // disables, so a fast second click cannot create a duplicate booking.
+    if (this.isLoadingBooking) {
+      return;
+    }
     if (!this.child || !this.child.id || !this.step1Data) {
       this.errorMessage = 'Child information is missing. Please try again.';
       return;
@@ -323,12 +342,13 @@ export class BookingWizardComponent implements OnInit {
       notes: formValue.notes || null
     };
 
-    this.bookingService.createBooking(bookingData).subscribe({
+    this.bookingService.createBooking(bookingData, this.ensureBookingIdempotencyKey()).subscribe({
       next: (response) => {
         this.isLoadingBooking = false;
         if (response.success) {
           // Store created booking data
           this.createdBooking = response.data.booking;
+          this.bookingIdempotencyKey = null; // attempt done; next booking gets a fresh key
           // Move to step 3 (Payment)
           this.currentStep = 3;
           this.stepComplete.emit({
@@ -393,8 +413,16 @@ export class BookingWizardComponent implements OnInit {
       return;
     }
 
+    // Re-entry guard: synchronously block rapid double-clicks before Angular's
+    // change-detection has a chance to disable the button. Prevents creating two
+    // bookings / two Stripe checkout sessions from a double-tapped "Pay".
+    if (this.isLoadingPayment) {
+      return;
+    }
+    this.isLoadingPayment = true;
+
     // Step 3 -> 4: First Create Booking, then Pay
-    
+
     // We need to create the booking first since we deferred it from Step 2
     if (!this.createdBooking || !this.createdBooking.id) {
        this.createBookingAndPay();
@@ -408,6 +436,7 @@ export class BookingWizardComponent implements OnInit {
   createBookingAndPay(): void {
     if (!this.child || !this.child.id || !this.step1Data) {
       this.errorMessage = 'Child information is missing. Please try again.';
+      this.isLoadingPayment = false; // release the guard set by processPayment()
       return;
     }
 
@@ -435,11 +464,12 @@ export class BookingWizardComponent implements OnInit {
       notes: formValue.notes || null
     };
 
-    this.bookingService.createBooking(bookingData).subscribe({
+    this.bookingService.createBooking(bookingData, this.ensureBookingIdempotencyKey()).subscribe({
       next: (response) => {
         if (response.success) {
           // Store created booking data
           this.createdBooking = response.data.booking;
+          this.bookingIdempotencyKey = null; // attempt done; next booking gets a fresh key
           // Save draft with booking ID in case payment fails and user reloads
           this.saveProgress();
           

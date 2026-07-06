@@ -11,14 +11,14 @@ module.exports = {
       colors: {
         // ── Brand Primary (Blue) ──────────────
         'brand-primary': {
-          DEFAULT: '#2663EB',
+          DEFAULT: '#2563EB',
           50:  '#EFF6FF',
           100: '#DBEAFE',
           200: '#BFDBFE',
           300: '#93C5FD',
           400: '#60A5FA',
           500: '#3B82F6',
-          600: '#2663EB',
+          600: '#2563EB',
           700: '#1D4ED8',
           800: '#1E40AF',
           900: '#1E3A8A',
@@ -92,10 +92,10 @@ module.exports = {
 
         // ── Legacy aliases (backward compat) ──
         primary: {
-          DEFAULT: '#2663EB',
+          DEFAULT: '#2563EB',
           50: '#EFF6FF', 100: '#DBEAFE', 200: '#BFDBFE',
           300: '#93C5FD', 400: '#60A5FA', 500: '#3B82F6',
-          600: '#2663EB', 700: '#1D4ED8', 800: '#1E40AF', 900: '#1E3A8A',
+          600: '#2563EB', 700: '#1D4ED8', 800: '#1E40AF', 900: '#1E3A8A',
         },
         secondary: {
           DEFAULT: '#F59E0B',
@@ -136,11 +136,11 @@ module.exports = {
          Border Radius — "bloom" radii
          ───────────────────────────────────────── */
       borderRadius: {
-        'bloom-sm':  '5px',      //  5px — buttons, badges, inputs
-        'bloom':     '5px',      //  5px — cards, containers
-        'bloom-lg':  '5px',      //  5px — modals, panels
-        'bloom-xl':  '5px',      //  5px — hero sections (uniform system)
-        'bloom-full': '9999px',  // pill shape (kept for avatar badges)
+        'bloom-sm':  '6px',      //  6px — buttons, badges, inputs
+        'bloom':     '8px',      //  8px — cards, containers (calm, professional)
+        'bloom-lg':  '12px',     // 12px — modals, panels
+        'bloom-xl':  '16px',     // 16px — hero sections / large surfaces
+        'bloom-full': '9999px',  // pill shape (status badges, avatars)
       },
 
       /* ─────────────────────────────────────────

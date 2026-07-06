@@ -93,6 +93,13 @@ export const routes: Routes = [
         title: 'Leads - Bloom Spectrum Centre'
       },
       {
+        path: 'enquiries',
+        loadComponent: () =>
+          import('./features/clinical-manager/enquiries/enquiries.component')
+            .then(m => m.EnquiriesComponent),
+        title: 'Contact Enquiries - Bloom Spectrum Centre'
+      },
+      {
         path: 'children',
         loadComponent: () =>
           import('./features/admin/children/children.component')
@@ -230,6 +237,13 @@ export const routes: Routes = [
           import('./features/clinical-manager/tours/tours.component')
             .then(m => m.ToursComponent),
         title: 'Tours & Visits - Bloom Spectrum Centre'
+      },
+      {
+        path: 'enquiries',
+        loadComponent: () =>
+          import('./features/clinical-manager/enquiries/enquiries.component')
+            .then(m => m.EnquiriesComponent),
+        title: 'Contact Enquiries - Bloom Spectrum Centre'
       },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
     ]
@@ -439,6 +453,27 @@ export const routes: Routes = [
             .then(m => m.ChildBookingComponent),
         title: 'Book Session - Bloom Spectrum Centre'
       },
+      // Static booking paths MUST be registered BEFORE the :bookingId param
+      // route — Angular routing is first-match-wins, so putting them after it
+      // made /parent/bookings/success match ':bookingId' with bookingId='success'
+      // (blank page after Stripe redirect; the success page never mounted).
+      // Same rule the backend documents in src/routes/parent-bookings.js.
+      {
+        path: 'bookings/success',
+        // No profileCompleteGuard: the user returns here from Stripe and must
+        // always be able to see their payment status.
+        loadComponent: () =>
+          import('./features/parent/bookings/booking-success.component')
+            .then(m => m.BookingSuccessComponent),
+        title: 'Payment Confirmation - Bloom Spectrum Centre'
+      },
+      {
+        path: 'bookings/cancel',
+        loadComponent: () =>
+          import('./features/parent/bookings/booking-cancel.component')
+            .then(m => m.BookingCancelComponent),
+        title: 'Payment Cancelled - Bloom Spectrum Centre'
+      },
       {
         path: 'bookings/:bookingId',
         canActivate: [profileCompleteGuard],
@@ -494,22 +529,6 @@ export const routes: Routes = [
           import('./features/parent/settings/settings.component')
             .then(m => m.SettingsComponent),
         title: 'Settings - Bloom Spectrum Centre'
-      },
-      {
-        path: 'bookings/success',
-        // No guard needed - parent route already has authGuard + roleGuard
-        loadComponent: () =>
-          import('./features/parent/bookings/booking-success.component')
-            .then(m => m.BookingSuccessComponent),
-        title: 'Payment Successful - Bloom Spectrum Centre'
-      },
-      {
-        path: 'bookings/cancel',
-        // No guard needed - parent route already has authGuard + roleGuard
-        loadComponent: () =>
-          import('./features/parent/bookings/booking-cancel.component')
-            .then(m => m.BookingCancelComponent),
-        title: 'Payment Cancelled - Bloom Spectrum Centre'
       },
       { path: '', redirectTo: 'home', pathMatch: 'full' }
     ]

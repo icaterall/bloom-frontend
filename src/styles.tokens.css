@@ -1,17 +1,17 @@
 
 /* styles.tokens.css — shared CSS variables (light/dark aware) */
 :root{
-  --brand-primary: #1e40af; /* blue-800 */
-  --brand-primary-600:#2563eb; /* blue-600 */
-  --brand-accent:#16a34a;     /* green-600 */
-  --brand-ai:#7c3aed;         /* violet-600 */
-  --ink:#0f172a;              /* slate-900 */
+  --brand-primary: #1e3a8a;   /* blue-900 (brand-aligned heading blue) */
+  --brand-primary-600:#2563eb;/* blue-600 — Bloom primary */
+  --brand-accent:#10b981;     /* Bloom accent green */
+  --brand-ai:#10b981;         /* de-purpled: was violet; now brand accent */
+  --ink:#111827;              /* Bloom text */
   --muted:#64748b;            /* slate-500 */
   --surface:#ffffff;
-  --bg:#f8fafc;               /* slate-50 */
+  --bg:#f9fafb;               /* Bloom background */
   --ring:#e2e8f0;
-  --warning:#f59e0b;
-  --radius: 16px;
+  --warning:#f59e0b;          /* Bloom secondary amber */
+  --radius: 12px;
   --shadow: 0 8px 28px rgba(2,6,23,.08);
 }
 
@@ -37,7 +37,7 @@
 .btn-primary{ background:var(--brand-primary-600); color:white; }
 .btn-primary:hover{ filter:brightness(1.08); }
 .btn-ghost{ background:transparent; color:var(--ink); border-color:var(--ring); }
-.tag{ padding:.25rem .6rem; border-radius:999px; background:rgba(124,58,237,.1); color:var(--brand-ai); font-weight:500; font-size:.75rem;}
+.tag{ padding:.25rem .6rem; border-radius:999px; background:rgba(16,185,129,.12); color:var(--brand-accent); font-weight:500; font-size:.75rem;}
 .grid{ display:grid; gap:1rem; }
 .card{ background:var(--surface); border:1px solid var(--ring); border-radius:var(--radius); box-shadow:var(--shadow); }
 .text-muted{ color:var(--muted); }

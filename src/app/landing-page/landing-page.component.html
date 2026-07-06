@@ -17,15 +17,29 @@
           
           <!-- CTA Buttons -->
           <div class="flex flex-wrap gap-4">
+            <a routerLink="/book-tour" class="btn-primary inline-flex items-center space-x-2">
+              <lucide-angular [img]="CalendarIcon" size="20"></lucide-angular>
+              <span>{{ 'landing.hero.cta.bookAppointment' | translate }}</span>
+            </a>
             <a routerLink="/programmes" class="btn-outline inline-flex items-center space-x-2">
-              <span>See Programmes</span>
+              <span>{{ 'landing.hero.cta.exploreServices' | translate }}</span>
               <lucide-angular [img]="ArrowRightIcon" size="20"></lucide-angular>
             </a>
-            <a routerLink="/parent/home" class="btn-secondary inline-flex items-center space-x-2">
-              <lucide-angular [img]="PlayIcon" size="20"></lucide-angular>
-              <span>Access Parent Portal</span>
-            </a>
           </div>
+
+          <!-- Trust line -->
+          <p class="mt-5 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-gray-500">
+            <span class="inline-flex items-center gap-1">
+              <lucide-angular [img]="CheckCircleIcon" size="14" class="text-accent"></lucide-angular>
+              {{ 'landing.hero.trust.earlyIntervention' | translate }}
+            </span>
+            <span aria-hidden="true">·</span>
+            <span>{{ 'landing.hero.trust.therapyAssessment' | translate }}</span>
+            <span aria-hidden="true">·</span>
+            <span>{{ 'landing.hero.trust.parentSupport' | translate }}</span>
+            <span aria-hidden="true">·</span>
+            <span>{{ 'landing.hero.trust.location' | translate }}</span>
+          </p>
         </div>
         
         <!-- Hero Image/Graphic -->
@@ -41,7 +55,7 @@
                 {{ heroContent?.badge || ('landing.slogan' | translate) }}
               </h2>
               <p class="text-white/90 text-sm md:text-base">
-                {{ heroContent?.body || 'With the right support and intervention' }}
+                {{ heroContent?.body || ('landing.hero.body' | translate) }}
               </p>
             </div>
           </div>
@@ -50,6 +64,22 @@
           <div class="absolute -bottom-4 -left-4 w-72 h-72 bg-secondary/10 rounded-full blur-3xl -z-10"></div>
         </div>
       </div>
+    </div>
+  </section>
+
+  <!-- Who We Support -->
+  <section class="py-10">
+    <div class="container mx-auto px-4 text-center">
+      <h2 class="text-2xl md:text-3xl font-bold text-text mb-3">{{ 'landing.whoWeSupport.title' | translate }}</h2>
+      <p class="text-gray-600 max-w-2xl mx-auto mb-6">
+        {{ 'landing.whoWeSupport.subtitle' | translate }}
+      </p>
+      <ul class="flex flex-wrap justify-center gap-2 list-none">
+        <li *ngFor="let item of whoWeSupport"
+            class="inline-flex items-center rounded-bloom-full bg-primary-50 text-primary-700 px-3.5 py-1.5 text-sm font-medium">
+          {{ item | translate }}
+        </li>
+      </ul>
     </div>
   </section>
 
@@ -68,13 +98,13 @@
           <div class="flex items-center justify-center w-16 h-16 rounded-full mb-4" [ngClass]="programme.color">
             <lucide-angular [img]="programme.icon" size="32" class="text-white"></lucide-angular>
           </div>
-          <h3 class="text-xl font-semibold mb-2">{{ programme.title }}</h3>
-          <p class="text-secondary font-medium text-sm mb-3">{{ programme.ageRange }}</p>
-          <p class="text-gray-600 mb-4">{{ programme.description }}</p>
+          <h3 class="text-xl font-semibold mb-2">{{ programme.titleKey | translate }}</h3>
+          <p class="text-secondary font-medium text-sm mb-3">{{ programme.ageRangeKey | translate }}</p>
+          <p class="text-gray-600 mb-4">{{ programme.descriptionKey | translate }}</p>
           <ul class="space-y-2 mb-6">
-            <li *ngFor="let feature of programme.features" class="flex items-start space-x-2">
+            <li *ngFor="let featureKey of programme.featureKeys" class="flex items-start space-x-2">
               <lucide-angular [img]="CheckCircleIcon" size="16" class="text-accent mt-0.5"></lucide-angular>
-              <span class="text-sm text-gray-600">{{ feature }}</span>
+              <span class="text-sm text-gray-600">{{ featureKey | translate }}</span>
             </li>
           </ul>
           <a routerLink="/programmes" class="text-primary font-medium inline-flex items-center space-x-1 hover:underline">
@@ -92,7 +122,7 @@
       <div class="text-center mb-12">
         <h2 class="text-3xl md:text-4xl font-bold text-text mb-4">{{ 'landing.features.title' | translate }}</h2>
         <p class="text-lg text-gray-600 max-w-3xl mx-auto">
-          We combine evidence-based practices with compassionate care to help every child reach their full potential
+          {{ 'landing.features.subtitle' | translate }}
         </p>
       </div>
 
@@ -106,8 +136,8 @@
               </div>
             </div>
             <div>
-              <h3 class="font-semibold text-lg mb-2">{{ feature.title }}</h3>
-              <p class="text-gray-600 text-sm">{{ feature.description }}</p>
+              <h3 class="font-semibold text-lg mb-2">{{ feature.titleKey | translate }}</h3>
+              <p class="text-gray-600 text-sm">{{ feature.descriptionKey | translate }}</p>
             </div>
           </div>
         </div>
@@ -129,35 +159,56 @@
   <section class="py-8 bg-gray-50">
     <div class="container mx-auto px-4">
       <div class="text-center mb-12">
-        <h2 class="text-3xl md:text-4xl font-bold text-text mb-4">What Experts Say</h2>
+        <h2 class="text-3xl md:text-4xl font-bold text-text mb-4">{{ 'landing.experts.title' | translate }}</h2>
         <p class="text-lg text-gray-600 max-w-3xl mx-auto">
-          Professional perspectives on early intervention from educators and clinicians
+          {{ 'landing.experts.subtitle' | translate }}
         </p>
       </div>
 
       <div class="grid md:grid-cols-3 gap-8 items-stretch">
         <figure *ngFor="let expert of expertOpinions" class="card flex flex-col h-full">
           <lucide-angular [img]="QuoteIcon" size="28" class="text-primary mb-4"></lucide-angular>
-          <blockquote class="text-gray-600 mb-6 italic flex-grow">"{{ expert.content }}"</blockquote>
+          <blockquote class="text-gray-600 mb-6 italic flex-grow">"{{ expert.contentKey | translate }}"</blockquote>
           <figcaption class="mt-auto border-t border-gray-100 pt-4">
             <p class="font-semibold text-text">{{ expert.name }}</p>
-            <p *ngIf="expert.role" class="text-sm text-gray-500">{{ expert.role }}</p>
+            <p *ngIf="expert.roleKey" class="text-sm text-gray-500">{{ expert.roleKey | translate }}</p>
           </figcaption>
         </figure>
       </div>
     </div>
   </section>
 
+  <!-- How Booking Works -->
+  <section class="py-12">
+    <div class="container mx-auto px-4">
+      <div class="text-center mb-10">
+        <h2 class="text-3xl md:text-4xl font-bold text-text mb-3">{{ 'landing.bookingSteps.title' | translate }}</h2>
+        <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+          {{ 'landing.bookingSteps.subtitle' | translate }}
+        </p>
+      </div>
+      <ol class="grid gap-6 md:grid-cols-4 list-none">
+        <li *ngFor="let step of bookingSteps; let i = index" class="panel text-center">
+          <div class="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-bloom-full bg-primary-50 text-primary font-bold">
+            {{ i + 1 }}
+          </div>
+          <h3 class="text-base font-semibold text-surface-800 mb-1">{{ step.titleKey | translate }}</h3>
+          <p class="text-sm text-gray-600">{{ step.detailKey | translate }}</p>
+        </li>
+      </ol>
+    </div>
+  </section>
+
   <!-- CTA Section -->
   <section class="py-8 bg-primary">
     <div class="container mx-auto px-4 text-center">
-      <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">Ready to Start Your Child's Journey?</h2>
+      <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">{{ 'landing.cta.title' | translate }}</h2>
       <p class="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
-        Schedule a tour to see our facilities and meet our team
+        {{ 'landing.cta.subtitle' | translate }}
       </p>
       <div class="flex flex-wrap justify-center gap-4">
         <a routerLink="/contact" class="border-2 border-white text-white px-8 py-4 rounded-lg font-medium hover:bg-white hover:text-primary transition-colors duration-200 inline-flex items-center space-x-2">
-          <span>Contact Us</span>
+          <span>{{ 'landing.cta.contact' | translate }}</span>
         </a>
       </div>
     </div>

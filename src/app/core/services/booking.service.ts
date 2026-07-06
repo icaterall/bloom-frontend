@@ -27,8 +27,11 @@ export class BookingService {
    * Create a new booking (draft or awaiting payment)
    * POST /api/parent/bookings → create booking
    */
-  createBooking(booking: CreateBookingRequest): Observable<any> {
-    return this.http.post(`${environment.apiUrl}/parent/bookings`, booking);
+  createBooking(booking: CreateBookingRequest, idempotencyKey?: string): Observable<any> {
+    // An optional Idempotency-Key lets the backend replay the same result for a
+    // retried/double-submitted create instead of making a second booking.
+    const options = idempotencyKey ? { headers: { 'Idempotency-Key': idempotencyKey } } : {};
+    return this.http.post(`${environment.apiUrl}/parent/bookings`, booking, options);
   }
 
   /**

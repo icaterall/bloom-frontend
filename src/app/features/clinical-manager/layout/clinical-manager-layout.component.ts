@@ -5,7 +5,7 @@ import {
   LucideAngularModule,
   LayoutDashboard, Bell, XCircle, UserCheck, CalendarDays,
   Users, Baby, Stethoscope, Clock, Home, FileText,
-  LogOut, ChevronLeft
+  LogOut, ChevronLeft, Mail
 } from 'lucide-angular';
 import { AuthService } from '../../../core/services/auth.service';
 import { TranslationService } from '../../../shared/services/translation.service';
@@ -46,6 +46,7 @@ export class ClinicalManagerLayoutComponent implements OnInit {
     { label: 'Therapists',        route: '/clinical-manager/therapists',     icon: Stethoscope },
     { label: 'Waitlist',          route: '/clinical-manager/waitlist',       icon: Clock },
     { label: 'Tours & Visits',    route: '/clinical-manager/tours',         icon: Home },
+    { label: 'Enquiries',         route: '/clinical-manager/enquiries',      icon: Mail },
     { label: 'Reports',           route: '/clinical-manager/reports',        icon: FileText },
   ];
 

@@ -13,6 +13,7 @@ import {
   LogOut,
   ChevronLeft,
   Menu,
+  Mail,
 } from 'lucide-angular';
 import { AuthService } from '../../../core/services/auth.service';
 
@@ -50,6 +51,7 @@ export class AdminSidebarComponent {
     { label: 'Overview',       route: '/admin/dashboard', icon: LayoutDashboard, exact: true },
     { label: 'Tours & Visits', route: '/admin/tours',     icon: Compass },
     { label: 'Leads',          route: '/admin/leads',     icon: UserPlus },
+    { label: 'Enquiries',      route: '/admin/enquiries', icon: Mail },
     { label: 'Children',       route: '/admin/children',  icon: Baby },
     { label: 'Staff',          route: '/admin/staff',     icon: Users },
     { label: 'Reports',        route: '/admin/reports',   icon: BarChart3 },

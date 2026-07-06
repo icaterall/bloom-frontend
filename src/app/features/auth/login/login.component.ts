@@ -154,7 +154,7 @@ export class LoginComponent implements OnInit, OnDestroy {
       password: credentials.password ? `[PROVIDED - ${credentials.password.length} chars]` : '[NOT PROVIDED]'
     });
 
-    this.authService.login(credentials).subscribe({
+    this.authService.login(credentials, this.returnUrl).subscribe({
       next: (response) => {
         console.log('4. Login response received in component:', response);
         this.loading.set(false);

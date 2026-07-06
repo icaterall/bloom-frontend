@@ -31,8 +31,9 @@
         </a>
         
         <!-- Language Toggle -->
-        <button (click)="toggleLanguage()" 
+        <button (click)="toggleLanguage()"
                 class="flex items-center space-x-1 px-3 py-2 rounded-bloom hover:bg-gray-100 transition-colors duration-200"
+                [attr.aria-label]="currentLanguage === 'my' ? 'Switch to English' : 'Tukar ke Bahasa Melayu'"
                 [title]="currentLanguage === 'my' ? 'Switch to English' : 'Tukar ke Bahasa Melayu'">
           <div class="flex items-center">
             <span class="text-2xl leading-none transition-opacity duration-200" 
@@ -54,7 +55,10 @@
 
         <!-- Logged In User Menu -->
         <div *ngIf="currentUser" class="relative user-menu-container">
-          <button (click)="toggleUserMenu()" 
+          <button (click)="toggleUserMenu()"
+                  aria-haspopup="menu"
+                  [attr.aria-expanded]="isUserMenuOpen"
+                  aria-label="Open account menu"
                   class="flex items-center space-x-2 px-3 py-2 rounded-bloom border border-gray-200 hover:bg-gray-50 transition-colors duration-200">
             <div class="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center text-primary font-semibold text-sm">
               {{ currentUser.name.charAt(0).toUpperCase() }}
@@ -95,7 +99,9 @@
       </div>
 
       <!-- Mobile Menu Button -->
-      <button (click)="toggleMenu()" 
+      <button (click)="toggleMenu()"
+              [attr.aria-expanded]="isMenuOpen"
+              [attr.aria-label]="isMenuOpen ? 'Close menu' : 'Open menu'"
               class="lg:hidden p-2 rounded-bloom hover:bg-gray-100 transition-colors duration-200">
         <lucide-angular [img]="isMenuOpen ? XIcon : MenuIcon" size="24" class="text-text"></lucide-angular>
       </button>

@@ -1,5 +1,5 @@
 import { ApplicationConfig } from '@angular/core';
-import { provideRouter, withViewTransitions } from '@angular/router';
+import { provideRouter, withViewTransitions, withInMemoryScrolling } from '@angular/router';
 import { routes } from './app.routes';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
@@ -12,6 +12,12 @@ export const appConfig: ApplicationConfig = {
     provideRouter(
       routes,
       withViewTransitions(),          // Native View-Transitions API (Chrome 111+)
+      withInMemoryScrolling({
+        // Landing-page CTAs sit at the bottom of a long page — without this,
+        // navigating to /contact keeps the old scroll offset.
+        scrollPositionRestoration: 'enabled',
+        anchorScrolling: 'enabled',
+      }),
     ),
     provideAnimations(),              // Required for @angular/animations & ngx-toastr
     provideHttpClient(

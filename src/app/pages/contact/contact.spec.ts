@@ -1,4 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { provideRouter } from '@angular/router';
 
 import { Contact } from './contact';
 
@@ -8,7 +11,12 @@ describe('Contact', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [Contact]
+      imports: [Contact],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        provideRouter([]),
+      ],
     })
     .compileComponents();
 
@@ -19,5 +27,11 @@ describe('Contact', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('should reject an empty form', () => {
+    component.onSubmit();
+    expect(component.enquiryForm.invalid).toBeTrue();
+    expect(component.isSubmitting).toBeFalse();
   });
 });

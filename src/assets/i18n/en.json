@@ -15,29 +15,58 @@
     "hero": {
       "title": "Autism early intervention & family support",
       "subtitle": "Evidence-based, child-led programmes (PRT/EMT/JASPER) with individual plans, parent coaching, and small ratios (1:1–1:3).",
+      "body": "With the right support, every child can grow.",
       "cta": {
         "bookTour": "Book a Tour",
-        "learnMore": "Learn More"
+        "learnMore": "Learn More",
+        "bookAppointment": "Book an Appointment",
+        "exploreServices": "Explore Services"
+      },
+      "trust": {
+        "earlyIntervention": "Early intervention",
+        "therapyAssessment": "Therapy & assessment",
+        "parentSupport": "Parent support",
+        "location": "Putrajaya"
       }
     },
     "slogan": "Every child can grow",
+    "whoWeSupport": {
+      "title": "Who we support",
+      "subtitle": "Bloom Spectrum supports children with a range of developmental and learning needs — and the families who care for them.",
+      "item1": "Autism-related needs",
+      "item2": "Developmental delays",
+      "item3": "Communication challenges",
+      "item4": "Sensory needs",
+      "item5": "Learning differences",
+      "item6": "Advanced / twice-exceptional learners",
+      "item7": "Parents seeking guidance"
+    },
     "features": {
       "title": "Why Choose Bloom Spectrum?",
+      "subtitle": "We combine evidence-based practices with compassionate care to help every child reach their full potential",
       "evidence": {
-        "title": "Evidence-Based",
-        "description": "Proven PRT, EMT & JASPER methodologies for autism development"
+        "title": "Evidence-Based Methods",
+        "description": "PRT, EMT, and JASPER approaches proven to help children with autism"
       },
       "individual": {
         "title": "Individual Plans",
-        "description": "Customized programs tailored to each child's unique needs, strengths, and interests"
+        "description": "Customized ISPs based on each child's unique needs and goals"
       },
       "ratio": {
         "title": "Small Ratios",
-        "description": "1:1 to 1:3 ratios ensure the attention and support your child needs"
+        "description": "1:1 to 1:3 educator-to-child ratio for personalized attention"
       },
       "parent": {
-        "title": "Parent Coaching",
-        "description": "Empowering families with strategies and support for continued learning at home"
+        "title": "Parent Involvement",
+        "description": "Active parent participation and coaching for home continuity"
+      },
+      "progress": {
+        "title": "Progress Tracking",
+        "description": "Regular assessments and detailed progress reports"
+      },
+      "team": {
+        "title": "Experienced Team",
+        "description": "Qualified therapists and educators specialized in autism"
       }
     },
     "programmes": {
@@ -46,37 +75,70 @@
       "earlyIntervention": {
         "title": "Early Intervention",
         "ageRange": "3-8 years",
-        "description": "Intensive early intervention programme using PRT, EMT, and JASPER methodologies",
+        "description": "Evidence-based intervention using PRT, EMT, and JASPER methodologies",
         "features": {
-          "feature1": "Individual assessment & goal setting",
-          "feature2": "Child-led activities",
-          "feature3": "1:1 to 1:3 ratios",
-          "feature4": "Parent coaching & training"
+          "feature1": "Individual plans",
+          "feature2": "1:1 to 1:3 ratio",
+          "feature3": "Parent coaching"
         }
       },
       "schoolReadiness": {
         "title": "School Readiness",
         "ageRange": "5-7 years",
-        "description": "Preparing children for mainstream school environments",
+        "description": "Prepare your child for mainstream education with essential skills",
         "features": {
-          "feature1": "Pre-academic skills",
-          "feature2": "Social & communication skills",
-          "feature3": "Self-help skills",
-          "feature4": "School transition support"
+          "feature1": "Academic foundations",
+          "feature2": "Social skills",
+          "feature3": "Self-regulation"
         }
       },
       "parentCoaching": {
         "title": "Parent Coaching",
         "ageRange": "All ages",
-        "description": "Empowering parents with strategies and support",
+        "description": "Empower parents with strategies to support their child at home",
         "features": {
-          "feature1": "1:1 coaching sessions",
+          "feature1": "Weekly sessions",
           "feature2": "Home strategies",
-          "feature3": "Behavior management",
-          "feature4": "Communication support"
+          "feature3": "Progress tracking"
         }
       },
       "learnMore": "Learn More"
+    },
+    "experts": {
+      "title": "What Experts Say",
+      "subtitle": "Professional perspectives on early intervention from educators and clinicians",
+      "expert1": {
+        "role": "Senior Lecturer",
+        "content": "Early intervention in education is essential to improve academic outcomes, build confidence and help reduce achievement gaps by providing timely and targeted support. Ultimately, it contributes to better personal development and social opportunities."
+      },
+      "expert2": {
+        "role": "",
+        "content": "Twice-exceptional (2e) children possess both high potential and hidden learning challenges. Advanced learning intervention at BSC is essential to nurture their strengths while supporting their needs—empowering them to grow into confident, future-ready global talents."
+      },
+      "expert3": {
+        "role": "Senior OT Peads",
+        "content": "Early intervention is about neuroplasticity. The structured, evidence-based approach ensures every therapeutic milestone translates into meaningful, real-world progress."
+      }
+    },
+    "bookingSteps": {
+      "title": "How booking works",
+      "subtitle": "A calm, simple process — our team is with you at every step.",
+      "step1": {
+        "title": "Tell us about your child",
+        "detail": "Share a few details so we can understand their needs."
+      },
+      "step2": {
+        "title": "Choose the support you need",
+        "detail": "A consultation, therapy session, or a centre tour."
+      },
+      "step3": {
+        "title": "Select a suitable time",
+        "detail": "Pick a slot that works for your family."
+      },
+      "step4": {
+        "title": "Our team reviews and confirms",
+        "detail": "We confirm the details and match the right therapist."
+      }
     },
     "location": {
       "title": "Visit Us",
@@ -95,7 +157,7 @@
     },
     "cta": {
       "title": "Ready to Start Your Child's Journey?",
-      "subtitle": "Book a tour today and see how we can support your child's development",
+      "subtitle": "Schedule a tour to see our facilities and meet our team",
       "bookTour": "Book a Tour",
       "contact": "Contact Us"
     }
@@ -114,9 +176,44 @@
       "email": "Email",
       "location": "Location"
     },
+    "downloadProspectus": "Download Prospectus",
+    "forFamilies": "For Families",
+    "faqLong": "Frequently Asked Questions",
+    "parentLogin": "Parent Login",
     "followUs": "Follow Us",
     "rights": "All Rights Reserved",
     "company": "MMA Consultant Sdn. Bhd."
+  },
+  "contact": {
+    "title": "Contact Us",
+    "subtitle": "Have a question about our services or want to arrange a visit? Leave your details and our team will get back to you.",
+    "details": {
+      "title": "Contact Information",
+      "address": "Address",
+      "phone": "Phone",
+      "email": "Email",
+      "tourHint": "Prefer to see the centre in person?"
+    },
+    "form": {
+      "title": "Send an Enquiry",
+      "helper": "Fill in the form below and our team will contact you as soon as we can.",
+      "fullName": "Full Name",
+      "email": "Email Address",
+      "phone": "Phone Number",
+      "subject": "Subject",
+      "optional": "optional",
+      "message": "Message / Enquiry",
+      "submit": "Send Enquiry",
+      "sending": "Sending…",
+      "success": "Thank you. Your enquiry has been received and our team will contact you soon.",
+      "error": "We could not submit your enquiry. Please try again.",
+      "errors": {
+        "fullNameRequired": "Please enter your full name.",
+        "emailInvalid": "Please enter a valid email address.",
+        "phoneInvalid": "Please enter a valid phone number.",
+        "messageRequired": "Please enter your message (at least 10 characters)."
+      }
+    }
   },
   "programmes": {
     "hero": {
@@ -334,7 +431,6 @@
       "paymentReceivedDesc": "Payment received. Awaiting confirmation.",
       "cashReserved": "Booking Reserved!",
       "cashReservedDesc": "Reserved. Please pay at the centre within 24 hours.",
-      "amountDue": "Amount Due",
       "bookingConfirmed": "Booking Confirmed!",
       "amountDue": "Amount Due",
       "payBy": "Pay by",
@@ -519,6 +615,20 @@
   },
   "payments": {
     "noPayments": "No payment history found"
+  },
+  "paymentResult": {
+    "checking": "We are checking your payment status.",
+    "confirming": "We are confirming your payment. This may take a few seconds.",
+    "successNotice": "Payment successful. You will be redirected to your booking shortly.",
+    "redirectPrefix": "Redirecting to your booking in",
+    "redirectSuffix": "seconds…",
+    "stillProcessing": "Your payment is being processed. You can check your booking status from your dashboard.",
+    "notCompleted": "Payment not completed — please try again or contact us.",
+    "sessionExpired": "Please log in again to view your booking status.",
+    "logIn": "Log in",
+    "goToDashboard": "Go to Dashboard",
+    "goToBooking": "View Booking",
+    "stay": "Stay on this page"
   },
   "settings": {
     "title": "Profile Settings",

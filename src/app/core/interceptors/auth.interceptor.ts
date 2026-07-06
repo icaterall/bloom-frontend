@@ -17,10 +17,26 @@ import { ToastService } from '../services/toast.service';
 // 2. On 401 → the session is no longer valid. The backend issues a single
 //    access token and has NO refresh-token endpoint, so we clear the session
 //    and redirect to /login rather than attempting a (non-existent) refresh.
+//    Exceptions (Phase 10):
+//      - auth endpoints (/auth/login, /auth/register): a 401 means bad
+//        credentials, not an expired session — no logout, no toast.
+//      - payment-return verification (/parent/bookings/by-session/): the
+//        success page must stay visible and handle the 401 itself, so the
+//        parent is never yanked off their payment confirmation.
+//    The forced logout also preserves a returnUrl so the user can come back
+//    to where they were after re-authenticating.
 // 3. On 403 → shows a toast + redirects to the role dashboard.
 // 4. On 500 → shows a user-friendly error toast.
 // 5. On 0 (network) → shows a connectivity toast.
 // ──────────────────────────────────────────────
+
+// 401s from these URLs are handled by the calling component, never by a
+// global forced logout.
+const NO_LOGOUT_ON_401 = [
+  '/auth/login',
+  '/auth/register',
+  '/parent/bookings/by-session/',
+];
 
 export const authInterceptor: HttpInterceptorFn = (
   req: HttpRequest<unknown>,
@@ -42,7 +58,9 @@ export const authInterceptor: HttpInterceptorFn = (
 
       // ── 401 Unauthorized → session expired, force logout ──
       if (error.status === 401) {
-        handleLogout(authService, router, toast);
+        if (!NO_LOGOUT_ON_401.some(url => req.url.includes(url))) {
+          handleLogout(authService, router, toast);
+        }
         return throwError(() => error);
       }
 
@@ -94,8 +112,9 @@ function handleLogout(
   toast: ToastService,
 ): void {
   toast.info('Session Expired', 'Please sign in again to continue.');
-  authService.logout();
-  router.navigate(['/login']);
+  // Preserve where the user was (e.g. a payment-return URL with its
+  // session_id) so login can bring them straight back.
+  authService.logout(router.url);
 }
 
 function redirectToDashboard(authService: AuthService, router: Router): void {

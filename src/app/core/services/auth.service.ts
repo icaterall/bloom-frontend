@@ -79,7 +79,7 @@ export class AuthService {
 
   // ── Auth operations ───────────────────────────────
 
-  login(credentials: LoginRequest): Observable<LoginResponse> {
+  login(credentials: LoginRequest, returnUrl?: string): Observable<LoginResponse> {
     return this.http
       .post<LoginResponse>(`${this.API_URL}/auth/login`, credentials)
       .pipe(
@@ -94,10 +94,25 @@ export class AuthService {
             const socketService = this.getSocketService();
             if (socketService) socketService.reconnect();
 
-            this.navigateByRole(
-              response.data.user.role,
-              response.data.user.profileComplete,
-            );
+            // A safe internal returnUrl (e.g. the payment confirmation page
+            // the user was bounced off) wins over the role dashboard —
+            // except for parents who still need to complete onboarding.
+            const profileOk = response.data.user.profileComplete ?? true;
+            if (
+              returnUrl &&
+              returnUrl.startsWith('/') &&
+              !returnUrl.startsWith('//') &&
+              !returnUrl.startsWith('/login') &&
+              returnUrl !== '/' &&
+              (response.data.user.role !== 'parent' || profileOk)
+            ) {
+              this.router.navigateByUrl(returnUrl);
+            } else {
+              this.navigateByRole(
+                response.data.user.role,
+                response.data.user.profileComplete,
+              );
+            }
           }
         }),
         catchError(error => {
@@ -161,11 +176,16 @@ export class AuthService {
     return of(false);
   }
 
-  logout(): void {
+  logout(returnUrl?: string): void {
     const socketService = this.getSocketService();
     if (socketService) socketService.disconnect();
     this.clearAuth();
-    this.router.navigate(['/login']);
+    // Only carry a meaningful returnUrl (not /login itself or the root).
+    if (returnUrl && returnUrl !== '/' && !returnUrl.startsWith('/login')) {
+      this.router.navigate(['/login'], { queryParams: { returnUrl } });
+    } else {
+      this.router.navigate(['/login']);
+    }
   }
 
   completeExternalLogin(token: string, user: User): void {

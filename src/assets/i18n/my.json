@@ -15,29 +15,58 @@
     "hero": {
       "title": "Intervensi awal autisme & sokongan keluarga",
       "subtitle": "Program berasaskan bukti, dipimpin kanak-kanak (PRT/EMT/JASPER) dengan pelan individu, bimbingan ibu bapa, dan nisbah kecil (1:1–1:3).",
+      "body": "Dengan sokongan yang tepat, setiap kanak-kanak boleh berkembang.",
       "cta": {
         "bookTour": "Tempah Lawatan",
-        "learnMore": "Ketahui Lebih Lanjut"
+        "learnMore": "Ketahui Lebih Lanjut",
+        "bookAppointment": "Tempah Janji Temu",
+        "exploreServices": "Terokai Perkhidmatan"
+      },
+      "trust": {
+        "earlyIntervention": "Intervensi awal",
+        "therapyAssessment": "Terapi & penilaian",
+        "parentSupport": "Sokongan ibu bapa",
+        "location": "Putrajaya"
       }
     },
     "slogan": "Setiap kanak-kanak boleh berkembang",
+    "whoWeSupport": {
+      "title": "Siapa yang kami sokong",
+      "subtitle": "Bloom Spectrum menyokong kanak-kanak dengan pelbagai keperluan perkembangan dan pembelajaran — serta keluarga yang menjaga mereka.",
+      "item1": "Keperluan berkaitan autisme",
+      "item2": "Kelewatan perkembangan",
+      "item3": "Cabaran komunikasi",
+      "item4": "Keperluan sensori",
+      "item5": "Perbezaan pembelajaran",
+      "item6": "Pelajar pintar / twice-exceptional (2e)",
+      "item7": "Ibu bapa yang mencari bimbingan"
+    },
     "features": {
       "title": "Kenapa Pilih Bloom Spectrum?",
+      "subtitle": "Kami menggabungkan amalan berasaskan bukti dengan penjagaan yang penuh empati untuk membantu setiap kanak-kanak mencapai potensi mereka.",
       "evidence": {
-        "title": "Berasaskan Bukti",
-        "description": "Metodologi PRT, EMT & JASPER yang terbukti berkesan untuk perkembangan kanak-kanak autisme"
+        "title": "Kaedah Berasaskan Bukti",
+        "description": "Pendekatan PRT, EMT dan JASPER yang terbukti membantu kanak-kanak dengan autisme"
       },
       "individual": {
         "title": "Pelan Individu",
-        "description": "Program disesuaikan dengan keperluan, kekuatan dan minat unik setiap kanak-kanak"
+        "description": "ISP yang disesuaikan berdasarkan keperluan dan matlamat unik setiap kanak-kanak"
       },
       "ratio": {
         "title": "Nisbah Kecil",
-        "description": "Nisbah 1:1 hingga 1:3 memastikan perhatian dan sokongan yang diperlukan"
+        "description": "Nisbah pendidik kepada kanak-kanak 1:1 hingga 1:3 untuk perhatian yang lebih peribadi"
       },
       "parent": {
-        "title": "Bimbingan Ibu Bapa",
-        "description": "Memperkasakan keluarga dengan strategi dan sokongan untuk pembelajaran berterusan di rumah"
+        "title": "Penglibatan Ibu Bapa",
+        "description": "Penglibatan aktif ibu bapa dan bimbingan untuk kesinambungan sokongan di rumah"
+      },
+      "progress": {
+        "title": "Pemantauan Perkembangan",
+        "description": "Penilaian berkala dan laporan perkembangan yang terperinci"
+      },
+      "team": {
+        "title": "Pasukan Berpengalaman",
+        "description": "Ahli terapi dan pendidik bertauliah yang berpengalaman dalam bidang autisme"
       }
     },
     "programmes": {
@@ -46,37 +75,70 @@
       "earlyIntervention": {
         "title": "Intervensi Awal",
         "ageRange": "3-8 tahun",
-        "description": "Program intervensi awal intensif menggunakan metodologi PRT, EMT dan JASPER",
+        "description": "Intervensi berasaskan bukti menggunakan kaedah PRT, EMT dan JASPER",
         "features": {
-          "feature1": "Penilaian individu & penetapan matlamat",
-          "feature2": "Aktiviti dipimpin kanak-kanak",
-          "feature3": "Nisbah 1:1 hingga 1:3",
-          "feature4": "Bimbingan & latihan ibu bapa"
+          "feature1": "Pelan individu",
+          "feature2": "Nisbah 1:1 hingga 1:3",
+          "feature3": "Bimbingan ibu bapa"
         }
       },
       "schoolReadiness": {
         "title": "Kesediaan Sekolah",
         "ageRange": "5-7 tahun",
-        "description": "Menyediakan kanak-kanak untuk persekitaran sekolah arus perdana",
+        "description": "Membantu menyediakan anak anda untuk pendidikan arus perdana melalui kemahiran penting",
         "features": {
-          "feature1": "Kemahiran akademik pra-sekolah",
-          "feature2": "Kemahiran sosial & komunikasi",
-          "feature3": "Kemahiran bantu diri",
-          "feature4": "Transisi & sokongan sekolah"
+          "feature1": "Asas akademik",
+          "feature2": "Kemahiran sosial",
+          "feature3": "Pengawalan kendiri"
         }
       },
       "parentCoaching": {
         "title": "Bimbingan Ibu Bapa",
-        "ageRange": "Semua umur",
-        "description": "Memperkasakan ibu bapa dengan strategi dan sokongan",
+        "ageRange": "Semua peringkat umur",
+        "description": "Membimbing ibu bapa dengan strategi untuk menyokong anak di rumah",
         "features": {
-          "feature1": "Sesi bimbingan 1:1",
-          "feature2": "Strategi praktikal untuk rumah",
-          "feature3": "Pengurusan tingkah laku",
-          "feature4": "Sokongan komunikasi"
+          "feature1": "Sesi mingguan",
+          "feature2": "Strategi di rumah",
+          "feature3": "Pemantauan perkembangan"
         }
       },
       "learnMore": "Ketahui Lebih Lanjut"
+    },
+    "experts": {
+      "title": "Pandangan Pakar",
+      "subtitle": "Pandangan profesional tentang intervensi awal daripada pendidik dan klinisian",
+      "expert1": {
+        "role": "Pensyarah Kanan",
+        "content": "Intervensi awal dalam pendidikan amat penting untuk meningkatkan pencapaian akademik, membina keyakinan dan membantu mengurangkan jurang pencapaian melalui sokongan yang tepat pada masanya dan bersasar. Akhirnya, ia menyumbang kepada perkembangan diri dan peluang sosial yang lebih baik."
+      },
+      "expert2": {
+        "role": "",
+        "content": "Kanak-kanak twice-exceptional (2e) mempunyai potensi yang tinggi di samping cabaran pembelajaran yang tersembunyi. Intervensi pembelajaran lanjutan di BSC penting untuk memupuk kekuatan mereka sambil menyokong keperluan mereka—membantu mereka berkembang menjadi bakat global yang yakin dan bersedia untuk masa hadapan."
+      },
+      "expert3": {
+        "role": "Pakar Terapi Cara Kerja Pediatrik Kanan",
+        "content": "Intervensi awal berkait rapat dengan neuroplastisiti. Pendekatan yang berstruktur dan berasaskan bukti memastikan setiap pencapaian terapi diterjemahkan kepada kemajuan bermakna dalam kehidupan sebenar."
+      }
+    },
+    "bookingSteps": {
+      "title": "Bagaimana tempahan berfungsi",
+      "subtitle": "Proses yang tenang dan mudah — pasukan kami bersama anda pada setiap langkah.",
+      "step1": {
+        "title": "Ceritakan tentang anak anda",
+        "detail": "Kongsikan sedikit maklumat supaya kami dapat memahami keperluan mereka."
+      },
+      "step2": {
+        "title": "Pilih sokongan yang anda perlukan",
+        "detail": "Konsultasi, sesi terapi, atau lawatan ke pusat kami."
+      },
+      "step3": {
+        "title": "Pilih masa yang sesuai",
+        "detail": "Pilih slot yang sesuai untuk keluarga anda."
+      },
+      "step4": {
+        "title": "Pasukan kami menyemak dan mengesahkan",
+        "detail": "Kami mengesahkan butiran dan memadankan ahli terapi yang sesuai."
+      }
     },
     "location": {
       "title": "Lawat Kami",
@@ -94,8 +156,8 @@
       }
     },
     "cta": {
-      "title": "Sedia Memulakan Perjalanan Anak Anda?",
-      "subtitle": "Tempah lawatan hari ini dan lihat bagaimana kami boleh menyokong perkembangan anak anda",
+      "title": "Bersedia untuk Memulakan Perjalanan Anak Anda?",
+      "subtitle": "Jadualkan lawatan untuk melihat kemudahan kami dan berjumpa dengan pasukan kami",
       "bookTour": "Tempah Lawatan",
       "contact": "Hubungi Kami"
     }
@@ -114,9 +176,44 @@
       "email": "E-mel",
       "location": "Lokasi"
     },
+    "downloadProspectus": "Muat Turun Prospektus",
+    "forFamilies": "Untuk Keluarga",
+    "faqLong": "Soalan Lazim",
+    "parentLogin": "Log Masuk Ibu Bapa",
     "followUs": "Ikuti Kami",
     "rights": "Hak Cipta Terpelihara",
     "company": "MMA Consultant Sdn. Bhd."
+  },
+  "contact": {
+    "title": "Hubungi Kami",
+    "subtitle": "Ada pertanyaan tentang perkhidmatan kami atau ingin mengatur lawatan? Tinggalkan maklumat anda dan pasukan kami akan menghubungi anda semula.",
+    "details": {
+      "title": "Maklumat Perhubungan",
+      "address": "Alamat",
+      "phone": "Telefon",
+      "email": "E-mel",
+      "tourHint": "Ingin melihat pusat kami secara langsung?"
+    },
+    "form": {
+      "title": "Hantar Pertanyaan",
+      "helper": "Isi borang di bawah dan pasukan kami akan menghubungi anda secepat mungkin.",
+      "fullName": "Nama Penuh",
+      "email": "Alamat E-mel",
+      "phone": "Nombor Telefon",
+      "subject": "Subjek",
+      "optional": "pilihan",
+      "message": "Mesej / Pertanyaan",
+      "submit": "Hantar Pertanyaan",
+      "sending": "Menghantar…",
+      "success": "Terima kasih. Pertanyaan anda telah diterima dan pasukan kami akan menghubungi anda tidak lama lagi.",
+      "error": "Pertanyaan anda tidak dapat dihantar. Sila cuba lagi.",
+      "errors": {
+        "fullNameRequired": "Sila masukkan nama penuh anda.",
+        "emailInvalid": "Sila masukkan alamat e-mel yang sah.",
+        "phoneInvalid": "Sila masukkan nombor telefon yang sah.",
+        "messageRequired": "Sila masukkan mesej anda (sekurang-kurangnya 10 aksara)."
+      }
+    }
   },
   "programmes": {
     "hero": {
@@ -214,8 +311,6 @@
     "success": "Berjaya",
     "cancel": "Batal",
     "save": "Simpan",
-    "back": "Kembali",
-    "edit": "Sunting",
     "details": "Butiran",
     "gender": "Jantina",
     "diagnosis": "Diagnosis",
@@ -449,6 +544,20 @@
   "payments": {
     "noPayments": "Tiada sejarah pembayaran dijumpai"
   },
+  "paymentResult": {
+    "checking": "Kami sedang menyemak status pembayaran anda.",
+    "confirming": "Kami sedang mengesahkan pembayaran anda. Ini mungkin mengambil masa beberapa saat.",
+    "successNotice": "Pembayaran berjaya. Anda akan dibawa ke tempahan anda sebentar lagi.",
+    "redirectPrefix": "Anda akan dibawa ke tempahan anda dalam",
+    "redirectSuffix": "saat…",
+    "stillProcessing": "Pembayaran anda sedang diproses. Anda boleh menyemak status tempahan anda dari papan pemuka.",
+    "notCompleted": "Pembayaran tidak selesai — sila cuba lagi atau hubungi kami.",
+    "sessionExpired": "Sila log masuk semula untuk melihat status tempahan anda.",
+    "logIn": "Log masuk",
+    "goToDashboard": "Ke Papan Pemuka",
+    "goToBooking": "Lihat Tempahan",
+    "stay": "Kekal di halaman ini"
+  },
   "settings": {
     "title": "Tetapan Profil",
     "subtitle": "Urus maklumat peribadi dan pilihan anda",
@@ -679,7 +788,6 @@
       "markCompleted": "Tandakan Selesai",
       "markNoShow": "Tandakan Tidak Hadir",
       "addUpdate": "Tambah Kemaskini/Nota",
-      "uploadMedia": "Muat Naik Media/Dokumen",
       "uploadMedia": "Muat Naik Media/Dokumen"
     },
     "timeline": {

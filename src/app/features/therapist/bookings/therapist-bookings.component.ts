@@ -6,11 +6,12 @@ import { TherapistBookingService } from '../../../core/services/therapist-bookin
 import { Booking } from '../../../shared/models/booking.model';
 import { SkeletonLoaderComponent } from '../../../shared/components/skeleton-loader/skeleton-loader.component';
 import { LucideAngularModule, Calendar, Clock, User as UserIcon, Video, MapPin, CheckCircle, XCircle } from 'lucide-angular';
+import { StatusLabelPipe } from '../../../shared/pipes/status-label.pipe';
 
 @Component({
   selector: 'app-therapist-bookings',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, LucideAngularModule, SkeletonLoaderComponent],
+  imports: [CommonModule, FormsModule, RouterModule, LucideAngularModule, SkeletonLoaderComponent, StatusLabelPipe],
   templateUrl: './therapist-bookings.component.html',
   styleUrls: ['./therapist-bookings.component.css']
 })

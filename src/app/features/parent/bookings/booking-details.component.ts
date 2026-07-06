@@ -5,12 +5,13 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { BookingService } from '../../../core/services/booking.service';
 import { Booking } from '../../../shared/models/booking.model';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
+import { StatusLabelPipe } from '../../../shared/pipes/status-label.pipe';
 import { LucideAngularModule, ArrowLeft, Calendar, Clock, MapPin, Video, CreditCard } from 'lucide-angular';
 
 @Component({
   selector: 'app-booking-details',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, TranslatePipe, LucideAngularModule],
+  imports: [CommonModule, FormsModule, RouterModule, TranslatePipe, LucideAngularModule, StatusLabelPipe],
   templateUrl: './booking-details.component.html'
 })
 export class BookingDetailsComponent implements OnInit {

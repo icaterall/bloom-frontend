@@ -4,6 +4,7 @@ import { RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { ClinicalManagerAnalyticsService, ClinicalManagerAnalytics } from '../../../core/services/clinical-manager-analytics.service';
 import { User } from '../../../shared/models/user.model';
+import { StatusLabelPipe } from '../../../shared/pipes/status-label.pipe';
 import {
   LucideAngularModule, RefreshCw, AlertCircle, Clock, XCircle,
   CheckCircle2, TrendingUp, Activity, Users, Briefcase
@@ -12,7 +13,7 @@ import {
 @Component({
   selector: 'app-clinical-manager-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule, LucideAngularModule],
+  imports: [CommonModule, RouterModule, LucideAngularModule, StatusLabelPipe],
   templateUrl: './clinical-manager-dashboard.component.html',
 })
 export class ClinicalManagerDashboardComponent implements OnInit {

@@ -39,7 +39,7 @@
           <li>
             <a href="/assets/prospectus.pdf" download class="text-gray-300 hover:text-secondary transition-colors duration-200 text-sm inline-flex items-center space-x-1">
               <lucide-angular [img]="FileTextIcon" size="14"></lucide-angular>
-              <span>Download Prospectus</span>
+              <span>{{ 'footer.downloadProspectus' | translate }}</span>
             </a>
           </li>
         </ul>
@@ -65,8 +65,8 @@
           </div>
           <div class="flex items-center space-x-3">
             <lucide-angular [img]="MailIcon" size="18" class="text-secondary"></lucide-angular>
-            <a href="mailto:info@bloomspectrum.my" class="text-gray-300 hover:text-secondary transition-colors duration-200 text-sm">
-              info@bloomspectrum.my
+            <a href="mailto:bloomspectrumcentre@gmail.com" class="text-gray-300 hover:text-secondary transition-colors duration-200 text-sm break-all">
+              bloomspectrumcentre@gmail.com
             </a>
           </div>
           <!-- Social media -->
@@ -81,29 +81,28 @@
         </div>
       </div>
 
-      <!-- Legal & Resources -->
+      <!-- For Families (links to real, existing routes only) -->
       <div>
-        <h4 class="text-lg font-semibold mb-4">Resources</h4>
+        <h4 class="text-lg font-semibold mb-4">{{ 'footer.forFamilies' | translate }}</h4>
         <ul class="space-y-2">
           <li>
-            <a routerLink="/parent-portal-demo" class="text-gray-300 hover:text-secondary transition-colors duration-200 text-sm">
-              Parent Portal Demo
+            <a routerLink="/book-tour" class="text-gray-300 hover:text-secondary transition-colors duration-200 text-sm">
+              {{ 'header.nav.bookTour' | translate }}
             </a>
           </li>
           <li>
-            <a routerLink="/resources" class="text-gray-300 hover:text-secondary transition-colors duration-200 text-sm">
-              Parent Resources
+            <a routerLink="/faqs" class="text-gray-300 hover:text-secondary transition-colors duration-200 text-sm">
+              {{ 'footer.faqLong' | translate }}
             </a>
           </li>
           <li>
-            <a routerLink="/privacy" class="text-gray-300 hover:text-secondary transition-colors duration-200 text-sm inline-flex items-center space-x-1">
-              <lucide-angular [img]="ShieldIcon" size="14"></lucide-angular>
-              <span>Privacy & PDPA</span>
+            <a routerLink="/contact" class="text-gray-300 hover:text-secondary transition-colors duration-200 text-sm">
+              {{ 'landing.cta.contact' | translate }}
             </a>
           </li>
           <li>
-            <a routerLink="/terms" class="text-gray-300 hover:text-secondary transition-colors duration-200 text-sm">
-              Terms of Service
+            <a routerLink="/login" class="text-gray-300 hover:text-secondary transition-colors duration-200 text-sm">
+              {{ 'footer.parentLogin' | translate }}
             </a>
           </li>
         </ul>
@@ -117,11 +116,11 @@
           © {{ currentYear }} Bloom Spectrum Centre. {{ 'footer.rights' | translate }}. {{ 'footer.company' | translate }}
         </p>
         <div class="flex space-x-6">
-          <a routerLink="/accessibility" class="text-gray-400 hover:text-secondary transition-colors duration-200 text-sm">
-            Accessibility
+          <a routerLink="/contact" class="text-gray-300 hover:text-secondary transition-colors duration-200 text-sm">
+            {{ 'header.nav.contact' | translate }}
           </a>
-          <a routerLink="/sitemap" class="text-gray-400 hover:text-secondary transition-colors duration-200 text-sm">
-            Sitemap
+          <a routerLink="/faqs" class="text-gray-300 hover:text-secondary transition-colors duration-200 text-sm">
+            {{ 'header.nav.faqs' | translate }}
           </a>
         </div>
       </div>
