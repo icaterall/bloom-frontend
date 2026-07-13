@@ -3,6 +3,7 @@ import { CommonModule, DatePipe, TitleCasePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { BaseChartDirective } from 'ng2-charts';
 import { ChartConfiguration } from 'chart.js';
+import { toLocalYMD } from '../../../shared/utils/date-utils';
 import {
   LucideAngularModule, DollarSign, TrendingUp, Clock, Users,
   Shield, ChevronLeft, ChevronRight
@@ -79,7 +80,7 @@ export class AdminReportsComponent implements OnInit {
   ngOnInit(): void {
     const now = new Date();
     this.clinicalStart = `${now.getFullYear()}-01-01`;
-    this.clinicalEnd = now.toISOString().slice(0, 10);
+    this.clinicalEnd = toLocalYMD(now);
     this.loadFinance();
   }
 

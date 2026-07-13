@@ -37,6 +37,7 @@ import {
   ExternalLink
 } from 'lucide-angular';
 import { ClinicalManagerBookingsService, BookingsQueryParams, BookingStats } from '../../../core/services/clinical-manager-bookings.service';
+import { toLocalYMD } from '../../../shared/utils/date-utils';
 import { Booking } from '../../../shared/models/booking.model';
 import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
 
@@ -455,7 +456,7 @@ export class BookingsComponent implements OnInit, OnDestroy {
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `bookings-${new Date().toISOString().split('T')[0]}.csv`;
+        a.download = `bookings-${toLocalYMD(new Date())}.csv`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);

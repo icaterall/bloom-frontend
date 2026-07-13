@@ -88,7 +88,7 @@
             <div *ngIf="submitFailed" role="alert"
                  class="mb-6 flex items-start gap-3 rounded-bloom border border-red-200 bg-red-50 p-4">
               <lucide-angular [img]="AlertCircleIcon" size="20" class="text-red-600 mt-0.5 flex-shrink-0"></lucide-angular>
-              <p class="text-sm text-red-800">{{ 'contact.form.error' | translate }}</p>
+              <p class="text-sm text-red-800">{{ submitErrorText || (submitErrorKey | translate) }}</p>
             </div>
 
             <form [formGroup]="enquiryForm" (ngSubmit)="onSubmit()" novalidate>

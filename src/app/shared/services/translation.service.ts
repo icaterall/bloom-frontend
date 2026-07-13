@@ -89,9 +89,15 @@ export class TranslationService {
     });
   }
 
-  toggleLanguage(): void {
+  /**
+   * Switch between 'en' and 'my'. Returns the TARGET language — callers that
+   * persist the preference must use this return value, because setLanguage()
+   * only updates getCurrentLanguage() after its async translation fetch.
+   */
+  toggleLanguage(): string {
     const currentLang = this.getCurrentLanguage();
     const newLang = currentLang === 'en' ? 'my' : 'en';
     this.setLanguage(newLang);
+    return newLang;
   }
 }

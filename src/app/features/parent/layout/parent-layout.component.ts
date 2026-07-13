@@ -95,8 +95,7 @@ export class ParentLayoutComponent implements OnInit {
   }
 
   toggleLanguage(): void {
-    this.translationService.toggleLanguage();
-    const newLang = this.translationService.getCurrentLanguage();
+    const newLang = this.translationService.toggleLanguage();
     if (this.authService.isAuthenticatedUser()) {
       this.authService.updateProfile({ preferred_language: newLang }).subscribe({
         error: (err) => console.error('Failed to update language preference', err)

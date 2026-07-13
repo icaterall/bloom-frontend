@@ -211,7 +211,10 @@
         "fullNameRequired": "Sila masukkan nama penuh anda.",
         "emailInvalid": "Sila masukkan alamat e-mel yang sah.",
         "phoneInvalid": "Sila masukkan nombor telefon yang sah.",
-        "messageRequired": "Sila masukkan mesej anda (sekurang-kurangnya 10 aksara)."
+        "messageRequired": "Sila masukkan mesej anda (sekurang-kurangnya 10 aksara).",
+        "network": "Kami tidak dapat menyambung ke pelayan. Sila semak sambungan anda dan cuba lagi.",
+        "tooMany": "Terlalu banyak pertanyaan daripada sambungan ini. Sila tunggu beberapa minit dan cuba lagi.",
+        "validation": "Sila semak medan yang ditanda."
       }
     }
   },
@@ -446,7 +449,47 @@
       "redirecting": "Menghala ke pembayaran selamat...",
       "redirectingDesc": "Sila tunggu sementara kami menyambungkan anda ke pembekal pembayaran kami.",
       "paymentReceived": "Bayaran diterima.",
-      "paymentReceivedDesc": "Bayaran diterima. Menunggu pengesahan."
+      "paymentReceivedDesc": "Bayaran diterima. Menunggu pengesahan.",
+      "backToDashboard": "Kembali ke Papan Pemuka",
+      "cashReserved": "Tempahan Disimpan!",
+      "payBy": "Bayar sebelum",
+      "viewBooking": "Lihat Tempahan"
+    },
+    "errors": {
+      "childMissing": "Maklumat anak tiada. Sila tutup dan cuba lagi.",
+      "createFailed": "Kami tidak dapat membuat tempahan anda. Sila cuba lagi.",
+      "paymentFailed": "Kami tidak dapat memulakan pembayaran selamat pada masa ini. Sila cuba sebentar lagi.",
+      "checkoutUnavailable": "Pembayaran selamat tidak tersedia sekarang. Sila cuba lagi.",
+      "selectDateTime": "Sila pilih tarikh dan masa yang tersedia."
+    },
+    "calendar": {
+      "months": {
+        "january": "Januari",
+        "february": "Februari",
+        "march": "Mac",
+        "april": "April",
+        "may": "Mei",
+        "june": "Jun",
+        "july": "Julai",
+        "august": "Ogos",
+        "september": "September",
+        "october": "Oktober",
+        "november": "November",
+        "december": "Disember"
+      },
+      "weekdays": {
+        "sun": "Ahd",
+        "mon": "Isn",
+        "tue": "Sel",
+        "wed": "Rab",
+        "thu": "Kha",
+        "fri": "Jum",
+        "sat": "Sab"
+      }
+    },
+    "slots": {
+      "centreClosed": "Pusat ditutup pada hari ini. Sila pilih tarikh lain.",
+      "noSlots": "Tiada masa yang tersedia pada hari ini. Sila pilih tarikh lain."
     }
   },
   "parentDashboard": {
@@ -523,7 +566,8 @@
       "bookNextSession": "Tempah Sesi Seterusnya",
       "latestUpdate": "Kemaskini Terkini",
       "mediaFiles": "fail media",
-      "viewAllUpdates": "Lihat Semua Kemaskini"
+      "viewAllUpdates": "Lihat Semua Kemaskini",
+      "child": "Anak"
     },
     "addAnotherChild": "Tambah Anak Lain",
     "child": "Anak",
@@ -962,5 +1006,102 @@
       "completed": "Selesai",
       "cancelled": "Dibatalkan"
     }
+  },
+  "fees": {
+    "title": "Yuran",
+    "intro": "Lihat maklumat yuran semasa bagi perkhidmatan Bloom Spectrum. Maklumat akhir akan dipaparkan dan disahkan sebelum pembayaran.",
+    "service": "Perkhidmatan",
+    "duration": "Tempoh",
+    "mode": "Mod Sesi",
+    "inCentre": "Di Pusat",
+    "online": "Dalam Talian",
+    "fee": "Yuran",
+    "from": "Bermula daripada",
+    "free": "Percuma",
+    "bookNow": "Tempah Sekarang",
+    "bookTour": "Tempah Lawatan",
+    "contactUs": "Hubungi Kami",
+    "note1": "Yuran tertakluk pada perkhidmatan dan pengaturan sesi yang dipilih.",
+    "note2": "Jumlah akhir yang perlu dibayar akan dipaparkan sebelum pembayaran.",
+    "loadError": "Kami tidak dapat memuatkan yuran semasa. Sila cuba lagi.",
+    "retry": "Cuba Lagi",
+    "empty": "Maklumat yuran belum tersedia buat masa ini. Sila hubungi kami untuk maklumat yuran semasa.",
+    "contactForFees": "Hubungi kami untuk maklumat yuran semasa",
+    "loading": "Memuatkan yuran…",
+    "minutes": "minit",
+    "services": {
+      "tour": "Lawatan Pusat",
+      "consultation": "Konsultasi",
+      "centre_session": "Sesi Di Pusat",
+      "online_session": "Sesi Dalam Talian"
+    }
+  },
+  "faqs": {
+    "title": "Soalan Lazim",
+    "intro": "Jawapan kepada soalan lazim mengenai perkhidmatan, tempahan dan pembayaran Bloom Spectrum.",
+    "ctaContact": "Masih ada soalan? Hubungi kami",
+    "ctaFees": "Lihat yuran semasa",
+    "items": {
+      "services": {
+        "q": "Apakah perkhidmatan yang ditawarkan oleh Bloom Spectrum?",
+        "a": "Bloom Spectrum menyediakan perkhidmatan intervensi awal dan sokongan keluarga, termasuk sesi di pusat, konsultasi ibu bapa, konsultasi dalam talian dan lawatan ke pusat, tertakluk pada ketersediaan perkhidmatan semasa."
+      },
+      "booking": {
+        "q": "Bagaimanakah cara membuat tempahan?",
+        "a": "Daftar atau log masuk ke akaun ibu bapa, tambah profil anak anda, pilih perkhidmatan dan masa yang tersedia, semak maklumat, kemudian lengkapkan langkah pembayaran atau tempahan yang berkenaan."
+      },
+      "childProfile": {
+        "q": "Adakah saya memerlukan profil anak sebelum membuat tempahan?",
+        "a": "Ya. Profil anak membantu pusat mengaitkan tempahan dengan anak yang betul dan menyediakan maklumat perkhidmatan yang berkaitan."
+      },
+      "confirmation": {
+        "q": "Bagaimanakah saya tahu tempahan saya disahkan?",
+        "a": "Anda boleh melihat status tempahan terkini dalam papan pemuka ibu bapa. Status akan dikemas kini apabila pembayaran disahkan, permohonan disemak oleh pihak pusat dan ahli terapi ditugaskan jika berkenaan."
+      },
+      "payments": {
+        "q": "Apakah kaedah pembayaran yang tersedia?",
+        "a": "Kaedah pembayaran yang tersedia akan dipaparkan semasa tempahan dan mungkin termasuk pembayaran kad, pilihan perbankan dalam talian yang disokong, atau pembayaran di pusat, bergantung pada perkhidmatan dan konfigurasi semasa."
+      },
+      "cancel": {
+        "q": "Bolehkah saya membatalkan atau menjadualkan semula?",
+        "a": "Tempahan yang layak boleh dimohon untuk pembatalan atau penjadualan semula melalui portal ibu bapa. Kelulusan, pembayaran dan pengendalian bayaran balik bergantung pada status semasa tempahan serta polisi pusat yang berkaitan."
+      },
+      "online": {
+        "q": "Adakah sesi dalam talian tersedia?",
+        "a": "Sesi dalam talian hanya tersedia bagi perkhidmatan yang dikonfigurasikan untuk penyampaian secara dalam talian. Pilihan yang tersedia akan dipaparkan semasa tempahan."
+      },
+      "updates": {
+        "q": "Bagaimanakah saya akan menerima kemas kini?",
+        "a": "Kemas kini berkaitan tempahan, pembayaran, penugasan, pembatalan, penjadualan semula dan bayaran balik boleh dipaparkan dalam portal ibu bapa dan juga boleh dihantar melalui e-mel apabila dikonfigurasikan."
+      },
+      "contact": {
+        "q": "Bagaimanakah saya boleh menghubungi Bloom Spectrum?",
+        "a": "Gunakan borang pertanyaan di laman web atau e-mel bloomspectrumcentre@gmail.com. Pasukan kami akan menyemak pertanyaan anda dan menghubungi anda semula."
+      },
+      "fees": {
+        "q": "Di manakah saya boleh melihat yuran semasa?",
+        "a": "Lawati halaman Yuran untuk melihat yuran semasa yang diterbitkan. Jumlah akhir akan dipaparkan sebelum anda mengesahkan pembayaran."
+      }
+    }
+  },
+  "errors": {
+    "networkTitle": "Masalah Sambungan",
+    "networkBody": "Kami tidak dapat menyambung ke pelayan. Sila semak sambungan internet anda dan cuba lagi.",
+    "serverTitle": "Ralat Pelayan",
+    "serverBody": "Berlaku masalah di pihak kami. Sila cuba sebentar lagi.",
+    "serverTemporaryBody": "Perkhidmatan tidak tersedia buat sementara. Sila cuba sebentar lagi.",
+    "forbiddenTitle": "Akses Dinafikan",
+    "forbiddenBody": "Anda tidak mempunyai kebenaran untuk melakukan tindakan ini.",
+    "sessionExpiredTitle": "Sesi Tamat",
+    "sessionExpiredBody": "Sila log masuk semula untuk meneruskan.",
+    "network": "Kami tidak dapat menyambung ke pelayan. Sila semak sambungan anda.",
+    "validation": "Sila semak medan yang ditanda.",
+    "auth": "Sesi anda telah tamat. Sila log masuk semula untuk meneruskan.",
+    "forbidden": "Anda tidak mempunyai kebenaran untuk melakukan tindakan ini.",
+    "notFound": "Perkhidmatan yang diminta tidak tersedia buat masa ini.",
+    "conflict": "Permintaan ini bercanggah dengan status semasa. Sila muat semula dan cuba lagi.",
+    "rateLimited": "Terlalu banyak percubaan. Sila tunggu sebentar dan cuba lagi.",
+    "server": "Berlaku masalah di pihak kami. Sila cuba sebentar lagi.",
+    "generic": "Berlaku ralat. Sila cuba lagi."
   }
 }

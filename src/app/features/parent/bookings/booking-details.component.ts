@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { BookingService } from '../../../core/services/booking.service';
+import { toLocalYMD, toCentreTimestamp } from '../../../shared/utils/date-utils';
 import { Booking } from '../../../shared/models/booking.model';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 import { StatusLabelPipe } from '../../../shared/pipes/status-label.pipe';
@@ -47,7 +48,7 @@ export class BookingDetailsComponent implements OnInit {
   ngOnInit(): void {
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
-    this.minDate = tomorrow.toISOString().split('T')[0];
+    this.minDate = toLocalYMD(tomorrow); // local calendar day, not UTC
 
     this.route.paramMap.subscribe(params => {
       const id = params.get('bookingId');
@@ -132,7 +133,8 @@ export class BookingDetailsComponent implements OnInit {
       this.actionError = 'Please choose a new date and time.';
       return;
     }
-    const startIso = new Date(`${this.rsDate}T${this.rsTime}`).toISOString();
+    // Reschedule times are centre times (Asia/Kuala_Lumpur), not browser-local
+    const startIso = toCentreTimestamp(this.rsDate, this.rsTime);
     this.isSubmitting = true;
     this.actionError = '';
     this.bookingService.requestReschedule(this.bookingId, { preferred_start_at: startIso, reason: this.rsReason || undefined }).subscribe({

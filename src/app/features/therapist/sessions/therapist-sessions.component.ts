@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TherapistSessionsService, SessionsFilters } from '../../../core/services/therapist-sessions.service';
+import { toLocalYMD } from '../../../shared/utils/date-utils';
 import { Booking } from '../../../shared/models/booking.model';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 import { LucideAngularModule, Calendar, Clock, User, MapPin, Video, List, Eye, AlertCircle, Filter, X } from 'lucide-angular';
@@ -78,22 +79,22 @@ export class TherapistSessionsComponent implements OnInit {
     
     switch (this.dateRange) {
       case 'today':
-        filters.from = today.toISOString().split('T')[0];
-        filters.to = today.toISOString().split('T')[0];
+        filters.from = toLocalYMD(today);
+        filters.to = toLocalYMD(today);
         break;
       case 'week':
         const weekStart = new Date(today);
         weekStart.setDate(today.getDate() - today.getDay()); // Start of week (Sunday)
         const weekEnd = new Date(weekStart);
         weekEnd.setDate(weekStart.getDate() + 6);
-        filters.from = weekStart.toISOString().split('T')[0];
-        filters.to = weekEnd.toISOString().split('T')[0];
+        filters.from = toLocalYMD(weekStart);
+        filters.to = toLocalYMD(weekEnd);
         break;
       case 'month':
         const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
         const monthEnd = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-        filters.from = monthStart.toISOString().split('T')[0];
-        filters.to = monthEnd.toISOString().split('T')[0];
+        filters.from = toLocalYMD(monthStart);
+        filters.to = toLocalYMD(monthEnd);
         break;
       case 'custom':
         if (this.customFromDate) filters.from = this.customFromDate;

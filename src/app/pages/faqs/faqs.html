@@ -1,1 +1,69 @@
-<p>faqs works!</p>
+<div class="flex flex-col min-h-screen">
+  <app-header></app-header>
+
+  <!-- Hero -->
+  <section class="bg-gradient-to-br from-primary/10 to-secondary/10 py-12 md:py-16 mt-16 md:mt-20">
+    <div class="container mx-auto px-4">
+      <h1 class="text-4xl md:text-5xl font-bold text-text mb-4">{{ 'faqs.title' | translate }}</h1>
+      <p class="text-lg text-gray-600 max-w-3xl">
+        {{ 'faqs.intro' | translate }}
+      </p>
+    </div>
+  </section>
+
+  <!-- FAQ accordion -->
+  <section class="py-12 md:py-16 flex-grow bg-gray-50">
+    <div class="container mx-auto px-4">
+      <div class="max-w-3xl mx-auto space-y-4">
+
+        <div *ngFor="let item of faqs" class="card !p-0 overflow-hidden">
+          <h2 class="m-0">
+            <button
+              type="button"
+              [id]="'faq-button-' + item.id"
+              (click)="toggle(item)"
+              [attr.aria-expanded]="item.open"
+              [attr.aria-controls]="'faq-panel-' + item.id"
+              class="flex w-full min-h-[44px] items-center justify-between gap-4 px-5 py-4 text-left
+                     text-base font-semibold text-text hover:bg-gray-50 transition-colors
+                     focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 focus-visible:ring-inset">
+              <span class="min-w-0 break-words">{{ ('faqs.items.' + item.id + '.q') | translate }}</span>
+              <lucide-angular
+                [img]="ChevronDownIcon"
+                size="20"
+                aria-hidden="true"
+                class="flex-shrink-0 text-gray-400 motion-safe:transition-transform motion-safe:duration-200"
+                [class.rotate-180]="item.open">
+              </lucide-angular>
+            </button>
+          </h2>
+          <div
+            [id]="'faq-panel-' + item.id"
+            role="region"
+            [attr.aria-labelledby]="'faq-button-' + item.id"
+            [hidden]="!item.open"
+            class="px-5 pb-5">
+            <p class="text-sm md:text-base text-gray-600 leading-relaxed break-words">
+              {{ ('faqs.items.' + item.id + '.a') | translate }}
+            </p>
+          </div>
+        </div>
+
+        <!-- CTA -->
+        <div class="card !mt-8 text-center">
+          <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <a routerLink="/contact" class="btn-primary inline-flex items-center justify-center">
+              {{ 'faqs.ctaContact' | translate }}
+            </a>
+            <a routerLink="/fees" class="btn-outline inline-flex items-center justify-center">
+              {{ 'faqs.ctaFees' | translate }}
+            </a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <app-footer></app-footer>
+</div>

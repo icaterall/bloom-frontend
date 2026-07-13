@@ -4,11 +4,13 @@ import {
   HttpRequest,
   HttpHandlerFn,
 } from '@angular/common/http';
-import { inject } from '@angular/core';
+import { inject, Injector } from '@angular/core';
 import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 import { ToastService } from '../services/toast.service';
+import { TranslationService } from '../../shared/services/translation.service';
+import { NO_LOGOUT_ON_401 } from '../errors/http-error';
 
 // ──────────────────────────────────────────────
 // HTTP Interceptor
@@ -30,13 +32,21 @@ import { ToastService } from '../services/toast.service';
 // 5. On 0 (network) → shows a connectivity toast.
 // ──────────────────────────────────────────────
 
-// 401s from these URLs are handled by the calling component, never by a
-// global forced logout.
-const NO_LOGOUT_ON_401 = [
-  '/auth/login',
-  '/auth/register',
-  '/parent/bookings/by-session/',
-];
+// 401 exemption list lives in core/errors/http-error.ts (NO_LOGOUT_ON_401) so
+// the interceptor and classifyHttpError can never drift apart.
+
+// English copy used only while /assets/i18n/<lang>.json is still loading.
+const BOOT_FALLBACKS: Record<string, string> = {
+  'errors.networkTitle': 'Connection Problem',
+  'errors.networkBody': 'We could not connect to the server. Please check your connection and try again.',
+  'errors.serverTitle': 'Server Error',
+  'errors.serverBody': 'Something went wrong on our end. Please try again shortly.',
+  'errors.serverTemporaryBody': 'The service is temporarily unavailable. Please try again shortly.',
+  'errors.forbiddenTitle': 'Access Denied',
+  'errors.forbiddenBody': 'You do not have permission to perform this action.',
+  'errors.sessionExpiredTitle': 'Session Expired',
+  'errors.sessionExpiredBody': 'Please sign in again to continue.',
+};
 
 export const authInterceptor: HttpInterceptorFn = (
   req: HttpRequest<unknown>,
@@ -45,6 +55,10 @@ export const authInterceptor: HttpInterceptorFn = (
   const authService = inject(AuthService);
   const router      = inject(Router);
   const toast       = inject(ToastService);
+  // TranslationService itself uses HttpClient (to load /assets/i18n/*.json),
+  // so injecting it eagerly here would create a DI cycle through this very
+  // interceptor. Resolve it lazily, and never for i18n asset requests.
+  const injector    = inject(Injector);
 
   // Attach token
   const token = authService.getToken();
@@ -56,10 +70,26 @@ export const authInterceptor: HttpInterceptorFn = (
   return next(authedReq).pipe(
     catchError((error: HttpErrorResponse) => {
 
+      // Translation-asset failures must not toast (and resolving the
+      // TranslationService while it is constructing would be circular).
+      if (req.url.includes('/assets/i18n/')) {
+        return throwError(() => error);
+      }
+      const i18nService = injector.get(TranslationService);
+      // translate() returns the raw key until the i18n JSON has loaded —
+      // fall back to English copy so a boot-time failure never shows
+      // "errors.networkTitle" to the user.
+      const i18n = {
+        translate: (key: string): string => {
+          const value = i18nService.translate(key);
+          return value === key ? (BOOT_FALLBACKS[key] ?? key) : value;
+        },
+      };
+
       // ── 401 Unauthorized → session expired, force logout ──
       if (error.status === 401) {
         if (!NO_LOGOUT_ON_401.some(url => req.url.includes(url))) {
-          handleLogout(authService, router, toast);
+          handleLogout(authService, router, toast, i18n);
         }
         return throwError(() => error);
       }
@@ -67,27 +97,31 @@ export const authInterceptor: HttpInterceptorFn = (
       // ── 403 Forbidden ─────────────────────────
       if (error.status === 403) {
         toast.warning(
-          'Access Denied',
-          'You do not have permission to perform this action.',
+          i18n.translate('errors.forbiddenTitle'),
+          i18n.translate('errors.forbiddenBody'),
         );
         redirectToDashboard(authService, router);
         return throwError(() => error);
       }
 
-      // ── 500 Internal Server Error ─────────────
+      // ── 5xx Server / upstream errors ──────────
       if (error.status >= 500) {
         toast.error(
-          'Server Error',
-          'Something went wrong on our end. Please try again shortly.',
+          i18n.translate('errors.serverTitle'),
+          i18n.translate(error.status === 502 || error.status === 503
+            ? 'errors.serverTemporaryBody'
+            : 'errors.serverBody'),
         );
         return throwError(() => error);
       }
 
-      // ── 0 (network unreachable) ───────────────
+      // ── 0: no HTTP response at all (offline, DNS, CORS rejection) ──
+      // This is the ONLY case worded as a connection problem; real HTTP
+      // responses (4xx/5xx) must never be presented as network failures.
       if (error.status === 0) {
         toast.warning(
-          'Network Issue',
-          'Unable to reach the server. Please check your connection.',
+          i18n.translate('errors.networkTitle'),
+          i18n.translate('errors.networkBody'),
         );
         return throwError(() => error);
       }
@@ -110,8 +144,9 @@ function handleLogout(
   authService: AuthService,
   router: Router,
   toast: ToastService,
+  i18n: { translate(key: string): string },
 ): void {
-  toast.info('Session Expired', 'Please sign in again to continue.');
+  toast.info(i18n.translate('errors.sessionExpiredTitle'), i18n.translate('errors.sessionExpiredBody'));
   // Preserve where the user was (e.g. a payment-return URL with its
   // session_id) so login can bring them straight back.
   authService.logout(router.url);

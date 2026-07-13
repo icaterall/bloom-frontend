@@ -211,7 +211,10 @@
         "fullNameRequired": "Please enter your full name.",
         "emailInvalid": "Please enter a valid email address.",
         "phoneInvalid": "Please enter a valid phone number.",
-        "messageRequired": "Please enter your message (at least 10 characters)."
+        "messageRequired": "Please enter your message (at least 10 characters).",
+        "network": "We could not connect to the server. Please check your connection and try again.",
+        "tooMany": "Too many enquiries from this connection. Please wait a few minutes and try again.",
+        "validation": "Please check the highlighted fields."
       }
     }
   },
@@ -288,14 +291,12 @@
       "timeRequired": "Time is required"
     }
   },
-
   "common": {
     "loading": "Loading...",
     "error": "Error",
     "success": "Success",
     "cancel": "Cancel",
     "save": "Save",
-
     "details": "Details",
     "gender": "Gender",
     "diagnosis": "Diagnosis",
@@ -400,7 +401,7 @@
       "urgency": "Any urgency?",
       "continue": "Continue"
     },
-      "step3": {
+    "step3": {
       "title": "Review & Payment",
       "subtitle": "How do you want to pay?",
       "summary": "Booking Summary",
@@ -461,6 +462,17 @@
         "fri": "Fri",
         "sat": "Sat"
       }
+    },
+    "errors": {
+      "childMissing": "Child information is missing. Please close and try again.",
+      "createFailed": "We could not create your booking. Please try again.",
+      "paymentFailed": "We could not start secure payment at this time. Please try again shortly.",
+      "checkoutUnavailable": "Secure checkout is not available right now. Please try again.",
+      "selectDateTime": "Please select an available date and time."
+    },
+    "slots": {
+      "centreClosed": "The centre is closed on this day. Please choose another date.",
+      "noSlots": "No available times left on this day. Please choose another date."
     }
   },
   "childCard": {
@@ -509,10 +521,8 @@
     "resources": "Resources",
     "settings": "Settings",
     "comingSoon": "Coming soon",
-
     "childUpdates": "Child Updates",
     "sessions": "Sessions",
-
     "role": "Parent",
     "logout": "Logout",
     "portalTitle": "Parent Portal",
@@ -596,7 +606,8 @@
       "sessionCompletedDesc": "Your session has been completed. View notes and documents below.",
       "viewNotes": "View Notes",
       "documents": "Documents",
-      "bookNextSession": "Book Next Session"
+      "bookNextSession": "Book Next Session",
+      "child": "Child"
     },
     "addAnotherChild": "Add Another Child",
     "quickActions": {
@@ -1034,5 +1045,102 @@
       "completed": "Completed",
       "cancelled": "Cancelled"
     }
+  },
+  "fees": {
+    "title": "Fees",
+    "intro": "View the current fees for Bloom Spectrum services. Final details will be shown and confirmed before payment.",
+    "service": "Service",
+    "duration": "Duration",
+    "mode": "Session Mode",
+    "inCentre": "Centre",
+    "online": "Online",
+    "fee": "Fee",
+    "from": "From",
+    "free": "Free",
+    "bookNow": "Book Now",
+    "bookTour": "Book a Tour",
+    "contactUs": "Contact Us",
+    "note1": "Fees are subject to the selected service and session arrangement.",
+    "note2": "The final payable amount will be displayed before payment.",
+    "loadError": "We could not load the current fees. Please try again.",
+    "retry": "Try Again",
+    "empty": "Published fees are not available right now. Please contact us for current fees.",
+    "contactForFees": "Contact us for current fees",
+    "loading": "Loading fees…",
+    "minutes": "min",
+    "services": {
+      "tour": "Centre Tour",
+      "consultation": "Consultation",
+      "centre_session": "Centre Session",
+      "online_session": "Online Session"
+    }
+  },
+  "faqs": {
+    "title": "Frequently Asked Questions",
+    "intro": "Answers to common questions about Bloom Spectrum services, bookings and payments.",
+    "ctaContact": "Still have questions? Contact us",
+    "ctaFees": "View current fees",
+    "items": {
+      "services": {
+        "q": "What services does Bloom Spectrum offer?",
+        "a": "Bloom Spectrum provides early-intervention and family-support services, including centre sessions, parent consultations, online consultations and centre tours, subject to current service availability."
+      },
+      "booking": {
+        "q": "How do I make a booking?",
+        "a": "Create or sign in to your parent account, add your child's profile, choose a service and available time, review the details and complete the applicable payment or reservation step."
+      },
+      "childProfile": {
+        "q": "Do I need a child profile before booking?",
+        "a": "Yes. A child profile helps the centre associate the booking with the correct child and prepare the relevant service information."
+      },
+      "confirmation": {
+        "q": "How will I know that my booking is confirmed?",
+        "a": "You can view the latest booking status in your parent dashboard. The status will be updated as payment is confirmed, the centre reviews the request and a therapist is assigned where applicable."
+      },
+      "payments": {
+        "q": "What payment methods are available?",
+        "a": "Available payment methods are shown during booking and may include card payment, supported online banking options, or payment at the centre, depending on the selected service and current configuration."
+      },
+      "cancel": {
+        "q": "Can I cancel or reschedule?",
+        "a": "Eligible bookings can be submitted for cancellation or rescheduling from the parent portal. Approval, payment and refund handling depend on the booking's current status and the centre's applicable policy."
+      },
+      "online": {
+        "q": "Are online sessions available?",
+        "a": "Online sessions are available only for services currently configured for online delivery. Available options will be shown during booking."
+      },
+      "updates": {
+        "q": "How will I receive updates?",
+        "a": "Booking, payment, assignment, cancellation, rescheduling and refund updates can be shown in the parent portal and may also be sent by email when configured."
+      },
+      "contact": {
+        "q": "How can I contact Bloom Spectrum?",
+        "a": "Use the website enquiry form or email bloomspectrumcentre@gmail.com. The team will review your enquiry and follow up."
+      },
+      "fees": {
+        "q": "Where can I view current fees?",
+        "a": "Visit the Fees page to view current published fees. The final amount is displayed before you confirm payment."
+      }
+    }
+  },
+  "errors": {
+    "networkTitle": "Connection Problem",
+    "networkBody": "We could not connect to the server. Please check your connection and try again.",
+    "serverTitle": "Server Error",
+    "serverBody": "Something went wrong on our end. Please try again shortly.",
+    "serverTemporaryBody": "The service is temporarily unavailable. Please try again shortly.",
+    "forbiddenTitle": "Access Denied",
+    "forbiddenBody": "You do not have permission to perform this action.",
+    "sessionExpiredTitle": "Session Expired",
+    "sessionExpiredBody": "Please sign in again to continue.",
+    "network": "We could not connect to the server. Please check your connection.",
+    "validation": "Please check the highlighted fields.",
+    "auth": "Your session has expired. Please sign in again to continue.",
+    "forbidden": "You do not have permission to perform this action.",
+    "notFound": "The requested service is currently unavailable.",
+    "conflict": "This request conflicts with the current state. Please refresh and try again.",
+    "rateLimited": "Too many attempts. Please wait a moment and try again.",
+    "server": "Something went wrong on our end. Please try again shortly.",
+    "generic": "Something went wrong. Please try again."
   }
 }

@@ -448,7 +448,13 @@
 
           <!-- STEP 3: Payment Method -->
           <div *ngIf="currentStep === 3" class="space-y-6 pb-24">
-            
+
+            <!-- Error message (booking-create / payment failures must be visible
+                 on the payment step, not only on step 2) -->
+            <div *ngIf="errorMessage" role="alert" class="p-3 bg-red-50 text-red-700 rounded-md text-sm">
+              {{ errorMessage }}
+            </div>
+
             <!-- Booking Summary Card -->
             <div *ngIf="getBookingSummary() as summary" class="bg-[#F9FAFB] border border-gray-200 rounded-lg p-6">
               <h3 class="text-lg font-semibold text-gray-900 mb-4">{{ 'bookingWizard.step3.summary' | translate }}</h3>

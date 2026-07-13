@@ -107,8 +107,7 @@ export class HeaderComponent implements OnInit {
   }
 
   toggleLanguage() {
-    this.translationService.toggleLanguage();
-    const newLang = this.translationService.getCurrentLanguage();
+    const newLang = this.translationService.toggleLanguage();
     
     // If user is logged in, update preference
     if (this.authService.isAuthenticatedUser()) {

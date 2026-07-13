@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule, Calendar, Clock, User, MapPin, Video, ChevronLeft, ChevronRight, AlertCircle } from 'lucide-angular';
 import { ClinicalManagerCalendarService, CalendarSession } from '../../../core/services/clinical-manager-calendar.service';
+import { toLocalYMD } from '../../../shared/utils/date-utils';
 
 interface DaySessions {
   date: Date;
@@ -60,8 +61,8 @@ export class ClinicalManagerCalendarComponent implements OnInit {
     const endDate = new Date(this.currentYear, this.currentMonth + 1, 0, 23, 59, 59);
 
     this.calendarService.getSessions(
-      startDate.toISOString().split('T')[0],
-      endDate.toISOString().split('T')[0]
+      toLocalYMD(startDate),
+      toLocalYMD(endDate)
     ).subscribe({
       next: (response) => {
         if (response.success) {

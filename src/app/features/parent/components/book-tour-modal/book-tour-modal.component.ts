@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { LucideAngularModule, X, Calendar, Clock, MapPin, User, FileText } from 'lucide-angular';
 import { Child } from '../../../../shared/models/child.model';
 import { BookingService } from '../../../../core/services/booking.service';
+import { toLocalYMD, toCentreTimestamp } from '../../../../shared/utils/date-utils';
 
 @Component({
   selector: 'app-book-tour-modal',
@@ -45,7 +46,7 @@ export class BookTourModalComponent implements OnInit {
     // Set min date to tomorrow
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
-    this.minDate = tomorrow.toISOString().split('T')[0];
+    this.minDate = toLocalYMD(tomorrow); // local calendar day, not UTC
   }
 
   ngOnInit(): void {
@@ -67,8 +68,8 @@ export class BookTourModalComponent implements OnInit {
 
     const formValue = this.bookingForm.value;
     
-    // Combine date and time into ISO string
-    const startAt = new Date(`${formValue.date}T${formValue.time}`).toISOString();
+    // The chosen slot means CENTRE time (Asia/Kuala_Lumpur), not browser time
+    const startAt = toCentreTimestamp(formValue.date, formValue.time);
 
     const bookingData = {
       child_id: formValue.child_id,

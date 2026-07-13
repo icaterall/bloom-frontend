@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule, TrendingUp, Calendar, DollarSign, Users, Baby, Clock, BarChart3, PieChart, Activity, Download, Filter } from 'lucide-angular';
 import { ClinicalManagerReportsService, ReportsData } from '../../../core/services/clinical-manager-reports.service';
+import { toLocalYMD } from '../../../shared/utils/date-utils';
 
 @Component({
   selector: 'app-reports',
@@ -46,8 +47,8 @@ export class ReportsComponent implements OnInit {
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - 30);
     
-    this.endDate = endDate.toISOString().split('T')[0];
-    this.startDate = startDate.toISOString().split('T')[0];
+    this.endDate = toLocalYMD(endDate);
+    this.startDate = toLocalYMD(startDate);
   }
 
   ngOnInit(): void {
@@ -95,8 +96,8 @@ export class ReportsComponent implements OnInit {
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - 30);
     
-    this.endDate = endDate.toISOString().split('T')[0];
-    this.startDate = startDate.toISOString().split('T')[0];
+    this.endDate = toLocalYMD(endDate);
+    this.startDate = toLocalYMD(startDate);
     this.loadReports();
     this.showDateFilter = false;
   }

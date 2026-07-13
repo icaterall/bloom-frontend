@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ToursService } from '../../../core/services/tours.service';
+import { toLocalYMD } from '../../../shared/utils/date-utils';
 import { ToastService } from '../../../core/services/toast.service';
 import { Tour, TourStatus } from '../../../shared/models/tour.model';
 import {
@@ -76,11 +77,11 @@ export class ToursComponent implements OnInit {
 
     if (tour.confirmed_start_at) {
       const d = new Date(tour.confirmed_start_at);
-      this.scheduledDate = d.toISOString().slice(0, 10);
+      this.scheduledDate = toLocalYMD(d); // keep date+time in the same (local) frame
       this.scheduledTime = d.toTimeString().slice(0, 5);
     } else if (tour.preferred_start_at) {
       const d = new Date(tour.preferred_start_at);
-      this.scheduledDate = d.toISOString().slice(0, 10);
+      this.scheduledDate = toLocalYMD(d); // keep date+time in the same (local) frame
       this.scheduledTime = d.toTimeString().slice(0, 5);
     } else {
       this.scheduledDate = '';

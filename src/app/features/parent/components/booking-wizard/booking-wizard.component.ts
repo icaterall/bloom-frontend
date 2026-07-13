@@ -10,6 +10,8 @@ import { TranslatePipe } from '../../../../shared/pipes/translate.pipe';
 import { TranslationService } from '../../../../shared/services/translation.service';
 import { AuthService } from '../../../../core/services/auth.service';
 import { backdropAnimation, modalPanelAnimation } from '../../../../shared/animations';
+import { toLocalYMD, parseYMDLocal, toCentreTimestamp, CENTRE_TIMEZONE } from '../../../../shared/utils/date-utils';
+import { classifyHttpError, errorDisplayMessage } from '../../../../core/errors/http-error';
 
 @Component({
   selector: 'app-booking-wizard',
@@ -79,10 +81,11 @@ export class BookingWizardComponent implements OnInit {
     private translationService: TranslationService,
     private authService: AuthService
   ) {
-    // Set min date to tomorrow
+    // Set min date to tomorrow (local calendar day — toISOString() would shift
+    // the day for any browser east of UTC)
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
-    this.minDate = tomorrow.toISOString().split('T')[0];
+    this.minDate = toLocalYMD(tomorrow);
     
     // Generate available time slots (9 AM to 5 PM, hourly)
     this.availableTimeSlots = this.generateTimeSlots();
@@ -112,9 +115,10 @@ export class BookingWizardComponent implements OnInit {
     
     // Watch for booking type changes to update mode options
     this.bookingForm.get('booking_type')?.valueChanges.subscribe(code => {
+      if (!this.isRestoringDraft) this.resetBookingAttempt();
       const type = this.bookingTypes.find(t => t.code === code);
       this.selectedBookingType = type || null;
-      
+
       // Auto-select mode if only one is allowed
       if (type) {
         if (type.allowed_mode === 'in_centre') {
@@ -123,24 +127,31 @@ export class BookingWizardComponent implements OnInit {
           this.bookingForm.patchValue({ mode: 'online' });
         }
       }
-      
+
       this.updatePricePreview();
     });
 
     // Watch for mode changes to update price
     this.bookingForm.get('mode')?.valueChanges.subscribe(() => {
+      if (!this.isRestoringDraft) this.resetBookingAttempt();
       this.updatePricePreview();
     });
-    
+
     // Watch for step changes to reinitialize calendar
     this.bookingForm.get('date')?.valueChanges.subscribe(date => {
       if (date) {
-        const selected = new Date(date);
+        if (!this.isRestoringDraft) this.resetBookingAttempt();
+        const selected = parseYMDLocal(date);
         this.calendarMonth = selected.getMonth();
         this.calendarYear = selected.getFullYear();
         this.generateCalendarDays();
         this.loadAvailableSlots(date);
       }
+    });
+
+    // A time change also invalidates a deferred booking (never pay for a stale slot).
+    this.bookingForm.get('time')?.valueChanges.subscribe(() => {
+      if (!this.isRestoringDraft) this.resetBookingAttempt();
     });
 
     // Load saved draft if exists
@@ -154,10 +165,15 @@ export class BookingWizardComponent implements OnInit {
   }
 
   saveProgress(): void {
+    // Never persist a draft once the wizard has reached confirmation (step 4):
+    // otherwise closing the success screen resurrects a completed booking and
+    // blocks new bookings for that child until the draft expires.
+    if (this.currentStep >= 4) return;
+
     // Only save if we are past step 1 or have selected something in step 1
     const formValue = this.bookingForm.value;
     const hasData = formValue.booking_type || formValue.mode || this.step1Data;
-    
+
     if (!hasData) return;
 
     const draft = {
@@ -194,12 +210,16 @@ export class BookingWizardComponent implements OnInit {
         // Restore data
         if (draft.step1Data) this.step1Data = draft.step1Data;
         if (draft.createdBooking) this.createdBooking = draft.createdBooking;
-        
-        // Restore form values
+
+        // Restore form values. Guard the reset handlers so re-populating the
+        // form does not immediately wipe the createdBooking/key we just restored
+        // (patchValue emits valueChanges synchronously).
         if (draft.formValue) {
+          this.isRestoringDraft = true;
           this.bookingForm.patchValue(draft.formValue);
+          this.isRestoringDraft = false;
         }
-        
+
         // Restore selected items based on form values
         if (draft.formValue.booking_type) {
            const type = this.bookingTypes.find(t => t.code === draft.formValue.booking_type);
@@ -240,6 +260,13 @@ export class BookingWizardComponent implements OnInit {
         if (response.success && Array.isArray(response.data)) {
           // Filter out 'tour' if needed (optional as per requirements)
           this.bookingTypes = response.data.filter(type => type.code !== 'tour');
+          // A restored draft may have run before the types arrived — re-derive
+          // the selected type and price now so the summary never shows 0.00.
+          const code = this.bookingForm.get('booking_type')?.value;
+          if (code && !this.selectedBookingType) {
+            this.selectedBookingType = this.bookingTypes.find(t => t.code === code) || null;
+            this.updatePricePreview();
+          }
         }
         this.isLoadingTypes = false;
       },
@@ -294,9 +321,22 @@ export class BookingWizardComponent implements OnInit {
   }
 
   private bookingIdempotencyKey: string | null = null;
+  // True only while loadProgress() patches restored form values, so the
+  // valueChanges reset handlers don't wipe the draft they are restoring.
+  private isRestoringDraft = false;
+
+  // Any change to a booking-defining input (type/mode/date/time) invalidates a
+  // previously-created (deferred) booking AND its idempotency key. Without this,
+  // (a) the deferred-payment path could pay for a booking whose slot the user
+  // has since changed, and (b) a retry after a failed create would reuse the key
+  // with a changed payload and 409 forever.
+  private resetBookingAttempt(): void {
+    this.createdBooking = null;
+    this.bookingIdempotencyKey = null;
+  }
 
   // Stable per-attempt key so a retried / double-submitted create is de-duplicated
-  // server-side. Reset to null once a booking is successfully created.
+  // server-side. Reset via resetBookingAttempt() when inputs change or on success.
   private ensureBookingIdempotencyKey(): string {
     if (!this.bookingIdempotencyKey) {
       const c: any = (globalThis as any).crypto;
@@ -314,7 +354,7 @@ export class BookingWizardComponent implements OnInit {
       return;
     }
     if (!this.child || !this.child.id || !this.step1Data) {
-      this.errorMessage = 'Child information is missing. Please try again.';
+      this.errorMessage = this.translationService.translate('bookingWizard.errors.childMissing');
       return;
     }
 
@@ -324,10 +364,11 @@ export class BookingWizardComponent implements OnInit {
     const formValue = this.bookingForm.value;
     const date = formValue.date;
     const time = formValue.time;
-    
-    // Combine date and time into ISO string
-    const preferredStartAt = new Date(`${date}T${time}`).toISOString();
-    
+
+    // The selected date+time means CENTRE time (Asia/Kuala_Lumpur), not the
+    // browser's timezone — anchor it explicitly so any visitor books correctly.
+    const preferredStartAt = toCentreTimestamp(date, time);
+
     // Calculate end time based on duration
     const duration = this.step1Data.bookingType?.default_duration_min || 60;
     const preferredEndAt = new Date(new Date(preferredStartAt).getTime() + duration * 60000).toISOString();
@@ -360,9 +401,24 @@ export class BookingWizardComponent implements OnInit {
       error: (error) => {
         console.error('Error creating booking:', error);
         this.isLoadingBooking = false;
-        this.errorMessage = error.error?.message || 'Failed to create booking. Please try again.';
+        this.errorMessage = this.failureMessage(error, 'bookingWizard.errors.createFailed');
       }
     });
+  }
+
+  // Specific backend message for client errors (4xx explain what to fix);
+  // localized fallback for network/server failures (raw 5xx bodies are
+  // internal wording and must not surface). Never presents an HTTP error
+  // response as a connectivity problem.
+  private failureMessage(error: unknown, fallbackKey: string): string {
+    const classified = classifyHttpError(error);
+    if (classified.kind === 'network') {
+      return this.translationService.translate('errors.networkBody');
+    }
+    if (classified.kind === 'server' || classified.kind === 'unknown') {
+      return this.translationService.translate('errors.serverTemporaryBody');
+    }
+    return classified.backendMessage ?? this.translationService.translate(fallbackKey);
   }
 
   onContinue(): void {
@@ -413,6 +469,16 @@ export class BookingWizardComponent implements OnInit {
       return;
     }
 
+    // Date/time must still be valid — a restored draft can have had its time
+    // cleared when the slot was no longer offered. Without this guard,
+    // combining an empty time throws and wedges the button on "Processing…".
+    if (this.bookingForm.get('date')?.invalid || this.bookingForm.get('time')?.invalid) {
+      this.currentStep = 2;
+      this.bookingForm.markAllAsTouched();
+      this.errorMessage = this.translationService.translate('bookingWizard.errors.selectDateTime');
+      return;
+    }
+
     // Re-entry guard: synchronously block rapid double-clicks before Angular's
     // change-detection has a chance to disable the button. Prevents creating two
     // bookings / two Stripe checkout sessions from a double-tapped "Pay".
@@ -435,7 +501,7 @@ export class BookingWizardComponent implements OnInit {
 
   createBookingAndPay(): void {
     if (!this.child || !this.child.id || !this.step1Data) {
-      this.errorMessage = 'Child information is missing. Please try again.';
+      this.errorMessage = this.translationService.translate('bookingWizard.errors.childMissing');
       this.isLoadingPayment = false; // release the guard set by processPayment()
       return;
     }
@@ -446,10 +512,10 @@ export class BookingWizardComponent implements OnInit {
     const formValue = this.bookingForm.value;
     const date = formValue.date;
     const time = formValue.time;
-    
-    // Combine date and time into ISO string
-    const preferredStartAt = new Date(`${date}T${time}`).toISOString();
-    
+
+    // Selected date+time is CENTRE time (Asia/Kuala_Lumpur), not browser time.
+    const preferredStartAt = toCentreTimestamp(date, time);
+
     // Calculate end time based on duration
     const duration = this.step1Data.bookingType?.default_duration_min || 60;
     const preferredEndAt = new Date(new Date(preferredStartAt).getTime() + duration * 60000).toISOString();
@@ -477,13 +543,13 @@ export class BookingWizardComponent implements OnInit {
           this.executePayment(this.createdBooking.id);
         } else {
            this.isLoadingPayment = false;
-           this.errorMessage = 'Failed to create booking record.';
+           this.errorMessage = this.translationService.translate('bookingWizard.errors.createFailed');
         }
       },
       error: (error) => {
         console.error('Error creating booking:', error);
         this.isLoadingPayment = false;
-        this.errorMessage = error.error?.message || 'Failed to create booking. Please try again.';
+        this.errorMessage = this.failureMessage(error, 'bookingWizard.errors.createFailed');
       }
     });
   }
@@ -527,12 +593,12 @@ export class BookingWizardComponent implements OnInit {
               }, 1000);
             } else {
               console.error('[BookingWizard] Checkout URL missing in response');
-              this.errorMessage = 'Checkout URL not available. Please try again.';
+              this.errorMessage = this.translationService.translate('bookingWizard.errors.checkoutUnavailable');
               this.isLoadingPayment = false;
             }
           } else {
             console.error('[BookingWizard] Checkout URL missing in response');
-            this.errorMessage = 'Checkout URL not available. Please try again.';
+            this.errorMessage = this.translationService.translate('bookingWizard.errors.checkoutUnavailable');
             this.isLoadingPayment = false;
           }
         }
@@ -540,29 +606,30 @@ export class BookingWizardComponent implements OnInit {
       error: (error) => {
         console.error('Error processing payment:', error);
         this.isLoadingPayment = false;
-        this.errorMessage = error.error?.message || 'Failed to process payment. Please try again.';
+        this.errorMessage = this.failureMessage(error, 'bookingWizard.errors.paymentFailed');
       }
     });
   }
 
   formatDate(dateString: string): string {
     if (!dateString) return '';
+    // Bookings are made in centre time — display them in centre time too, so
+    // the review step shows the same weekday/time in every browser timezone.
+    // Locale follows the active language so BM users see BM weekday names.
     const date = new Date(dateString);
-    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    const dayName = days[date.getDay()];
-    const hours = date.getHours();
-    const minutes = date.getMinutes();
-    const ampm = hours >= 12 ? 'PM' : 'AM';
-    const displayHours = hours % 12 || 12;
-    const displayMinutes = minutes.toString().padStart(2, '0');
-    return `${dayName}, ${displayHours}:${displayMinutes} ${ampm}`;
+    const locale = this.translationService.getCurrentLanguage() === 'my' ? 'ms-MY' : 'en-US';
+    const weekday = new Intl.DateTimeFormat(locale, { weekday: 'short', timeZone: CENTRE_TIMEZONE }).format(date);
+    const time = new Intl.DateTimeFormat(locale, {
+      hour: 'numeric', minute: '2-digit', hour12: true, timeZone: CENTRE_TIMEZONE,
+    }).format(date);
+    return `${weekday}, ${time}`;
   }
 
   getBookingSummary(): any {
     if (!this.createdBooking || !this.step1Data) {
       // For step 3, we might not have createdBooking yet, so use form values
       const preferredStartAt = this.bookingForm.get('date')?.value && this.bookingForm.get('time')?.value
-        ? new Date(`${this.bookingForm.get('date')?.value}T${this.bookingForm.get('time')?.value}`).toISOString()
+        ? toCentreTimestamp(this.bookingForm.get('date')?.value, this.bookingForm.get('time')?.value)
         : null;
       const duration = this.step1Data.bookingType?.default_duration_min || 60;
       
@@ -573,14 +640,16 @@ export class BookingWizardComponent implements OnInit {
         mode: this.step1Data.mode,
         preferredTime: preferredStartAt ? this.formatDate(preferredStartAt) : '',
         duration: duration,
-        price: this.step1Data.price?.price || 0,
-        currency: this.step1Data.price?.currency || 'MYR',
+        // step1Data.price may be null if the user clicked Continue before the
+        // async price lookup resolved — fall back to the live preview.
+        price: this.step1Data.price?.price || this.pricePreview?.price || 0,
+        currency: this.step1Data.price?.currency || this.pricePreview?.currency || 'MYR',
         location: this.getLocation()
       };
     }
     
-    const preferredStartAt = this.createdBooking.preferred_start_at || 
-                            new Date(`${this.bookingForm.get('date')?.value}T${this.bookingForm.get('time')?.value}`).toISOString();
+    const preferredStartAt = this.createdBooking.preferred_start_at ||
+                            toCentreTimestamp(this.bookingForm.get('date')?.value, this.bookingForm.get('time')?.value);
     const duration = this.step1Data.bookingType?.default_duration_min || 60;
     
     return {
@@ -590,8 +659,8 @@ export class BookingWizardComponent implements OnInit {
       mode: this.step1Data.mode,
       preferredTime: this.formatDate(preferredStartAt),
       duration: duration,
-      price: this.createdBooking.price || this.step1Data.price?.price || 0,
-      currency: this.createdBooking.currency || this.step1Data.price?.currency || 'MYR',
+      price: this.createdBooking.price || this.step1Data.price?.price || this.pricePreview?.price || 0,
+      currency: this.createdBooking.currency || this.step1Data.price?.currency || this.pricePreview?.currency || 'MYR',
       location: this.getLocation()
     };
   }
@@ -620,11 +689,11 @@ export class BookingWizardComponent implements OnInit {
         if (response.success && response.data) {
           if (!response.data.is_open) {
             this.availableTimeSlots = [];
-            this.slotsMessage = 'The centre is closed on this day. Please choose another date.';
+            this.slotsMessage = this.translationService.translate('bookingWizard.slots.centreClosed');
           } else {
             this.availableTimeSlots = response.data.slots || [];
             if (this.availableTimeSlots.length === 0) {
-              this.slotsMessage = 'No available times left on this day. Please choose another date.';
+              this.slotsMessage = this.translationService.translate('bookingWizard.slots.noSlots');
             }
           }
           // Clear a previously selected time that is no longer offered.
@@ -694,13 +763,14 @@ export class BookingWizardComponent implements OnInit {
   }
 
   getMonthName(): string {
-    const months = ['January', 'February', 'March', 'April', 'May', 'June', 
-                    'July', 'August', 'September', 'October', 'November', 'December'];
-    return months[this.calendarMonth];
+    const keys = ['january', 'february', 'march', 'april', 'may', 'june',
+                  'july', 'august', 'september', 'october', 'november', 'december'];
+    return this.translationService.translate(`bookingWizard.calendar.months.${keys[this.calendarMonth]}`);
   }
 
   getWeekdayNames(): string[] {
-    return ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    return ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat']
+      .map(day => this.translationService.translate(`bookingWizard.calendar.weekdays.${day}`));
   }
 
   previousMonth(): void {
@@ -740,13 +810,9 @@ export class BookingWizardComponent implements OnInit {
     if (!date) return false;
     const selectedDate = this.bookingForm.get('date')?.value;
     if (!selectedDate) return false;
-    
-    const checkDate = new Date(date);
-    const formDate = new Date(selectedDate);
-    
-    return checkDate.getDate() === formDate.getDate() &&
-           checkDate.getMonth() === formDate.getMonth() &&
-           checkDate.getFullYear() === formDate.getFullYear();
+    // Date-only comparison — parsing 'YYYY-MM-DD' with new Date() would read it
+    // as UTC midnight and highlight the wrong cell in non-UTC browsers.
+    return toLocalYMD(date) === selectedDate;
   }
 
   isToday(date: Date | null): boolean {
@@ -759,14 +825,16 @@ export class BookingWizardComponent implements OnInit {
 
   selectDate(date: Date | null): void {
     if (!date || this.isDateDisabled(date)) return;
-    
-    const dateString = date.toISOString().split('T')[0];
+
+    // Calendar cells are LOCAL-midnight Dates; serialize the local calendar day.
+    // (toISOString() shifted the day for every browser east of UTC — the
+    // client-reported "22 July becomes 21 July" defect.)
+    const dateString = toLocalYMD(date);
     this.bookingForm.patchValue({ date: dateString });
   }
 
   toggleLanguage(): void {
-    this.translationService.toggleLanguage();
-    const newLang = this.translationService.getCurrentLanguage();
+    const newLang = this.translationService.toggleLanguage();
     if (this.authService.isAuthenticatedUser()) {
       this.authService.updateProfile({ preferred_language: newLang }).subscribe({
         error: (err) => console.error('Failed to update language preference', err)
